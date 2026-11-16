@@ -60,7 +60,8 @@ h4{margin:8px 0 2px;color:#9ab}
   <canvas id="cv" width="720" height="500"></canvas>
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
-   <button id="bRoll" onclick="reroll()">🎲 Neu würfeln (2)</button></div>
+   <button id="bRoll" onclick="reroll()">🎲 Neu würfeln (2)</button>
+   <button class="red" id="bRestart" onclick="restart()">🔄 Match neu starten</button></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
   <div id="under">
@@ -605,6 +606,7 @@ function spawnDecoys(v){const used=new Set(B.units.map(u=>u.r+','+u.c)),order=[]
   const d=mk('p',r,c,'Delegator',0,false,{hp:DECOY_HP(v),atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});d.decoy=true;B.units.push(d);n++}}
 
 /* ================= KAMPF ================= */
+function restart(){if(!confirm('Match wirklich neu starten? Der aktuelle Fortschritt geht verloren.'))return;clearSave();newGame()}
 function startBattle(){if(S.phase=='done'){newGame();return}if(S.phase!='prep')return;if(!placed().length){msg('Stelle mindestens ein Pokémon auf!');return}
  S.sel=null;S.speed=1;S.phase='battle';B.units=buildPlayer(true).concat(buildEnemy());B.fx=[];B.txt=[];B.fields=[];B.flag={};B.end=0;B.time=0;
  const gc=typeCounts().Ghost;if(gc){const v=bonusVal('Ghost',gc);if(v)spawnDecoys(v)}

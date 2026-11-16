@@ -38,8 +38,16 @@ const CFG={startGold:10,income:5,maxInterest:5,reroll:2,lives:3,maxUnits:30,
  copies:{1:8,2:7,3:6,4:5,5:4},          // Karten pro Pokémon im Pool je Kosten
  cardsForStar:[1,2,3],                   // Karten nötig für 1★/2★/3★
  odds:[[2,[80,20,0,0,0]],[5,[60,30,10,0,0]],[9,[40,35,20,5,0]],[14,[25,35,28,10,2]],[24,[15,25,30,22,8]],[999,[10,18,28,28,16]]],
- enemy:{hp:400,hpPerRound:120,atk:35,atkPerRound:5,def:10,defPerRound:1,aspd:0.7,skill:3}};
+ /* Gegner-Schwierigkeit: Die Gegner werden aus der ERWARTETEN Spielerstärke (Runde = Anzahl Einheiten) berechnet.
+    strength = globaler Regler (kleiner = leichter, größer = schwerer)
+    T = Ziel-Kampfdauer in Sekunden, fStart/fEnd = Schwierigkeit am Anfang/Ende (0.6 = leicht, 1.1 = fordernd),
+    fRounds = nach wie vielen Runden fEnd erreicht ist, early = Faktor für Runde 1-5 (extra leicht) */
+ enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,aspd:.7,skill:3,def:10,defPerRound:.8}};
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
+/* SPRITES ANPASSEN: Hier kannst du für einzelne Pokémon ein eigenes Bild eintragen.
+   Schlüssel = Dex-ID (bei Shiny: ID + 's'), Wert = Bild-URL oder Pfad in deinem Repository. Beispiele:
+   {94:'sprites/gengar.png', '821s':'https://meine-seite.de/krarmor.png'} */
+const SPRITE_OVERRIDE={};
 /* Typ-Buffs: [Stat, Bonus bei 2 Pokémon, Bonus bei 4]. Stats: atk/hp/aspd (Prozent), def/crit/mana (flach) */
 const BUFF={Fire:['atk',.15,.35],Water:['mana',5,12],Electric:['aspd',.15,.35],Grass:['hp',.15,.35],Rock:['def',10,25],
  Ghost:['crit',.1,.25],Poison:['atk',.1,.25],Dark:['crit',.1,.25],Flying:['aspd',.1,.25],Normal:['hp',.1,.25],Ice:['def',8,20],
@@ -50,7 +58,7 @@ const RAW=[
 [1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison'],
 [1,'Samurzel,Blanas,Tengulist','273,274,275','Grass,Dark'],
 [1,'Wingull,Pelipper,Pelipper','278,279,279','Water,Flying'],
-[1,'Ganovil,Rokkaiman,Rabigator','524,525,526','Rock'],
+[1,'Ganovil,Rokkaiman,Rabigator','551,552,553','Ground,Dark'],
 [1,'Dartiri,Dartignis,Fiaro','661,662,663','Fire,Flying'],
 [1,'Eguana,Elezard,Elezard','694,695,695','Electric,Normal'],
 [1,'Alola-Sandan,Alola-Sandamer,Alola-Sandamer','10101,10102,10102','Ice,Steel'],
@@ -60,11 +68,11 @@ const RAW=[
 [2,'Shnebedeck,Rexblisar,Rexblisar','459,460,460','Grass,Ice'],
 [2,'Fukano,Arkani,Arkani','58,59,59','Fire'],
 [2,'Mampfaxo,Relaxo,Relaxo','446,143,143','Normal'],
-[2,'Stollunior,Stollrak,Stolloss','837,838,839','Rock,Fire'],
+[2,'Stollunior,Stollrak,Stolloss','304,305,306','Steel,Rock'],
 [2,'Monozyto,Mitodos,Zytomega','577,578,579','Psychic'],
 [2,'Gramokles,Duokles,Durengard','679,680,681','Steel,Ghost'],
-[2,'Galar-Porenta,Lauchzelot,Lauchzelot','10163,865,865','Fighting'],
-[2,'Bähmon,Pelzeeb,Olangaar','216,217,901','Normal,Ground'],   // ID-Check nötig
+[2,'Galar-Porenta,Lauchzelot,Lauchzelot','10166,865,865','Fighting'],
+[2,'Bähmon,Pelzebub,Olangaar','859,860,861','Dark,Fairy'],   // ID-Check nötig
 [3,'Panflam,Panpyro,Panferno','390,391,392','Fire,Fighting'],
 [3,'Karnimani,Tyracroc,Impergator','158,159,160','Water'],
 [3,'Evoli,Nachtara,Nachtara','133,197,197','Dark'],
@@ -72,14 +80,19 @@ const RAW=[
 [3,'Igamaro,Igastarnish,Brigaron','650,651,652','Grass,Fighting'],
 [3,'Bauz,Arboretoss,Silvarro','722,723,724','Grass,Ghost'],
 [4,'Rotom,Rotom,Rotom','479,479,479','Electric,Ghost'],
-[4,'Fermicula,Fermicula,Fermicula','0,0,0','Bug'],            // ID eintragen!
-[4,'Curelei,Curelei,Curelei','0,0,0','Psychic'],               // ID eintragen!
+[4,'Fermicula,Fermicula,Fermicula','632,632,632','Bug,Steel'],            // ID eintragen!
+[4,'Curelei,Curelei,Curelei','764,764,764','Fairy'],               // ID eintragen!
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal'],
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water']];
 const SP=RAW.map(r=>({c:r[0],n:r[1].split(','),id:r[2].split(',').map(Number),t:r[3].split(','),sh:!!r[4],s:r[5]||{}}));
 /* ================= GEGNER (Name:Dex-ID) – Reihenfolge = Runden ================= */
-const EN=`Arktos:144,Zapdos:145,Lavados:146
+const EN=`Karpador:129
+Bidiza:399,Bidifas:400
+Woingenau:202,Icognito:201,Icognito:201
+Kappalores:272,Maracamba:556,Sabbaione:741,Primarene:730
+Duraludon:884,Pescragon:882,Snieboss:883,Fuegro:880,Epitaff:881
+Arktos:144,Zapdos:145,Lavados:146
 Mewtu:150,Mew:151
 Raikou:243,Entei:244,Suicune:245
 Lugia:249,Ho-Oh:250
@@ -150,7 +163,7 @@ const dist=(a,b)=>{const p=cube(a.r,a.c),q=cube(b.r,b.c);return Math.max(Math.ab
 const DIRS=[[[0,1],[0,-1],[-1,0],[-1,-1],[1,0],[1,-1]],[[0,1],[0,-1],[-1,0],[-1,1],[1,0],[1,1]]];
 const IMG={};
 function imgOf(id,sh){const k=id+(sh?'s':'');if(!IMG[k]){const i=new Image();i.src=url(id,sh);i.onerror=()=>i.bad=1;IMG[k]=i}return IMG[k]}
-const url=(id,sh)=>BASE+(sh?'shiny/':'')+id+'.png';
+const url=(id,sh)=>SPRITE_OVERRIDE[id+(sh?'s':'')]||BASE+(sh?'shiny/':'')+id+'.png';
 
 /* ================= SPIELZUSTAND ================= */
 let S,B={units:[],fx:[],txt:[]};
@@ -160,8 +173,8 @@ const limit=()=>Math.min(S.round,CFG.maxUnits);
 const income=()=>CFG.income+Math.min(CFG.maxInterest,Math.floor(S.gold/10));
 function newGame(){S={round:1,gold:CFG.startGold,lives:CFG.lives,own:{},shop:[],phase:'prep',sel:null,speed:1,pool:{}};
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);roll();$('msg').textContent='Viel Erfolg!';render()}
-function save(){try{localStorage.setItem('pab',JSON.stringify(S))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('pab'));if(s&&s.pool){S=s;S.phase='prep';S.speed=1;return true}}catch(e){}return false}
+function save(){try{localStorage.setItem('pab2',JSON.stringify(S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem('pab2'));if(s&&s.pool){S=s;S.phase='prep';S.speed=1;return true}}catch(e){}return false}
 
 function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
  for(let k=0;k<5;k++){
@@ -191,17 +204,21 @@ function buffs(){const cnt={};placed().forEach(i=>SP[i].t.forEach(t=>cnt[t]=(cnt
  return{out,act}}
 function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
  return{team,r,c,name,id,sh,x,y,lx:0,ly:0,hp:st.hp,max:st.hp,atk:st.atk,aspd:st.aspd,def:st.def,crit:st.crit,range:st.range,
-  mana:0,mmax:CFG.base.mana,mg:st.mg,skill:st.skill,cd:Math.random()*.5,mv:0,star:st.star||0}}
+  mana:0,mmax:CFG.base.mana,mg:st.mg,skill:st.skill,cd:Math.random()*.5,mv:0,star:st.star||0,big:!!st.big}}
 function buildPlayer(){const bf=buffs().out;
  return placed().map(i=>{const s=SP[i],o=S.own[i],st=star(i),b=CFG.base,ov=s.s;
   return mk('p',o.pos.r,o.pos.c,s.n[st-1],s.id[st-1],s.sh,{
    hp:(ov.hp||b.hp)*CFG.hpMul[st-1]*(1+bf.hp),atk:(ov.atk||b.atk)*CFG.atkMul[st-1]*(1+bf.atk),
    aspd:(ov.aspd||b.aspd)*(1+bf.aspd),def:(ov.def||b.def)+bf.def,crit:(ov.crit??b.crit)+bf.crit,
    range:ov.range||b.range,mg:b.manaGain+bf.mana,skill:(ov.skill||CFG.skillMul[st-1]),star:st})})}
-function buildEnemy(){const g=EN[S.round-1],n=g.length,e=CFG.enemy,k=n==1?2.5:n==2?1.7:n==3?1.35:1.1,rd=S.round;
- return g.map((p,j)=>mk('e',1,Math.floor((COLS-n)/2)+j,p[0],p[1],false,{
-  hp:(e.hp+rd*e.hpPerRound)*k,atk:(e.atk+rd*e.atkPerRound)*k,aspd:e.aspd,def:e.def+rd*e.defPerRound,
-  crit:.1,range:CFG.base.range,mg:10,skill:e.skill}))}
+function buildEnemy(){const g=EN[S.round-1],m=g.length,e=CFG.enemy,r=S.round,p=Math.min(r,e.fRounds)/e.fRounds;
+ const f=(e.fStart+(e.fEnd-e.fStart)*p)*e.strength*(r<=5?e.early:1);
+ const n=Math.min(r,CFG.maxUnits),q=Math.min(r,45)/45;
+ const D=n*28*(1+1.2*q),H=n*300*(1+q);            // erwarteter Team-Schaden/s und Team-HP des Spielers
+ const totalHP=D*e.T*f,totalDPS=H/(e.T*2.5)*f;    // Gegner-Budget, aufgeteilt auf alle Gegner der Runde
+ return g.map((pk,j)=>mk('e',1,Math.floor((COLS-m)/2)+j,pk[0],pk[1],false,{
+  hp:totalHP/m,atk:totalDPS/m/(e.aspd*1.2),aspd:e.aspd,def:e.def+r*e.defPerRound,
+  crit:.1,range:CFG.base.range,mg:10,skill:e.skill,big:m<=2}))}
 function refreshView(){B.units=S.phase=='prep'?buildPlayer().concat(buildEnemy()):B.units}
 
 /* ================= KAMPF ================= */
@@ -269,7 +286,7 @@ function draw(t){ctx.clearRect(0,0,720,500);
  if(!S||!B.units)return;
  const us=[...B.units].filter(u=>u.hp>0).sort((a,b)=>a.y-b.y);
  for(const u of us){const[tx,ty]=px(u.r,u.c);u.x+=(tx-u.x)*.18;u.y+=(ty-u.y)*.18;u.lx*=.85;u.ly*=.85;
-  const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=u.team=='e'&&u.max>1500?96:80;
+  const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=u.big?96:80;
   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(u.x,u.y+22,22,8,0,0,7);ctx.fill();
   const im=imgOf(u.id,u.sh);
   if(im.complete&&im.naturalWidth&&!im.bad)ctx.drawImage(im,x-sz/2,y-sz/2,sz,sz);

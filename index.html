@@ -77,7 +77,7 @@ h4{margin:8px 0 2px;color:#9ab}
 const CFG={startGold:10,income:5,reroll:2,lives:3,   // income = Gold pro Runde (keine Zinsen mehr)
  tempo:1.3,moveDelay:.3,                // Grundtempo des Kampfes (1 = alt) und Sekunden pro Schritt beim Laufen
 
- maxUnits:10,slotAfter:[1,3,6,10,15,23,35,45,55],benchMax:15,   // Platz-Freischaltung: neuer Platz NACH diesen Runden; Bankplätze
+ maxUnits:10,slotAfter:[1,3,5,8,12,17,23,30,40],benchMax:15,   // Platz-Freischaltung: neuer Platz NACH diesen Runden; Bankplätze
  speedUpAfter:20,speedUpTo:3,            // nach 20s Kampf: Tempo auf x3 (= 2 Stufen höher)
  hpMul:[1,1.8,3.2],atkMul:[1,1.7,2.8],skillMul:[2.5,3.5,5],
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
@@ -113,7 +113,7 @@ const TB={
  Normal:{th:[3],v:[2.5],d:v=>`Verursacht ${String(v).replace('.',',')}-fachen Schaden`},
  Fire:{th:[2,3],v:[.07,.14],d:v=>`Jeder Angriff aufs gleiche Ziel: +${p(v)} Schaden (max. 15x)`},
  Water:{th:[2,3],v:[.4,.85],d:v=>`+${p(v)} Mana-Gewinn`},
- Flying:{th:[2,3],v:[1,2],d:v=>`+${v} Reichweite`},
+ Flying:{th:[2,4],v:[1,2],d:v=>`+${v} Reichweite`},
  Ice:{th:[2,3],v:[.17,.3],d:v=>`Ziel verliert ${p(v)} Angriffstempo (3s)`},
  Rock:{th:[2,3],v:[12,30],d:v=>`+${v} Verteidigung`},
  Fairy:{th:[2,3],v:[.1,.2],d:v=>`Bei Fähigkeit: heilt Verbündeten in der Nähe um ${p(v)} Max-HP`},
@@ -162,89 +162,332 @@ const RAW=[
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water']];
 const SP=RAW.map(r=>({c:r[0],n:r[1].split(','),id:r[2].split(',').map(Number),t:r[3].split(','),sh:!!r[4],s:r[5]||{}}));
 /* ================= GEGNER – HIER PRO RUNDE ANPASSEN =================
- Jede Zeile = eine Runde (Reihenfolge = Rundennummer). Jede Runde ist eine Liste von Gegnern:
+ Jeder Block = eine Runde (Reihenfolge = Rundennummer). Jede Runde ist eine Liste von Gegnern:
    E('Name', Sprite, {Optionen})
  Sprite: Dex-ID (Zahl)  ODER  eigenes Bild als Text-Pfad/URL, z.B. 'sprites/boss.png'
+ Feld: Reihe 0-3 = Gegnerseite (0 = ganz hinten/oben, 3 = vorne zum Spieler), Spalte 0-9.
+       Ungerade Reihen (1, 3) sind um ein halbes Feld nach rechts versetzt. Nachbarfelder von (2,4): (2,3) (2,5) (1,3) (1,4) (3,3) (3,4).
  Optionen (ALLE optional – ohne Angabe skaliert das Spiel automatisch, siehe CFG.enemy):
-   pos:[reihe,spalte]   Startposition. Reihe 0-3 = Gegnerseite (0 = ganz oben), Spalte 0-9. Standard: Reihe 1, mittig verteilt
+   pos:[reihe,spalte]   Startposition
    hp, atk, aspd, def, crit, range     feste Werte (überschreiben die Automatik)
-   hpX, atkX            Multiplikator auf den automatisch berechneten HP-/Angriffswert (z.B. atkX:1.5)
+   hpX, atkX            GEWICHTUNG innerhalb der Runde: hpX:3 = dieser Gegner bekommt 3x so viel von den Gesamt-HP wie ein Standard-Gegner
+                        (die Gesamtstärke der Runde bleibt gleich – gut für Boss + Gefolge)
    skill                Schadensfaktor der Fähigkeit     mana  benötigtes Mana (Standard 100)     mg  Mana pro Angriff
    big:true|false       große Darstellung                shiny:true  Shiny-Sprite
-   bonus:{Ice:.2,Poison:.17}   Typ-Effekte wie bei Spielern mit eigenem Wert (Werte-Bedeutung: siehe TB.v; Ghost nur für Spieler)
-   cast:(u,t,A)=>{...}  eigene Fähigkeit, wird beim Auslösen der Fähigkeit ausgeführt
-                        (u = dieser Gegner, t = Ziel, A = alle lebenden Einheiten; Helfer: dealDmg, heal, say, dist)
- Beispiel (Boss mit eigener Position, Werten und Fähigkeit):
-   [E('Mewtu',150,{pos:[0,4],hp:6000,atk:140,range:4,skill:4,bonus:{Psychic:1},cast:(u,t)=>dealDmg(t,250,'#f6f','🔮')}), E('Mew',151,{pos:[1,2],atkX:1.3})],
+   fb                   Ersatz-Sprite (Dex-ID), falls das eigentliche Bild nicht lädt
+   bonus:{Ice:.2,Poison:.17}   Typ-Effekte wie bei Spielern mit eigenem Wert (Bedeutung: siehe TB.v; Ghost nur für Spieler)
+   cast:(u,t,A)=>{...}  eigene Fähigkeit beim Auslösen (u = dieser Gegner, t = Ziel, A = alle lebenden Einheiten; Helfer: dealDmg, heal, say, dist)
+   revive:{hp:.3,sprite:10019,name:'..',fb:641,big:true}   1x Wiederbelebung mit hp (Anteil der Max-HP), danach neues Sprite/Name
+   split:{at:.5,into:[{name,sprite,fb,hpX:.45,atkX:1.1},...]}   teilt sich unter at*Max-HP in mehrere neue Gegner (hpX = Anteil der Max-HP je Teil)
+   die:(u,A)=>{...}     wird 1x ausgeführt, wenn der Gegner stirbt (A = alle lebenden Einheiten). Helfer: morph(einheit,{name,sprite,fb,atkX,big})
+ Hinweis: Form-Sprites haben Dex-IDs ab 10000 (z.B. 10019 = Boreos Tiergeist). Zeigt ein Gegner das falsche Bild, trage hier die richtige ID ein.
 */
 const E=(name,sprite,o={})=>({name,sprite,...o});
+/* Coronospa-Verwandlung: Stirbt dieser Gegner als erster der Runde, werden alle anderen Gegner zu dieser Form */
+const CROWN=(name,sprite,fb)=>(u,A)=>{if(B.flag.crown)return;B.flag.crown=1;for(const a of A)if(a.team=='e')morph(a,{name,sprite,fb,atkX:1.4,big:true})};
 const ENEMIES=[
- /*  1*/ [E('Karpador',129)],
- /*  2*/ [E('Bidiza',399), E('Bidifas',400)],
- /*  3*/ [E('Woingenau',202), E('Icognito',201), E('Icognito',201)],
- /*  4*/ [E('Kappalores',272), E('Maracamba',556), E('Sabbaione',741), E('Primarene',730)],
- /*  5*/ [E('Duraludon',884), E('Pescragon',882), E('Snieboss',883), E('Fuegro',880), E('Epitaff',881)],
- /*  6*/ [E('Arktos',144), E('Zapdos',145), E('Lavados',146)],
- /*  7*/ [E('Mewtu',150), E('Mew',151)],
- /*  8*/ [E('Raikou',243), E('Entei',244), E('Suicune',245)],
- /*  9*/ [E('Lugia',249), E('Ho-Oh',250)],
- /* 10*/ [E('Celebi',251)],
- /* 11*/ [E('Regirock',377), E('Regice',378), E('Registeel',379)],
- /* 12*/ [E('Latias',380), E('Latios',381)],
- /* 13*/ [E('Kyogre',382), E('Groudon',383)],
- /* 14*/ [E('Rayquaza',384)],
- /* 15*/ [E('Jirachi',385)],
- /* 16*/ [E('Deoxys',386)],
- /* 17*/ [E('Selfe',480), E('Vesprit',481), E('Tobutz',482)],
- /* 18*/ [E('Dialga',483), E('Palkia',484)],
- /* 19*/ [E('Heatran',485)],
- /* 20*/ [E('Regigigas',486)],
- /* 21*/ [E('Giratina',487)],
- /* 22*/ [E('Cresselia',488), E('Darkrai',491)],
- /* 23*/ [E('Manaphy',490), E('Phione',489)],
- /* 24*/ [E('Shaymin',492)],
- /* 25*/ [E('Victini',494)],
- /* 26*/ [E('Kobalium',638), E('Terrakium',639), E('Viridium',640), E('Keldeo',647)],
- /* 27*/ [E('Voreos',641), E('Voltolos',642), E('Demeteros',645)],
- /* 28*/ [E('Reshiram',643), E('Zekrom',644)],
- /* 29*/ [E('Kyurem',646)],
- /* 30*/ [E('Meloetta',648)],
- /* 31*/ [E('Genesect',649)],
- /* 32*/ [E('Xerneas',716), E('Yveltal',717)],
- /* 33*/ [E('Zygarde',718)],
- /* 34*/ [E('Diancie',719)],
- /* 35*/ [E('Hoopa',720)],
- /* 36*/ [E('Volcanion',721)],
- /* 37*/ [E('Amigento',773)],
- /* 38*/ [E('Kapu-Riki',785), E('Kapu-Fala',788), E('Kapu-Toro',786), E('Kapu-Kime',787)],
- /* 39*/ [E('Solgaleo',791), E('Lunala',792)],
- /* 40*/ [E('Necrozma',800)],
- /* 41*/ [E('Anego',793), E('Masskito',794), E('Schabelle',795)],
- /* 42*/ [E('Voltriant',796), E('Kaguron',797), E('Katagami',798), E('Schlinking',799)],
- /* 43*/ [E('Agoyon',803), E('Muramura',805), E('Kopplosio',806)],
- /* 44*/ [E('Magearna',801)],
- /* 45*/ [E('Marshadow',802)],
- /* 46*/ [E('Zeraora',807)],
- /* 47*/ [E('Melmetal',809)],
- /* 48*/ [E('Zacian',888), E('Zamazenta',889)],
- /* 49*/ [E('Endynalos',890)],
- /* 50*/ [E('Wulaosu',892)],
- /* 51*/ [E('Regieleki',894), E('Regidrago',895)],
- /* 52*/ [E('Polaross',896), E('Phantoross',897), E('Coronospa',898)],
- /* 53*/ [E('Cupidos',905)],
- /* 54*/ [E('Zarude',893)],
- /* 55*/ [E('Chongjian',1001), E('Baojian',1002), E('Dinglu',1003), E('Yuyu',1004)],
- /* 56*/ [E('Koraidon',1007), E('Miraidon',1008)],
- /* 57*/ [E('Riesenzahn',984), E('Brüllschweif',985), E('Wutpilz',986), E('Flatterhaar',987)],
- /* 58*/ [E('Kriechflügel',988), E('Sandfell',989), E('Donnersichel',1005)],
- /* 59*/ [E('Windewoge',1009), E('Keilflamme',1020), E('Furenblitz',1021)],
- /* 60*/ [E('Eisenrad',990), E('Eisenbündel',991), E('Eisenhand',992), E('Eisenhals',993)],
- /* 61*/ [E('Eisenfalter',994), E('Eisendorn',995), E('Eisenkrieger',1006)],
- /* 62*/ [E('Eisenblatt',1010), E('Eisenfels',1022), E('Eisenhaupt',1023)],
- /* 63*/ [E('Ogerpon',1017)],
- /* 64*/ [E('Boninu',1014), E('Benesaur',1015), E('Beatori',1016), E('Infamomo',1025)],
- /* 65*/ [E('Terapagos',1024)],
- /* 66*/ [E('Arceus',493)],
+ /* Runde 1 */ [
+    E('Karpador',129,{pos:[1,4]})
+ ],
+ /* Runde 2 */ [
+    E('Bidiza',399,{pos:[1,4]}),
+    E('Bidifas',400,{pos:[1,5]})
+ ],
+ /* Runde 3 */ [
+    E('Icognito',201,{pos:[1,3]}),
+    E('Woingenau',202,{pos:[1,4]}),
+    E('Icognito',201,{pos:[1,5]})
+ ],
+ /* Runde 4 */ [
+    E('Kappalores',272,{pos:[1,3]}),
+    E('Maracamba',556,{pos:[1,4]}),
+    E('Choreogel',741,{pos:[1,5]})
+ ],
+ /* Runde 5 */ [
+    E('Snieboss',903,{pos:[3,4]}),
+    E('Salmagnis',902,{pos:[2,4]}),
+    E('Fuegro',880,{pos:[2,5]}),
+    E('Pescragon',882,{pos:[1,4]})
+ ],
+ /* Runde 6 */ [
+    E('Arktos',144,{pos:[1,4]}),
+    E('Zapdos',145,{pos:[1,5]}),
+    E('Lavados',146,{pos:[2,5]})
+ ],
+ /* Runde 7 */ [
+    E('Mewtu',150,{pos:[3,4]}),
+    E('Mew',151,{pos:[1,4]})
+ ],
+ /* Runde 8 */ [
+    E('Raikou',243,{pos:[3,4]}),
+    E('Entei',244,{pos:[3,5]}),
+    E('Suicune',245,{pos:[2,5]})
+ ],
+ /* Runde 9 */ [
+    E('Lugia',249,{pos:[2,4]}),
+    E('Ho-Oh',250,{pos:[2,5]}),
+    E('Celebi',251,{pos:[1,4]})
+ ],
+ /* Runde 10 */ [
+    E('Regigigas',486,{pos:[2,4],big:true,hpX:2,atkX:1.5}),
+    E('Regirock',377,{pos:[1,4]}),
+    E('Regice',378,{pos:[2,5]}),
+    E('Registeel',379,{pos:[3,4]}),
+    E('Regidrago',895,{pos:[3,3]}),
+    E('Regieleki',894,{pos:[2,3]})
+ ],
+ /* Runde 11 */ [
+    E('Latias',380,{pos:[3,4]}),
+    E('Latios',381,{pos:[3,5]}),
+    E('Jirachi',385,{pos:[2,5]})
+ ],
+ /* Runde 12 */ [
+    E('Kyogre',382,{pos:[2,4]}),
+    E('Groudon',383,{pos:[2,5]})
+ ],
+ /* Runde 13 */ [
+    E('Rayquaza',384,{pos:[2,4],big:true,hpX:3,atkX:2}),
+    E('Lepumentas',344,{pos:[2,5]}),
+    E('Lepumentas',344,{pos:[2,3]}),
+    E('Lepumentas',344,{pos:[1,4]}),
+    E('Lepumentas',344,{pos:[1,3]}),
+    E('Lepumentas',344,{pos:[3,4]})
+ ],
+ /* Runde 14 */ [
+    E('Deoxys',386,{pos:[2,4],big:true,hpX:3,atkX:2}),
+    E('Meteno',774,{pos:[1,3]}),
+    E('Meteno',774,{pos:[2,5]}),
+    E('Meteno',774,{pos:[3,4]}),
+    E('Meteno',774,{pos:[2,3]})
+ ],
+ /* Runde 15 */ [
+    E('Selfe',480,{pos:[2,4]}),
+    E('Vesprit',481,{pos:[2,5]}),
+    E('Tobutz',482,{pos:[3,4]})
+ ],
+ /* Runde 16 */ [
+    E('Dialga',483,{pos:[1,4]}),
+    E('Palkia',484,{pos:[1,5]})
+ ],
+ /* Runde 17 */ [
+    E('Giratina',487,{pos:[2,4],big:true,hpX:3,atkX:2}),
+    E('Zobiris',302,{pos:[2,5]}),
+    E('Zobiris',302,{pos:[2,3]}),
+    E('Zobiris',302,{pos:[1,4]}),
+    E('Zobiris',302,{pos:[3,4]}),
+    E('Zobiris',302,{pos:[3,3]})
+ ],
+ /* Runde 18 */ [
+    E('Darkrai',491,{pos:[2,3]}),
+    E('Cresselia',488,{pos:[2,6]})
+ ],
+ /* Runde 19 */ [
+    E('Rihornior',464,{pos:[2,3]}),
+    E('Heatran',485,{pos:[2,4],big:true}),
+    E('Rihornior',464,{pos:[2,5]})
+ ],
+ /* Runde 20 */ [
+    E('Manaphy',490,{pos:[1,4]}),
+    E('Phione',489,{pos:[2,4]}),
+    E('Phione',489,{pos:[2,5]}),
+    E('Phione',489,{pos:[3,4]})
+ ],
+ /* Runde 21 */ [
+    E('Shaymin',492,{pos:[2,4],big:true,hpX:3,atkX:2}),
+    E('Flabebe',669,{pos:[2,5]}),
+    E('Flabebe',669,{pos:[2,3]}),
+    E('Flabebe',669,{pos:[1,4]}),
+    E('Flabebe',669,{pos:[1,3]}),
+    E('Flabebe',669,{pos:[3,4]}),
+    E('Flabebe',669,{pos:[3,3]}),
+    E('Flabebe',669,{pos:[2,2]}),
+    E('Flabebe',669,{pos:[2,6]})
+ ],
+ /* Runde 22 */ [
+    E('Victini',494,{pos:[2,4],big:true,hpX:2,atkX:1.5}),
+    E('Serpiroyal',497,{pos:[1,3]}),
+    E('Flambirex',500,{pos:[2,5]}),
+    E('Admurai',503,{pos:[3,3]})
+ ],
+ /* Runde 23 */ [
+    E('Kobalium',638,{pos:[3,4]}),
+    E('Terrakium',639,{pos:[2,4]}),
+    E('Viridium',640,{pos:[2,5]}),
+    E('Keldeo',647,{pos:[1,4]})
+ ],
+ /* Runde 24 */ [
+    E('Boreos',641,{pos:[3,3],revive:{hp:.3,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),
+    E('Voltolos',642,{pos:[3,4],revive:{hp:.3,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),
+    E('Demeteros',645,{pos:[3,5],revive:{hp:.3,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),
+    E('Cupidos',905,{pos:[2,4],revive:{hp:.3,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})
+ ],
+ /* Runde 25 */ [
+    E('Reshiram',643,{pos:[2,4]}),
+    E('Zekrom',644,{pos:[2,5]})
+ ],
+ /* Runde 26 */ [
+    E('Kyurem',646,{pos:[2,4],big:true,hpX:3,atkX:2}),
+    E('Frigometri',615,{pos:[2,5]}),
+    E('Frigometri',615,{pos:[2,3]}),
+    E('Frigometri',615,{pos:[1,4]}),
+    E('Frigometri',615,{pos:[1,3]}),
+    E('Frigometri',615,{pos:[3,4]})
+ ],
+ /* Runde 27 */ [
+    E('Meloetta',648,{pos:[2,0]}),
+    E('Genesect',649,{pos:[2,9]})
+ ],
+ /* Runde 28 */ [
+    E('Xerneas',716,{pos:[1,3]}),
+    E('Yveltal',717,{pos:[1,5]})
+ ],
+ /* Runde 29 */ [
+    E('Zygarde (10%)',10118,{pos:[3,5],fb:718}),
+    E('Zygarde (50%)',718,{pos:[2,5]}),
+    E('Zygarde (Optimum)',10120,{pos:[1,4],fb:718})
+ ],
+ /* Runde 30 */ [
+    E('Diancie',719,{pos:[2,4],big:true,hpX:3,atkX:2}),
+    E('Rocara',703,{pos:[2,5]}),
+    E('Rocara',703,{pos:[2,3]}),
+    E('Rocara',703,{pos:[1,4]}),
+    E('Rocara',703,{pos:[1,3]}),
+    E('Rocara',703,{pos:[3,4]}),
+    E('Rocara',703,{pos:[3,3]})
+ ],
+ /* Runde 31 */ [
+    E('Volcanion',721,{pos:[1,4]})
+ ],
+ /* Runde 32 */ [
+    E('Hoopa',720,{pos:[1,4],revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})
+ ],
+ /* Runde 33 */ [
+    E('Kapu-Riki',785,{pos:[2,3]}),
+    E('Kapu-Fala',788,{pos:[2,4]}),
+    E('Kapu-Toro',786,{pos:[2,5]}),
+    E('Kapu-Kime',787,{pos:[2,6]})
+ ],
+ /* Runde 34 */ [
+    E('Solgaleo',791,{pos:[2,4]}),
+    E('Lunala',792,{pos:[2,5]})
+ ],
+ /* Runde 35 */ [
+    E('Necrozma',800,{pos:[1,4],split:{at:.5,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:.45,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:.45,atkX:1.1}]}})
+ ],
+ /* Runde 36 */ [
+    E('Agoyon',803,{pos:[2,4],big:true}),
+    E('Anego',793,{pos:[1,3]}),
+    E('Masskito',794,{pos:[1,4]}),
+    E('Schabelle',795,{pos:[2,5]}),
+    E('Voltriant',796,{pos:[3,4]}),
+    E('Kaguron',797,{pos:[3,3]}),
+    E('Katagami',798,{pos:[2,3]}),
+    E('Schlinkging',799,{pos:[2,2]}),
+    E('Muramura',805,{pos:[2,6]}),
+    E('Kopplosio',806,{pos:[0,4]})
+ ],
+ /* Runde 37 */ [
+    E('Magearna',801,{pos:[1,0]}),
+    E('Marshadow',802,{pos:[1,4]}),
+    E('Zeraora',807,{pos:[1,9]})
+ ],
+ /* Runde 38 */ [
+    E('Melmetal',809,{pos:[2,4],big:true,hpX:3,atkX:2}),
+    E('Meltan',808,{pos:[2,5]}),
+    E('Meltan',808,{pos:[2,3]}),
+    E('Meltan',808,{pos:[1,4]}),
+    E('Meltan',808,{pos:[1,3]}),
+    E('Meltan',808,{pos:[3,4]}),
+    E('Meltan',808,{pos:[3,3]}),
+    E('Meltan',808,{pos:[2,2]}),
+    E('Meltan',808,{pos:[2,6]}),
+    E('Meltan',808,{pos:[0,3]}),
+    E('Meltan',808,{pos:[0,5]})
+ ],
+ /* Runde 39 */ [
+    E('Zacian (Königsform)',10188,{pos:[2,4],fb:888}),
+    E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889})
+ ],
+ /* Runde 40 */ [
+    E('Endynalos',890,{pos:[1,4],revive:{hp:.5,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})
+ ],
+ /* Runde 41 */ [
+    E('Wulaosu (Wasser)',10191,{pos:[3,4],fb:892}),
+    E('Wulaosu (Unlicht)',892,{pos:[3,5]}),
+    E('Zarude',893,{pos:[2,5]})
+ ],
+ /* Runde 42 */ [
+    E('Polaross',896,{pos:[3,4],die:CROWN('Rappenreiter Coronospa',10194,898)}),
+    E('Phantoross',897,{pos:[3,5],die:CROWN('Schimmelreiter Coronospa',10193,898)}),
+    E('Coronospa',898,{pos:[2,5]})
+ ],
+ /* Runde 43 */ [
+    E('Chongjian',1001,{pos:[2,3]}),
+    E('Baojian',1002,{pos:[2,4]}),
+    E('Dinglu',1003,{pos:[2,5]}),
+    E('Yuyu',1004,{pos:[2,6]})
+ ],
+ /* Runde 44 */ [
+    E('Koraidon',1007,{pos:[3,4]}),
+    E('Miraidon',1008,{pos:[3,5]}),
+    E('Mopex',967,{pos:[2,5]})
+ ],
+ /* Runde 45 */ [
+    E('Riesenzahn',984,{pos:[2,3]}),
+    E('Brüllschweif',985,{pos:[2,4]}),
+    E('Wutpilz',986,{pos:[2,5]}),
+    E('Flatterhaar',987,{pos:[2,6]}),
+    E('Kriechflügel',988,{pos:[1,3]}),
+    E('Sandfell',989,{pos:[1,4]}),
+    E('Donnersichel',1005,{pos:[1,5]})
+ ],
+ /* Runde 46 */ [
+    E('Windewoge',1009,{pos:[1,3]}),
+    E('Keilflamme',1020,{pos:[1,4]}),
+    E('Furienblitz',1021,{pos:[1,5]})
+ ],
+ /* Runde 47 */ [
+    E('Eisenrad',990,{pos:[3,3]}),
+    E('Eisenbündel',991,{pos:[3,4]}),
+    E('Eisenhand',992,{pos:[3,5]}),
+    E('Eisenhals',993,{pos:[2,3]}),
+    E('Eisenfalter',994,{pos:[2,4]}),
+    E('Eisendorn',995,{pos:[2,5]}),
+    E('Eisenkrieger',1006,{pos:[2,6]})
+ ],
+ /* Runde 48 */ [
+    E('Eisenblatt',1010,{pos:[2,3]}),
+    E('Eisenfels',1022,{pos:[2,4]}),
+    E('Eisenhaupt',1023,{pos:[2,5]})
+ ],
+ /* Runde 49 */ [
+    E('Ogerpon (Türkis)',1017,{pos:[3,4]}),
+    E('Ogerpon (Brunnen)',10273,{pos:[2,4],fb:1017}),
+    E('Ogerpon (Ofen)',10274,{pos:[2,5],fb:1017}),
+    E('Ogerpon (Fels)',10275,{pos:[1,4],fb:1017})
+ ],
+ /* Runde 50 */ [
+    E('Boninu',1014,{pos:[3,3]}),
+    E('Benesaur',1015,{pos:[3,4]}),
+    E('Beatori',1016,{pos:[3,5]}),
+    E('Infamomo',1025,{pos:[2,4]})
+ ],
+ /* Runde 51 */ [
+    E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,revive:{hp:.5,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})
+ ],
+ /* Runde 52 */ [
+    E('Arceus',493,{pos:[2,4],big:true,hpX:4,atkX:2.5}),
+    E('Amigento',773,{pos:[2,5]}),
+    E('Amigento',773,{pos:[2,3]}),
+    E('Amigento',773,{pos:[1,4]}),
+    E('Amigento',773,{pos:[1,3]}),
+    E('Amigento',773,{pos:[3,4]}),
+    E('Amigento',773,{pos:[3,3]}),
+    E('Amigento',773,{pos:[2,2]}),
+    E('Amigento',773,{pos:[2,6]}),
+    E('Amigento',773,{pos:[0,3]}),
+    E('Amigento',773,{pos:[0,5]})
+ ],
 ];
 const EN=ENEMIES;
 
@@ -324,7 +567,7 @@ function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
  return{team,r,c,name,id,sh,x,y,lx:0,ly:0,hp:st.hp,max:st.hp,atk:st.atk,aspd:st.aspd,def:st.def,crit:st.crit,range:st.range,
   mana:0,mmax:st.mmax||CFG.base.mana,mg:st.mg,skill:st.skill,cd:Math.random()*.5,mv:0,star:st.star||0,big:!!st.big,
   dm:1,ls:0,shield:0,fight:0,fire:0,fN:0,fT:null,ice:0,fairy:0,bug:0,bugDone:0,ground:0,pois:0,psy:0,dragon:0,rev:0,
-  stun:0,slow:0,slowT:0,poisT:0,poisD:0,pAcc:0,atkN:0,spdBuff:0,decoy:false}}
+  fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,stun:0,slow:0,slowT:0,poisT:0,poisD:0,pAcc:0,atkN:0,spdBuff:0,decoy:false}}
 function typeCounts(){const c={},seen=new Set();placed().forEach(u=>{if(seen.has(u.sp))return;seen.add(u.sp);SP[u.sp].t.forEach(t=>c[t]=(c[t]||0)+1)});return c}  // zählt verschiedene Pokémon-Arten
 function applyBonus(u,t,v){
  switch(t){
@@ -340,20 +583,20 @@ function buildPlayer(bat){const cnt=typeCounts();
   u.t=s.t;return u});
  if(bat)for(const u of L)for(const t of u.t){const v=bonusVal(t,cnt[t]);if(v)applyBonus(u,t,v)}
  return L}
-/* Gegner aus der Tabelle ENEMIES (oben) bauen. Nicht angegebene Werte werden automatisch skaliert. */
+/* Gegner aus der Tabelle ENEMIES (oben) bauen. Nicht angegebene Werte werden automatisch skaliert (hpX/atkX = Gewichtung). */
 function buildEnemy(){const g=ENEMIES[Math.min(S.round,ENEMIES.length)-1],m=g.length,e=CFG.enemy,r=S.round,pr=Math.min(r,e.fRounds)/e.fRounds;
  const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1)*(r>=e.lateFrom?e.late:1);
  const n=limitFor(r),q=Math.min(r,45)/45;
  const D=n*28*(1+1.2*q),H=n*300*(1+q);
  const totalHP=D*e.T*f,totalDPS=H/(e.T*2.5)*f;
  const dmgF=e.dmg*(1+e.dmgGrow*Math.min(r,60)/60);
- const autoHP=totalHP/m,autoATK=totalDPS/m/(e.aspd*1.2)*dmgF;
+ const wH=g.reduce((s,d)=>s+(d.hpX||1),0),wA=g.reduce((s,d)=>s+(d.atkX||1),0);
  return g.map((d,j)=>{const pos=d.pos||[1,Math.floor((COLS-m)/2)+j];
   const u=mk('e',pos[0],pos[1],d.name,d.sprite,!!d.shiny,{
-   hp:d.hp??autoHP*(d.hpX||1),atk:d.atk??autoATK*(d.atkX||1),aspd:d.aspd??e.aspd,def:d.def??(e.def+r*e.defPerRound),
+   hp:d.hp??totalHP*(d.hpX||1)/wH,atk:d.atk??totalDPS*dmgF*(d.atkX||1)/wA/(e.aspd*1.2),aspd:d.aspd??e.aspd,def:d.def??(e.def+r*e.defPerRound),
    crit:d.crit??.1,range:d.range??CFG.base.range,mg:d.mg??e.mg,mmax:d.mana,skill:d.skill??e.skill,big:d.big??m<=2});
   u.t=Object.keys(d.bonus||{});for(const t of u.t)applyBonus(u,t,d.bonus[t]);
-  u.onCast=d.cast||null;return u})}
+  u.onCast=d.cast||null;u.fb=d.fb??null;u.reviveTo=d.revive||null;u.split=d.split||null;u.die=d.die||null;return u})}
 function refreshView(){if(S.phase=='prep')B.units=buildPlayer(false).concat(buildEnemy())}
 function spawnDecoys(v){const used=new Set(B.units.map(u=>u.r+','+u.c)),order=[];let n=0;
  for(let r=4;r<ROWS;r++)for(let c=0;c<COLS;c++)order.push([r,c]);
@@ -363,7 +606,7 @@ function spawnDecoys(v){const used=new Set(B.units.map(u=>u.r+','+u.c)),order=[]
 
 /* ================= KAMPF ================= */
 function startBattle(){if(S.phase=='done'){newGame();return}if(S.phase!='prep')return;if(!placed().length){msg('Stelle mindestens ein Pokémon auf!');return}
- S.sel=null;S.speed=1;S.phase='battle';B.units=buildPlayer(true).concat(buildEnemy());B.fx=[];B.txt=[];B.fields=[];B.end=0;B.time=0;
+ S.sel=null;S.speed=1;S.phase='battle';B.units=buildPlayer(true).concat(buildEnemy());B.fx=[];B.txt=[];B.fields=[];B.flag={};B.end=0;B.time=0;
  const gc=typeCounts().Ghost;if(gc){const v=bonusVal('Ghost',gc);if(v)spawnDecoys(v)}
  msg('');render()}
 const asp=u=>u.aspd*(1+u.spdBuff)*(1-(u.slowT>0?u.slow:0));
@@ -371,7 +614,17 @@ const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-30,s,t:.7,col});
 function dealDmg(t,d,col,pre){if(t.hp<=0)return;let rem=d;
  if(t.shield>0){const a=Math.min(t.shield,rem);t.shield-=a;rem-=a}
  t.hp-=rem;B.txt.push({x:t.x,y:t.y-30,s:(pre||'')+d,t:.7,col:col||'#fff'});
- if(t.hp<=0&&t.dragon&&!t.rev){t.rev=1;t.hp=t.max*t.dragon;say(t,'🐉 Revive')}}
+ if(t.hp<=0&&!t.rev&&(t.dragon||t.reviveTo)){t.rev=1;const rv=t.reviveTo;t.hp=t.max*(rv?rv.hp:t.dragon);if(rv)morph(t,rv);else say(t,'🐉 Revive')}
+ else if(t.hp<=0&&!t.dead){t.dead=1;if(t.die)t.die(t,B.units.filter(x=>x.hp>0))}}
+/* Verwandlung: ändert Name/Sprite (fb = Ersatzbild, sonst das alte Sprite), optional Angriff (atkX) und Größe (big) */
+function morph(u,f){if(f.sprite!=null){u.fb=f.fb??u.id;u.id=f.sprite}if(f.name)u.name=f.name;if(f.atkX)u.atk*=f.atkX;if(f.big!=null)u.big=f.big;say(u,'✨')}
+/* Teilung: der Gegner verschwindet, die Teile erscheinen auf den nächsten freien Feldern */
+function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!==u).map(o=>o.r*100+o.c)),cells=[];
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)cells.push({r,c});cells.sort((a,b)=>dist(a,u)-dist(b,u));
+ u.hp=0;u.dead=1;
+ for(const k of u.split.into){const cell=cells.find(x=>!occ.has(x.r*100+x.c));if(!cell)break;occ.add(cell.r*100+cell.c);
+  const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||.4),atk:u.atk*(k.atkX||1),aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
+  n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 const heal=(u,a)=>{u.hp=Math.min(u.max,u.hp+a)};
 function hit(u,t,A){u.cd=1/asp(u);u.mana+=u.mg;let m=1,cast=false;
  if(u.mana>=u.mmax){u.mana=0;m=u.skill;cast=true}
@@ -412,6 +665,7 @@ const A=B.units.filter(u=>u.hp>0);
   if(u.stun>0)u.stun-=dt;if(u.slowT>0)u.slowT-=dt;
   if(u.poisT>0){u.poisT-=dt;u.pAcc+=dt;if(u.pAcc>=1){u.pAcc-=1;dealDmg(u,Math.round(u.poisD),'#8c4','☠')}}
   if(u.bug&&!u.bugDone&&B.time>=8){u.bugDone=1;for(const a of A)if(a.team==u.team&&!a.decoy&&dist(a,u)<=3){a.spdBuff=Math.max(a.spdBuff,u.bug);say(a,'⚡')}}}
+ for(const u of A)if(u.split&&!u.splitDone&&u.hp>0&&u.hp<=u.max*u.split.at)doSplit(u);
  for(const f of B.fields){f.t-=dt;f.acc+=dt;if(f.acc>=1){f.acc-=1;for(const o of A)if(o.hp>0&&o.team!=f.team&&dist(o,f)<=f.rad)dealDmg(o,Math.round(f.dmg),'#c84')}}
  B.fields=B.fields.filter(f=>f.t>0);
  for(const u of A){if(u.hp<=0||u.decoy)continue;u.cd-=dt;u.mv-=dt;if(u.stun>0)continue;
@@ -526,7 +780,7 @@ function draw(t){ctx.clearRect(0,0,720,500);
   const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=u.big?96:80;
   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(u.x,u.y+22,22,8,0,0,7);ctx.fill();
   if(u.decoy){ctx.fillStyle='#e8d36a';ctx.beginPath();ctx.arc(x,y,20,0,7);ctx.fill();ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x-7,y-3,3,0,7);ctx.arc(x+7,y-3,3,0,7);ctx.fill();ctx.fillRect(x-6,y+7,12,2)}
-  else{const im=imgOf(u.id,u.sh);
+  else{let im=imgOf(u.id,u.sh);if(im.bad&&u.fb!=null)im=imgOf(u.fb,u.sh);
    if(im.complete&&im.naturalWidth&&!im.bad)ctx.drawImage(im,x-sz/2,y-sz/2,sz,sz);
    else{ctx.fillStyle=u.team=='p'?'#4a8':'#a54';ctx.beginPath();ctx.arc(x,y,24,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText(u.name.slice(0,7),x,y+4)}}
   const bw=50,by=u.y-46;ctx.fillStyle='#000';ctx.fillRect(u.x-bw/2,by,bw,6);

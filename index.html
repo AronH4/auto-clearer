@@ -532,7 +532,7 @@ function clearSave(){try{localStorage.removeItem('pab4')}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem('pab4'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;fixSlots();return true}}catch(e){}return false}
 
 function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
- for(let k=0;k<6;k++){
+ for(let k=0;k<5;k++){
   const av=SP.map((s,i)=>({i,c:s.c,w:S.pool[i]})).filter(x=>x.w>0&&!S.units.some(u=>u.sp==x.i&&u.star==3));
   const costs=[1,2,3,4,5].filter(c=>av.some(x=>x.c==c)&&tier[c-1]>0);
   if(!costs.length){S.shop.push(null);continue}

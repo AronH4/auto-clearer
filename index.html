@@ -77,7 +77,7 @@ h4{margin:8px 0 2px;color:#9ab}
 
 <script>
 /* ================= KONFIGURATION (hier kannst du Balancing ändern) ================= */
-const CFG={startGold:10,income:5,reroll:2,lives:3,   // income = Gold pro Runde (keine Zinsen mehr)
+const CFG={startGold:10,income:5,reroll:2,lives:10,   // income = Gold pro Runde (keine Zinsen mehr)
  tempo:1.3,moveDelay:.3,                // Grundtempo des Kampfes (1 = alt) und Sekunden pro Schritt beim Laufen
 
  maxUnits:10,slotAfter:[1,3,5,8,12,17,23,30,40],benchMax:12,   // Platz-Freischaltung: neuer Platz NACH diesen Runden; Bankplätze
@@ -91,7 +91,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:3,   // income = Gold pro Runde 
     strength = globaler Regler (kleiner = leichter), T = Ziel-Kampfdauer (s), fStart/fEnd = Schwierigkeit Anfang/Ende,
     fRounds = Runden bis fEnd, early = Faktor Runde 1-5, mg = Mana pro Angriff der Gegner,
     dmg = Schadens-Faktor der Gegner (Runde 1), dmgGrow = zusätzlicher Schadens-Zuwachs bis Runde 60 (0.8 = +80%) */
- enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,late:1.12,lateFrom:6,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12,dmg:1.2,dmgGrow:1.15,tank:.78,tankFrom:32,mid:1.12,endNerf:.92}};   // mid = Faktor Runde 6-25 (stärker), endNerf = Faktor ab Runde 35 (schwächer)
+ enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,late:1.12,lateFrom:6,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12,dmg:1.2,dmgGrow:1.15,tank:.75,tankFrom:32,mid:1.12,endNerf:.78,endFrom:26}};   // mid = Faktor Runde 6-25 (stärker), endNerf = Faktor ab Runde endFrom (schwächer)
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
 /* Typ-Logos von pokewiki.de. Falls sie nicht laden, wird ein farbiger Kreis mit Buchstabe gezeigt. */
 const TYPE_URL={"Normal": "https://www.pokewiki.de/images/thumb/8/85/Typ-Icon_Normal_%28Symbol%29_PLA.png/32px-Typ-Icon_Normal_%28Symbol%29_PLA.png", "Fighting": "https://www.pokewiki.de/images/thumb/3/3c/Typ-Icon_Kampf_%28Symbol%29_PLA.png/32px-Typ-Icon_Kampf_%28Symbol%29_PLA.png", "Flying": "https://www.pokewiki.de/images/thumb/0/00/Typ-Icon_Flug_%28Symbol%29_PLA.png/32px-Typ-Icon_Flug_%28Symbol%29_PLA.png", "Poison": "https://www.pokewiki.de/images/thumb/b/b5/Typ-Icon_Gift_%28Symbol%29_PLA.png/32px-Typ-Icon_Gift_%28Symbol%29_PLA.png", "Ground": "https://www.pokewiki.de/images/thumb/c/cc/Typ-Icon_Boden_%28Symbol%29_PLA.png/32px-Typ-Icon_Boden_%28Symbol%29_PLA.png", "Rock": "https://www.pokewiki.de/images/thumb/0/0a/Typ-Icon_Gestein_%28Symbol%29_PLA.png/32px-Typ-Icon_Gestein_%28Symbol%29_PLA.png", "Bug": "https://www.pokewiki.de/images/thumb/f/fd/Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png/32px-Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png", "Ghost": "https://www.pokewiki.de/images/thumb/c/c0/Typ-Icon_Geist_%28Symbol%29_PLA.png/32px-Typ-Icon_Geist_%28Symbol%29_PLA.png", "Steel": "https://www.pokewiki.de/images/thumb/2/2b/Typ-Icon_Stahl_%28Symbol%29_PLA.png/32px-Typ-Icon_Stahl_%28Symbol%29_PLA.png", "Fire": "https://www.pokewiki.de/images/thumb/f/f0/Typ-Icon_Feuer_%28Symbol%29_PLA.png/32px-Typ-Icon_Feuer_%28Symbol%29_PLA.png", "Water": "https://www.pokewiki.de/images/thumb/b/b6/Typ-Icon_Wasser_%28Symbol%29_PLA.png/32px-Typ-Icon_Wasser_%28Symbol%29_PLA.png", "Grass": "https://www.pokewiki.de/images/thumb/8/82/Typ-Icon_Pflanze_%28Symbol%29_PLA.png/32px-Typ-Icon_Pflanze_%28Symbol%29_PLA.png", "Electric": "https://www.pokewiki.de/images/thumb/a/a9/Typ-Icon_Elektro_%28Symbol%29_PLA.png/32px-Typ-Icon_Elektro_%28Symbol%29_PLA.png", "Psychic": "https://www.pokewiki.de/images/thumb/1/12/Typ-Icon_Psycho_%28Symbol%29_PLA.png/32px-Typ-Icon_Psycho_%28Symbol%29_PLA.png", "Ice": "https://www.pokewiki.de/images/thumb/d/d8/Typ-Icon_Eis_%28Symbol%29_PLA.png/32px-Typ-Icon_Eis_%28Symbol%29_PLA.png", "Dragon": "https://www.pokewiki.de/images/thumb/6/6f/Typ-Icon_Drache_%28Symbol%29_PLA.png/32px-Typ-Icon_Drache_%28Symbol%29_PLA.png", "Dark": "https://www.pokewiki.de/images/thumb/5/58/Typ-Icon_Unlicht_%28Symbol%29_PLA.png/32px-Typ-Icon_Unlicht_%28Symbol%29_PLA.png", "Fairy": "https://www.pokewiki.de/images/thumb/6/6c/Typ-Icon_Fee_%28Symbol%29_PLA.png/32px-Typ-Icon_Fee_%28Symbol%29_PLA.png"};
@@ -593,7 +593,7 @@ function buildPlayer(bat){const cnt=typeCounts();
  return L}
 /* Gegner aus der Tabelle ENEMIES (oben) bauen. Nicht angegebene Werte werden automatisch skaliert (hpX/atkX = Gewichtung). */
 function buildEnemy(){const g=ENEMIES[Math.min(S.round,ENEMIES.length)-1],m=g.length,e=CFG.enemy,r=S.round,pr=Math.min(r,e.fRounds)/e.fRounds;
- const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1)*(r>=e.lateFrom?e.late:1)*(r>=6&&r<=25?e.mid:1)*(r>=35?e.endNerf:1);
+ const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1)*(r>=e.lateFrom?e.late:1)*(r>=6&&r<=25?e.mid:1)*(r>=e.endFrom?e.endNerf:1);
  const n=limitFor(r),q=Math.min(r,45)/45;
  const D=n*28*(1+1.2*q),H=n*300*(1+q);
  const totalHP=D*e.T*f*(r>=e.tankFrom?e.tank:1),totalDPS=H/(e.T*2.5)*f;

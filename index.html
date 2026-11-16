@@ -1,59 +1,115 @@
 <!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Poké AutoBattler</title>
+<title>Auto-Clearer</title>
 <style>
-body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;padding:8px;max-width:900px;margin:auto}
+body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;padding:0 8px 20px;max-width:1100px;margin:auto}
 button{background:#3b4a8a;color:#fff;border:0;border-radius:6px;padding:8px 12px;margin:2px;cursor:pointer;font-size:14px}
 button:disabled{opacity:.4}button.red{background:#a33}
-#info{padding:6px 0;font-size:14px}#msg{color:#fc6;min-height:20px}
-canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:manipulation}
+#top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:15px}
+#top .ttl{font-size:18px;color:#fc6}
+#main{display:grid;grid-template-columns:230px 1fr;gap:10px;margin-top:8px}
+@media(max-width:760px){#main{grid-template-columns:1fr}}
+#left{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 64px);overflow:auto;font-size:12px}
+#mid{min-width:0}
+canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display:block}
+#ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;padding:6px 2px;font-size:15px}
+#msg{color:#fc6;min-height:20px;font-size:14px}
 #shop,#bench,#coll{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.card{width:110px;border:2px solid #888;border-radius:8px;padding:4px;text-align:center;cursor:pointer;background:#222736;font-size:12px}
-.card img{width:64px;height:64px;image-rendering:pixelated}.card small{display:block;color:#aab}
+.card{width:100px;height:124px;box-sizing:border-box;border:2px solid #888;border-radius:8px;padding:4px;background:#222736;font-size:12px;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;cursor:pointer;user-select:none}
+.card img.sp{width:64px;height:64px;image-rendering:pixelated}
+.card b{font-size:12px;line-height:1.1}.card .co{color:#fd6;font-size:12px}
+.card.empty{border:2px dashed #3a4258;background:transparent;cursor:default}
 .c1{border-color:#ddd}.c2{border-color:#4c4}.c3{border-color:#48f}.c4{border-color:#a5f}.c5{border-color:#f93}
 .card.sold{opacity:.25;pointer-events:none}.card.sel{outline:3px solid #ff0}
+#bench .card{touch-action:none}
+.tys{display:flex;gap:3px;justify-content:center}
+.ti{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;overflow:hidden}
+.ti img{width:20px;height:20px}
+.tb{display:inline-flex;align-items:center;gap:4px;border-radius:12px;padding:1px 8px 1px 2px;color:#fff;font-weight:bold;text-shadow:0 0 3px #000}
+.tb img{width:18px;height:18px}
+.bf{border:1px solid #2c3350;border-radius:8px;padding:5px;margin-bottom:6px;background:#1a1e2b;opacity:.6}.bf.on{opacity:1;border-color:#6a7bd0}
+.th i{font-style:normal;display:inline-block;min-width:16px;text-align:center;border-radius:4px;margin-left:3px;background:#2c3350;color:#889}
+.th i.r{background:#44527f;color:#fff}.th i.a{background:#e8b923;color:#000}
+.bd{margin-top:3px;color:#cdd}
 .chip{width:34px;height:34px;border-radius:6px;background:#222736;border:2px solid #444;opacity:.35}
 .chip.on{opacity:1}.chip img{width:30px;height:30px;image-rendering:pixelated}
 h4{margin:8px 0 2px;color:#9ab}
+#ghost{position:fixed;width:64px;height:64px;pointer-events:none;z-index:99;image-rendering:pixelated;opacity:.85}
+details{margin-top:6px}summary{cursor:pointer;color:#9ab}
 </style></head><body>
-<div id="info"></div><div id="msg"></div>
-<div>
- <button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
- <button id="bRoll" onclick="reroll()">🎲 Neu würfeln (2)</button>
- <button id="bBank" onclick="toBench()">⬇ Auswahl zur Bank</button>
- <button onclick="setSpeed()" id="bSpeed">Tempo x1</button>
- <button class="red" onclick="if(confirm('Neues Spiel starten?'))newGame()">Neues Spiel</button>
+<div id="top"><b class="ttl">Auto-Clearer</b><span id="tr"></span><span id="tl"></span><span id="tn"></span></div>
+<div id="main">
+ <div id="left"><h4 style="margin-top:0">Typ-Boni</h4><div id="buffs"></div>
+  <details><summary>Alle Boni anzeigen</summary><div id="allb"></div></details></div>
+ <div id="mid">
+  <canvas id="cv" width="720" height="500"></canvas>
+  <div id="ctrl">
+   <span id="gold"></span><span id="plc"></span>
+   <span><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
+   <button id="bRoll" onclick="reroll()">🎲 Neu würfeln (2)</button>
+   <button onclick="toBench()">⬇ Auswahl zur Bank</button>
+   <button onclick="setSpeed()" id="bSpeed">Tempo x1</button>
+   <button class="red" onclick="if(confirm('Neues Spiel starten?'))newGame()">Neues Spiel</button></span>
+  </div><div id="msg"></div>
+  <h4>Shop</h4><div id="shop"></div>
+  <h4 id="benchH">Bank</h4><div id="bench"></div>
+  <h4>Sammlung</h4><div id="coll"></div>
+ </div>
 </div>
-<canvas id="cv" width="720" height="500"></canvas>
-<h4>Shop</h4><div id="shop"></div>
-<h4>Bank (nicht aufgestellt) – antippen, dann ein Feld in den unteren 4 Reihen antippen</h4><div id="bench"></div>
-<h4>Typ-Boni</h4><div id="buffs" style="font-size:13px"></div>
-<h4>Sammlung</h4><div id="coll"></div>
 
 <script>
 /* ================= KONFIGURATION (hier kannst du Balancing ändern) ================= */
-const CFG={startGold:10,income:5,maxInterest:5,reroll:2,lives:3,maxUnits:30,
+const CFG={startGold:10,income:5,maxInterest:5,reroll:2,lives:3,
+ maxUnits:10,startSlots:1,slotEvery:3,benchMax:15,   // max. aufgestellt / Start-Plätze / alle X Runden +1 Platz / Bankplätze
  hpMul:[1,1.8,3.2],atkMul:[1,1.7,2.8],skillMul:[2.5,3.5,5],
- base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:6,mana:100,manaGain:10},
- copies:{1:8,2:7,3:6,4:5,5:4},          // Karten pro Pokémon im Pool je Kosten
- cardsForStar:[1,2,3],                   // Karten nötig für 1★/2★/3★
+ base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:6,mana:100,manaGain:15},
+ copies:{1:10,2:9,3:8,4:7,5:6},          // Karten pro Pokémon im Pool je Kosten
+ cardsForStar:[1,2,5],                   // Karten gesamt für Stufe 1 / 2 / 3 (1 Karte, +1 Karte, +3 Karten)
  odds:[[2,[80,20,0,0,0]],[5,[60,30,10,0,0]],[9,[40,35,20,5,0]],[14,[25,35,28,10,2]],[24,[15,25,30,22,8]],[999,[10,18,28,28,16]]],
- /* Gegner-Schwierigkeit: Die Gegner werden aus der ERWARTETEN Spielerstärke (Runde = Anzahl Einheiten) berechnet.
-    strength = globaler Regler (kleiner = leichter, größer = schwerer)
-    T = Ziel-Kampfdauer in Sekunden, fStart/fEnd = Schwierigkeit am Anfang/Ende (0.6 = leicht, 1.1 = fordernd),
-    fRounds = nach wie vielen Runden fEnd erreicht ist, early = Faktor für Runde 1-5 (extra leicht) */
- enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,aspd:.7,skill:3,def:10,defPerRound:.8}};
+ /* Gegner-Schwierigkeit: wird aus der erwarteten Spielerstärke berechnet (freie Plätze der Runde).
+    strength = globaler Regler (kleiner = leichter), T = Ziel-Kampfdauer (s), fStart/fEnd = Schwierigkeit Anfang/Ende,
+    fRounds = Runden bis fEnd, early = Faktor Runde 1-5, mg = Mana pro Angriff der Gegner */
+ enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12}};
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
-/* SPRITES ANPASSEN: Hier kannst du für einzelne Pokémon ein eigenes Bild eintragen.
-   Schlüssel = Dex-ID (bei Shiny: ID + 's'), Wert = Bild-URL oder Pfad in deinem Repository. Beispiele:
-   {94:'sprites/gengar.png', '821s':'https://meine-seite.de/krarmor.png'} */
+/* Typ-Logos (offizielle Icons aus dem PokeAPI-Repo). Falls sie nicht laden, wird ein farbiger Kreis mit Buchstabe gezeigt. */
+const TYPE_IMG='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/';
+/* SPRITES ANPASSEN: Schlüssel = Dex-ID (Shiny: ID + 's'), Wert = Bild-URL oder Pfad. Beispiel: {94:'sprites/gengar.png'} */
 const SPRITE_OVERRIDE={};
-/* Typ-Buffs: [Stat, Bonus bei 2 Pokémon, Bonus bei 4]. Stats: atk/hp/aspd (Prozent), def/crit/mana (flach) */
-const BUFF={Fire:['atk',.15,.35],Water:['mana',5,12],Electric:['aspd',.15,.35],Grass:['hp',.15,.35],Rock:['def',10,25],
- Ghost:['crit',.1,.25],Poison:['atk',.1,.25],Dark:['crit',.1,.25],Flying:['aspd',.1,.25],Normal:['hp',.1,.25],Ice:['def',8,20],
- Steel:['def',10,25],Fighting:['atk',.15,.35],Psychic:['mana',5,12],Ground:['hp',.12,.3],Dragon:['atk',.2,.45],Bug:['aspd',.1,.25]};
-/* ================= POKÉMON: [Kosten, Namen, Dex-IDs, Typen, shiny?, Stat-Overrides] =================
-   Eigene Stats/Fähigkeiten später als 6. Eintrag: {hp:500,atk:40,aspd:1,def:20,crit:.2,range:3,skill:4} */
+const STAR_COL=['#cd7f32','#c0c0c0','#ffd700'];   // Bronze, Silber, Gold
+/* ================= TYPEN: [Icon-Nr, deutscher Name, Farbe] ================= */
+const TYPES={Normal:[1,'Normal','#a8a77a'],Fighting:[2,'Kampf','#c22e28'],Flying:[3,'Flug','#a98ff3'],Poison:[4,'Gift','#a33ea1'],
+ Ground:[5,'Boden','#c9a24a'],Rock:[6,'Gestein','#a08f2e'],Bug:[7,'Käfer','#a6b91a'],Ghost:[8,'Geist','#735797'],Steel:[9,'Stahl','#8d8da8'],
+ Fire:[10,'Feuer','#ee8130'],Water:[11,'Wasser','#6390f0'],Grass:[12,'Pflanze','#7ac74c'],Electric:[13,'Elektro','#d9b300'],
+ Psychic:[14,'Psycho','#f95587'],Ice:[15,'Eis','#6fc3c0'],Dragon:[16,'Drache','#6f35fc'],Dark:[17,'Unlicht','#705746'],Fairy:[18,'Fee','#d685ad']};
+const p=v=>Math.round(v*100)+'%';
+/* Typ-Boni: th = benötigte Anzahl Pokémon, v = Wert je Stufe, d = Beschreibung. Gilt für Pokémon mit diesem Typ. */
+const TB={
+ Steel:{th:[2,3,5],v:[.2,.4,.7],d:v=>`Startet mit Schild: ${p(v)} der Max-HP`},
+ Ghost:{th:[2,3,5],v:[1,2,3],d:v=>`${v} Delegator(en) (${150+75*(v-1)} HP), zieht den Fokus auf sich`},
+ Grass:{th:[2,4],v:[.2,.4],d:v=>`Angriffe heilen: ${p(v)} des Schadens (Lifesteal)`},
+ Electric:{th:[2,4],v:[.25,.5],d:v=>`+${p(v)} Angriffstempo`},
+ Fighting:{th:[2,4],v:[.15,.3],d:v=>`Pokémon im Radius 1 verursachen +${p(v)} Schaden`},
+ Dark:{th:[2,4],v:[.15,.3],d:v=>`+${p(v)} Crit-Chance`},
+ Normal:{th:[3],v:[3],d:v=>`Verursacht ${v}-fachen Schaden`},
+ Fire:{th:[2,3],v:[.08,.16],d:v=>`Jeder Angriff aufs gleiche Ziel: +${p(v)} Schaden (max. 15x)`},
+ Water:{th:[2,3],v:[.5,1],d:v=>`+${p(v)} Mana-Gewinn`},
+ Flying:{th:[2,3],v:[1,2],d:v=>`+${v} Reichweite`},
+ Ice:{th:[2,3],v:[.2,.35],d:v=>`Ziel verliert ${p(v)} Angriffstempo (3s)`},
+ Rock:{th:[2,3],v:[15,35],d:v=>`+${v} Verteidigung`},
+ Fairy:{th:[2,3],v:[.12,.25],d:v=>`Bei Fähigkeit: heilt Verbündeten in der Nähe um ${p(v)} Max-HP`},
+ Bug:{th:[1],v:[.5],d:v=>`Nach 8s: +${p(v)} Angriffstempo für Verbündete im Radius 3`},
+ Ground:{th:[1],v:[.5],d:v=>`Nach Fähigkeit: Feld (Radius 2, 5s), jede Sek. ${p(v)} Angriff als Schaden`},
+ Poison:{th:[1],v:[.2],d:v=>`Vergiftet das Ziel: ${p(v)} Angriff Schaden pro Sek. (5s)`},
+ Psychic:{th:[1],v:[1],d:v=>`Jeder 5. Angriff: Ziel 1s betäubt`},
+ Dragon:{th:[1],v:[1],d:v=>`Wird 1x mit 50% HP wiederbelebt`}};
+const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
+const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};
+const typeIcon=t=>{const T=TYPES[t];return`<span class="ti" style="background:${T[2]}" title="${T[1]}" data-l="${T[1][0]}"><img src="${TYPE_IMG+T[0]}.png" onerror="this.parentNode.textContent=this.parentNode.dataset.l"></span>`};
+const typeBadge=t=>{const T=TYPES[t];return`<span class="tb" style="background:${T[2]}"><img src="${TYPE_IMG+T[0]}.png" onerror="this.remove()">${T[1]}</span>`};
+const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000">${'★'.repeat(n)}</span>`;
+
+/* ================= POKÉMON: [Kosten, Namen, Dex-IDs, Typen, shiny?, Stat-Overrides] ================= */
 const RAW=[
 [1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison'],
 [1,'Samurzel,Blanas,Tengulist','273,274,275','Grass,Dark'],
@@ -166,19 +222,23 @@ function imgOf(id,sh){const k=id+(sh?'s':'');if(!IMG[k]){const i=new Image();i.s
 const url=(id,sh)=>SPRITE_OVERRIDE[id+(sh?'s':'')]||BASE+(sh?'shiny/':'')+id+'.png';
 
 /* ================= SPIELZUSTAND ================= */
-let S,B={units:[],fx:[],txt:[]};
+let S,B={units:[],fx:[],txt:[],fields:[]};
 const star=i=>{const c=S.own[i].cards,f=CFG.cardsForStar;return c>=f[2]?3:c>=f[1]?2:1};
+const maxCards=()=>CFG.cardsForStar[2];
 const placed=()=>Object.keys(S.own).filter(i=>S.own[i].pos);
-const limit=()=>Math.min(S.round,CFG.maxUnits);
+const benchCount=()=>Object.keys(S.own).filter(i=>!S.own[i].pos).length;
+const limitFor=r=>Math.min(CFG.maxUnits,CFG.startSlots+Math.floor((r-1)/CFG.slotEvery));
+const limit=()=>limitFor(S.round);
 const income=()=>CFG.income+Math.min(CFG.maxInterest,Math.floor(S.gold/10));
+const msg=t=>$('msg').textContent=t;
 function newGame(){S={round:1,gold:CFG.startGold,lives:CFG.lives,own:{},shop:[],phase:'prep',sel:null,speed:1,pool:{}};
- SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);roll();$('msg').textContent='Viel Erfolg!';render()}
-function save(){try{localStorage.setItem('pab2',JSON.stringify(S))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('pab2'));if(s&&s.pool){S=s;S.phase='prep';S.speed=1;return true}}catch(e){}return false}
+ SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);roll();msg('Viel Erfolg!');render()}
+function save(){try{localStorage.setItem('pab3',JSON.stringify(S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem('pab3'));if(s&&s.pool){S=s;S.phase='prep';S.speed=1;return true}}catch(e){}return false}
 
 function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
  for(let k=0;k<5;k++){
-  const av=SP.map((s,i)=>({i,c:s.c,w:S.pool[i]})).filter(x=>x.w>0&&!(S.own[x.i]&&S.own[x.i].cards>=3));
+  const av=SP.map((s,i)=>({i,c:s.c,w:S.pool[i]})).filter(x=>x.w>0&&!(S.own[x.i]&&S.own[x.i].cards>=maxCards()));
   const costs=[1,2,3,4,5].filter(c=>av.some(x=>x.c==c)&&tier[c-1]>0);
   if(!costs.length){S.shop.push(null);continue}
   let r=Math.random()*costs.reduce((a,c)=>a+tier[c-1],0),cost=costs[0];
@@ -187,121 +247,204 @@ function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
   for(const x of cand){w-=x.w;if(w<=0){pick=x.i;break}}
   S.shop.push(pick)}}
 function reroll(){if(S.phase!='prep'||S.gold<CFG.reroll)return;S.gold-=CFG.reroll;roll();render()}
+function freeHex(){for(let r=4;r<ROWS;r++)for(let c=0;c<COLS;c++)if(!occAt({r,c}))return{r,c};return null}
 function buy(k){if(S.phase!='prep')return;const i=S.shop[k];if(i==null)return;const s=SP[i];
- if(S.gold<s.c){$('msg').textContent='Zu wenig Gold!';return}
- if(S.own[i]&&S.own[i].cards>=3)return;
- S.gold-=s.c;S.pool[i]--;const o=S.own[i]=S.own[i]||{cards:0,pos:null};o.cards++;S.shop[k]=null;
- if(CFG.cardsForStar.includes(o.cards)&&o.cards>1)$('msg').textContent=`✨ ${s.n[0]} ist jetzt ${star(i)}★!`;
+ if(S.gold<s.c){msg('Zu wenig Gold!');return}
+ let o=S.own[i];if(o&&o.cards>=maxCards())return;
+ let autoPos=null;
+ if(!o&&benchCount()>=CFG.benchMax){
+  if(placed().length<limit())autoPos=freeHex();
+  if(!autoPos){msg(`Die Bank ist voll (${CFG.benchMax})! Stelle Pokémon auf.`);return}}
+ S.gold-=s.c;S.pool[i]--;
+ if(!o)o=S.own[i]={cards:0,pos:autoPos};
+ o.cards++;S.shop[k]=null;
+ const f=CFG.cardsForStar;if(o.cards==f[1]||o.cards==f[2])msg(`✨ ${s.n[0]} ist jetzt Stufe ${star(i)}!`);
  render()}
-function toBench(){if(S.sel!=null&&S.own[S.sel]){S.own[S.sel].pos=null;S.sel=null;render()}}
+function toBench(){if(S.sel!=null&&S.own[S.sel]){moveTo(S.sel,'bench');S.sel=null;render()}}
 function setSpeed(){S.speed=S.speed%3+1;$('bSpeed').textContent='Tempo x'+S.speed}
 
-/* ================= BUFFS & EINHEITEN ================= */
-function buffs(){const cnt={};placed().forEach(i=>SP[i].t.forEach(t=>cnt[t]=(cnt[t]||0)+1));
- const out={atk:0,hp:0,aspd:0,def:0,crit:0,mana:0},act=[];
- for(const t in cnt){const b=BUFF[t];if(!b)continue;const tier=cnt[t]>=4?2:cnt[t]>=2?1:0;
-  if(tier){out[b[0]]+=b[tier];const v=b[tier];act.push(`${t} (${cnt[t]}): +${v<1?Math.round(v*100)+'%':v} ${b[0]}`)}}
- return{out,act}}
+/* ================= EINHEITEN ================= */
 function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
  return{team,r,c,name,id,sh,x,y,lx:0,ly:0,hp:st.hp,max:st.hp,atk:st.atk,aspd:st.aspd,def:st.def,crit:st.crit,range:st.range,
-  mana:0,mmax:CFG.base.mana,mg:st.mg,skill:st.skill,cd:Math.random()*.5,mv:0,star:st.star||0,big:!!st.big}}
-function buildPlayer(){const bf=buffs().out;
- return placed().map(i=>{const s=SP[i],o=S.own[i],st=star(i),b=CFG.base,ov=s.s;
-  return mk('p',o.pos.r,o.pos.c,s.n[st-1],s.id[st-1],s.sh,{
-   hp:(ov.hp||b.hp)*CFG.hpMul[st-1]*(1+bf.hp),atk:(ov.atk||b.atk)*CFG.atkMul[st-1]*(1+bf.atk),
-   aspd:(ov.aspd||b.aspd)*(1+bf.aspd),def:(ov.def||b.def)+bf.def,crit:(ov.crit??b.crit)+bf.crit,
-   range:ov.range||b.range,mg:b.manaGain+bf.mana,skill:(ov.skill||CFG.skillMul[st-1]),star:st})})}
-function buildEnemy(){const g=EN[S.round-1],m=g.length,e=CFG.enemy,r=S.round,p=Math.min(r,e.fRounds)/e.fRounds;
- const f=(e.fStart+(e.fEnd-e.fStart)*p)*e.strength*(r<=5?e.early:1);
- const n=Math.min(r,CFG.maxUnits),q=Math.min(r,45)/45;
- const D=n*28*(1+1.2*q),H=n*300*(1+q);            // erwarteter Team-Schaden/s und Team-HP des Spielers
- const totalHP=D*e.T*f,totalDPS=H/(e.T*2.5)*f;    // Gegner-Budget, aufgeteilt auf alle Gegner der Runde
+  mana:0,mmax:CFG.base.mana,mg:st.mg,skill:st.skill,cd:Math.random()*.5,mv:0,star:st.star||0,big:!!st.big,
+  dm:1,ls:0,shield:0,fight:0,fire:0,fN:0,fT:null,ice:0,fairy:0,bug:0,bugDone:0,ground:0,pois:0,psy:0,dragon:0,rev:0,
+  stun:0,slow:0,slowT:0,poisT:0,poisD:0,pAcc:0,atkN:0,spdBuff:0,decoy:false}}
+function typeCounts(){const c={};placed().forEach(i=>SP[i].t.forEach(t=>c[t]=(c[t]||0)+1));return c}
+function buildPlayer(bat){const cnt=typeCounts();
+ const L=placed().map(i=>{const s=SP[i],o=S.own[i],st=star(i),b=CFG.base,ov=s.s;
+  const u=mk('p',o.pos.r,o.pos.c,s.n[st-1],s.id[st-1],s.sh,{
+   hp:(ov.hp||b.hp)*CFG.hpMul[st-1],atk:(ov.atk||b.atk)*CFG.atkMul[st-1],aspd:ov.aspd||b.aspd,def:ov.def||b.def,
+   crit:ov.crit??b.crit,range:ov.range||b.range,mg:b.manaGain,skill:(ov.skill||CFG.skillMul[st-1]),star:st});
+  u.spi=i;u.t=s.t;return u});
+ if(bat)for(const u of L)for(const t of u.t){const v=bonusVal(t,cnt[t]);if(!v)continue;
+  switch(t){
+   case'Steel':u.shield=u.max*v;break;case'Grass':u.ls=v;break;case'Electric':u.aspd*=1+v;break;case'Fighting':u.fight=v;break;
+   case'Dark':u.crit+=v;break;case'Normal':u.dm*=v;break;case'Fire':u.fire=v;break;case'Water':u.mg*=1+v;break;
+   case'Flying':u.range+=v;break;case'Ice':u.ice=v;break;case'Rock':u.def+=v;break;case'Fairy':u.fairy=v;break;
+   case'Bug':u.bug=v;break;case'Ground':u.ground=v;break;case'Poison':u.pois=v;break;case'Psychic':u.psy=1;break;case'Dragon':u.dragon=1}}
+ return L}
+function buildEnemy(){const g=EN[S.round-1],m=g.length,e=CFG.enemy,r=S.round,pr=Math.min(r,e.fRounds)/e.fRounds;
+ const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1);
+ const n=limitFor(r),q=Math.min(r,45)/45;
+ const D=n*28*(1+1.2*q),H=n*300*(1+q);
+ const totalHP=D*e.T*f,totalDPS=H/(e.T*2.5)*f;
  return g.map((pk,j)=>mk('e',1,Math.floor((COLS-m)/2)+j,pk[0],pk[1],false,{
   hp:totalHP/m,atk:totalDPS/m/(e.aspd*1.2),aspd:e.aspd,def:e.def+r*e.defPerRound,
-  crit:.1,range:CFG.base.range,mg:10,skill:e.skill,big:m<=2}))}
-function refreshView(){B.units=S.phase=='prep'?buildPlayer().concat(buildEnemy()):B.units}
+  crit:.1,range:CFG.base.range,mg:e.mg,skill:e.skill,big:m<=2}))}
+function refreshView(){if(S.phase=='prep')B.units=buildPlayer(false).concat(buildEnemy())}
+function spawnDecoys(v){const used=new Set(B.units.map(u=>u.r+','+u.c)),order=[];let n=0;
+ for(let r=4;r<ROWS;r++)for(let c=0;c<COLS;c++)order.push([r,c]);
+ order.sort((a,b)=>a[0]-b[0]||Math.abs(a[1]-4.5)-Math.abs(b[1]-4.5));
+ for(const[r,c]of order){if(n>=v)break;if(used.has(r+','+c))continue;
+  const d=mk('p',r,c,'Delegator',0,false,{hp:150+75*(v-1),atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});d.decoy=true;B.units.push(d);n++}}
 
 /* ================= KAMPF ================= */
-function startBattle(){if(S.phase!='prep')return;if(!placed().length){$('msg').textContent='Stelle mindestens ein Pokémon auf!';return}
- S.sel=null;S.phase='battle';B.units=buildPlayer().concat(buildEnemy());B.fx=[];B.txt=[];B.end=0;$('msg').textContent='';render()}
-function hit(u,t){u.cd=1/u.aspd;u.mana+=u.mg;let m=1,col='#fff';
- if(u.mana>=u.mmax){u.mana=0;m=u.skill;col='#ff0'}
- const crit=Math.random()<u.crit;let d=Math.max(1,Math.round(u.atk*m*(crit?2:1)*100/(100+t.def)));t.hp-=d;
+function startBattle(){if(S.phase!='prep')return;if(!placed().length){msg('Stelle mindestens ein Pokémon auf!');return}
+ S.sel=null;S.phase='battle';B.units=buildPlayer(true).concat(buildEnemy());B.fx=[];B.txt=[];B.fields=[];B.end=0;B.time=0;
+ const gc=typeCounts().Ghost;if(gc){const v=bonusVal('Ghost',gc);if(v)spawnDecoys(v)}
+ msg('');render()}
+const asp=u=>u.aspd*(1+u.spdBuff)*(1-(u.slowT>0?u.slow:0));
+const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-30,s,t:.7,col});
+function dealDmg(t,d,col,pre){if(t.hp<=0)return;let rem=d;
+ if(t.shield>0){const a=Math.min(t.shield,rem);t.shield-=a;rem-=a}
+ t.hp-=rem;B.txt.push({x:t.x,y:t.y-30,s:(pre||'')+d,t:.7,col:col||'#fff'});
+ if(t.hp<=0&&t.dragon&&!t.rev){t.rev=1;t.hp=t.max*.5;say(t,'🐉 Revive')}}
+const heal=(u,a)=>{u.hp=Math.min(u.max,u.hp+a)};
+function hit(u,t,A){u.cd=1/asp(u);u.mana+=u.mg;let m=1,cast=false;
+ if(u.mana>=u.mmax){u.mana=0;m=u.skill;cast=true}
+ u.atkN++;
+ if(u.fire){if(u.fT===t)u.fN=Math.min(15,u.fN+1);else{u.fT=t;u.fN=0}}
+ let fight=1;if(u.team=='p')for(const a of A)if(a.fight&&a.team==u.team&&a.hp>0&&dist(a,u)<=1)fight+=a.fight;
+ let d=u.atk*m*u.dm*fight*(1+u.fire*u.fN);
+ const crit=Math.random()<u.crit;if(crit)d*=2;
+ d=Math.max(1,Math.round(d*100/(100+t.def)));
  u.lx=(t.x-u.x)*.2;u.ly=(t.y-u.y)*.2;
- B.fx.push({x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.15,col,w:m>1?5:2});
- B.txt.push({x:t.x,y:t.y-30,s:(m>1?'💥':crit?'!':'')+d,t:.7,col:m>1?'#ff0':crit?'#f84':'#fff'})}
-function step(dt){const A=B.units.filter(u=>u.hp>0);
- for(const u of A){if(u.hp<=0)continue;u.cd-=dt;u.mv-=dt;
+ B.fx.push({x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.15,col:cast?'#ff0':'#fff',w:cast?5:2});
+ dealDmg(t,d,cast?'#ff0':crit?'#f84':'#fff',cast?'💥':crit?'!':'');
+ if(u.ls)heal(u,d*u.ls);
+ if(u.ice){t.slow=u.ice;t.slowT=3}
+ if(u.pois){t.poisD=u.atk*u.pois;t.poisT=5}
+ if(u.psy&&u.atkN%5==0){t.stun=1;say(t,'💫')}
+ if(cast){
+  if(u.fairy){let best=null;for(const a of A)if(a.team==u.team&&!a.decoy&&a.hp>0&&a.hp<a.max&&dist(a,u)<=3&&(!best||a.hp/a.max<best.hp/best.max))best=a;
+   if(best){heal(best,best.max*u.fairy);say(best,'💚')}}
+  if(u.ground)B.fields.push({team:u.team,r:t.r,c:t.c,t:5,acc:0,dmg:u.atk*u.ground,rad:2})}}
+function step(dt){B.time+=dt;const A=B.units.filter(u=>u.hp>0);
+ for(const u of A){
+  if(u.stun>0)u.stun-=dt;if(u.slowT>0)u.slowT-=dt;
+  if(u.poisT>0){u.poisT-=dt;u.pAcc+=dt;if(u.pAcc>=1){u.pAcc-=1;dealDmg(u,Math.round(u.poisD),'#8c4','☠')}}
+  if(u.bug&&!u.bugDone&&B.time>=8){u.bugDone=1;for(const a of A)if(a.team==u.team&&!a.decoy&&dist(a,u)<=3){a.spdBuff=Math.max(a.spdBuff,u.bug);say(a,'⚡')}}}
+ for(const f of B.fields){f.t-=dt;f.acc+=dt;if(f.acc>=1){f.acc-=1;for(const o of A)if(o.hp>0&&o.team!=f.team&&dist(o,f)<=f.rad)dealDmg(o,Math.round(f.dmg),'#c84')}}
+ B.fields=B.fields.filter(f=>f.t>0);
+ for(const u of A){if(u.hp<=0||u.decoy)continue;u.cd-=dt;u.mv-=dt;if(u.stun>0)continue;
   const foes=A.filter(f=>f.team!=u.team&&f.hp>0);if(!foes.length)continue;
-  let t=foes[0],d=1e9;for(const f of foes){const x=dist(u,f);if(x<d){d=x;t=f}}
-  if(d<=u.range){if(u.cd<=0)hit(u,t)}
+  const dec=foes.filter(f=>f.decoy),cand=dec.length?dec:foes;
+  let t=cand[0],d=1e9;for(const f of cand){const x=dist(u,f);if(x<d){d=x;t=f}}
+  if(d<=u.range){if(u.cd<=0)hit(u,t,A)}
   else if(u.mv<=0){let best=null,bd=d;
    for(const[dr,dc]of DIRS[u.r&1]){const r=u.r+dr,c=u.c+dc;if(r<0||r>=ROWS||c<0||c>=COLS)continue;
     if(A.some(o=>o.hp>0&&o.r==r&&o.c==c))continue;const x=dist({r,c},t);if(x<bd){bd=x;best={r,c}}}
    if(best){u.r=best.r;u.c=best.c}u.mv=.4}}
  B.fx.forEach(f=>f.t-=dt);B.fx=B.fx.filter(f=>f.t>0);B.txt.forEach(f=>{f.t-=dt;f.y-=dt*25});B.txt=B.txt.filter(f=>f.t>0);
- const p=B.units.some(u=>u.team=='p'&&u.hp>0),e=B.units.some(u=>u.team=='e'&&u.hp>0);
- if(!p||!e){B.end+=dt;if(B.end>1.2)finish(p)}}
-function finish(win){S.phase='prep';const last=S.round>=EN.length;
- if(win&&last){S.phase='done';$('msg').textContent='🏆 GEWONNEN! Du hast alle Gegner besiegt!';B.units=[];render();return}
+ const pl=B.units.some(u=>u.team=='p'&&!u.decoy&&u.hp>0),en=B.units.some(u=>u.team=='e'&&u.hp>0);
+ if(B.time>120){finish(false);return}
+ if(!pl||!en){B.end+=dt;if(B.end>1.2)finish(pl)}}
+function finish(win){if(S.phase!='battle')return;S.phase='prep';const last=S.round>=EN.length,oldL=limit();
+ if(win&&last){S.phase='done';msg('🏆 GEWONNEN! Du hast alle Gegner besiegt!');B.units=[];render();return}
  S.gold+=income();
- if(win){S.round++;$('msg').textContent=`✅ Runde gewonnen! Jetzt Runde ${S.round}.`}
- else{S.lives--;if(S.lives<=0){S.phase='done';$('msg').textContent='💀 Game Over – starte ein neues Spiel.';render();return}
-  $('msg').textContent=`❌ Verloren! Leben übrig: ${S.lives}. Die Runde wiederholt sich.`}
+ if(win){S.round++;msg(`✅ Runde gewonnen! Jetzt Runde ${S.round}.`+(limit()>oldL?' 🔓 Neuer Platz freigeschaltet!':''))}
+ else{S.lives--;if(S.lives<=0){S.phase='done';msg('💀 Game Over – starte ein neues Spiel.');render();return}
+  msg(`❌ Verloren! Leben übrig: ${S.lives}. Die Runde wiederholt sich.`)}
  roll();save();render()}
 
-/* ================= EINGABE ================= */
-$('cv').addEventListener('click',e=>{if(S.phase!='prep')return;const cv=$('cv'),b=cv.getBoundingClientRect();
- const mx=(e.clientX-b.left)*cv.width/b.width,my=(e.clientY-b.top)*cv.height/b.height;
+/* ================= EINGABE (Klick + Drag & Drop) ================= */
+function cellAt(cx,cy){const cv=$('cv'),b=cv.getBoundingClientRect(),mx=(cx-b.left)*cv.width/b.width,my=(cy-b.top)*cv.height/b.height;
  let hr=-1,hc=-1,bd=R;for(let r=4;r<ROWS;r++)for(let c=0;c<COLS;c++){const[x,y]=px(r,c),d=Math.hypot(x-mx,y-my);if(d<bd){bd=d;hr=r;hc=c}}
- if(hr<0)return;
- const occ=placed().find(i=>S.own[i].pos.r==hr&&S.own[i].pos.c==hc);
- if(S.sel!=null){const o=S.own[S.sel];
-  if(occ&&occ==S.sel){S.sel=null}
-  else if(occ){S.own[occ].pos=o.pos;o.pos={r:hr,c:hc};S.sel=null}
-  else{if(!o.pos&&placed().length>=limit()){$('msg').textContent=`Max. ${limit()} Pokémon in dieser Runde!`;return}
-   o.pos={r:hr,c:hc};S.sel=null}}
- else if(occ)S.sel=occ;
- render()});
+ return hr<0?null:{r:hr,c:hc}}
+const occAt=c=>placed().find(i=>S.own[i].pos.r==c.r&&S.own[i].pos.c==c.c);
+function moveTo(spi,tgt){const o=S.own[spi];if(!o)return;
+ if(tgt=='bench'){if(o.pos){if(benchCount()>=CFG.benchMax){msg('Die Bank ist voll!');return}o.pos=null}return}
+ const occ=occAt(tgt);
+ if(occ!=null&&occ==spi)return;
+ if(occ!=null){S.own[occ].pos=o.pos;o.pos={r:tgt.r,c:tgt.c};return}
+ if(!o.pos&&placed().length>=limit()){msg(`Max. ${limit()} Pokémon in dieser Runde!`);return}
+ o.pos={r:tgt.r,c:tgt.c}}
+function clickCell(c){if(!c){S.sel=null;render();return}
+ const occ=occAt(c);
+ if(S.sel!=null){if(occ!=null&&occ==S.sel)S.sel=null;else{moveTo(S.sel,c);S.sel=null}}
+ else if(occ!=null)S.sel=occ;
+ render()}
+let D=null;
+function bdown(e,i){if(S.phase!='prep')return;e.preventDefault();D={spi:i,x:e.clientX,y:e.clientY,moved:false,from:'bench'}}
+$('cv').addEventListener('pointerdown',e=>{if(S.phase!='prep')return;e.preventDefault();const c=cellAt(e.clientX,e.clientY);
+ D={spi:c?occAt(c):null,x:e.clientX,y:e.clientY,moved:false,from:'cv'}});
+window.addEventListener('pointermove',e=>{if(!D)return;
+ if(!D.moved&&D.spi!=null&&Math.hypot(e.clientX-D.x,e.clientY-D.y)>6){D.moved=true;S.sel=null;
+  const g=document.createElement('img');g.id='ghost';const st=star(D.spi),sp=SP[D.spi];g.src=url(sp.id[st-1],sp.sh);document.body.appendChild(g);D.g=g}
+ if(D.g){D.g.style.left=e.clientX-32+'px';D.g.style.top=e.clientY-32+'px'}});
+window.addEventListener('pointerup',e=>{if(!D)return;const d=D;D=null;if(d.g)d.g.remove();
+ if(d.moved){const el=document.elementFromPoint(e.clientX,e.clientY);let tgt=null;
+  if(el===$('cv'))tgt=cellAt(e.clientX,e.clientY);else if(el&&el.closest('#bench'))tgt='bench';
+  if(tgt)moveTo(d.spi,tgt);render();return}
+ if(d.from=='bench'){S.sel=(S.sel==d.spi)?null:d.spi;render()}
+ else clickCell(cellAt(e.clientX,e.clientY))});
+window.addEventListener('pointercancel',()=>{if(D&&D.g)D.g.remove();D=null});
 
 /* ================= ANZEIGE ================= */
 function render(){if(!S)return;const pl=placed().length;
- $('info').innerHTML=`Runde <b>${S.round}/${EN.length}</b> · 💰 <b>${S.gold}</b> (nächste Runde +${income()}) · ❤️ ${S.lives} · Aufgestellt <b>${pl}/${limit()}</b><br>Gegner: ${EN[Math.min(S.round,EN.length)-1].map(e=>e[0]).join(', ')}`;
+ $('tr').innerHTML=`Runde <b>${S.round}/${EN.length}</b>`;
+ $('tl').innerHTML=`❤️ <b>${S.lives}</b>`;
+ $('tn').innerHTML=`Nächster Gegner: <b>${EN[Math.min(S.round,EN.length)-1].map(e=>e[0]).join(', ')}</b>`;
+ $('gold').innerHTML=`💰 <b>${S.gold}</b> (+${income()} nächste Runde)`;
+ $('plc').innerHTML=`Aufgestellt <b>${pl}/${limit()}</b>`;
  const prep=S.phase=='prep';$('bBattle').disabled=!prep;$('bRoll').disabled=!prep||S.gold<CFG.reroll;
- $('shop').innerHTML=S.shop.map((i,k)=>{if(i==null)return`<div class="card sold">–</div>`;const s=SP[i],h=S.own[i]?S.own[i].cards:0;
-  return`<div class="card c${s.c}" onclick="buy(${k})"><img src="${url(s.id[0],s.sh)}" onerror="this.style.opacity=.2"><b>${s.n[0]}</b><small>${s.t.join('/')}</small><small>${s.c} 💰 · hast ${h}/3</small></div>`}).join('');
- $('bench').innerHTML=Object.keys(S.own).filter(i=>!S.own[i].pos).map(i=>{const s=SP[i],st=star(i);
-  return`<div class="card c${s.c} ${S.sel==i?'sel':''}" onclick="S.sel=${i};render()"><img src="${url(s.id[st-1],s.sh)}" onerror="this.style.opacity=.2"><b>${s.n[st-1]}</b><small>${'★'.repeat(st)}</small></div>`}).join('')||'<small>leer</small>';
- const b=buffs();$('buffs').innerHTML=b.act.length?b.act.join('<br>'):'Noch keine Boni (2 gleiche Typen aufstellen).';
+ $('shop').innerHTML=S.shop.map((i,k)=>{if(i==null)return`<div class="card sold">–</div>`;const s=SP[i];
+  return`<div class="card c${s.c}" onclick="buy(${k})"><img class="sp" src="${url(s.id[0],s.sh)}" onerror="this.style.opacity=.2"><b>${s.n[0]}</b><div class="tys">${s.t.map(typeIcon).join('')}</div><span class="co">${s.c} 💰</span></div>`}).join('');
+ const bn=Object.keys(S.own).filter(i=>!S.own[i].pos);let bh='';
+ for(let k=0;k<CFG.benchMax;k++){const i=bn[k];
+  if(i==null){bh+='<div class="card empty"></div>';continue}
+  const s=SP[i],st=star(i);
+  bh+=`<div class="card c${s.c} ${S.sel==i?'sel':''}" onpointerdown="bdown(event,${i})"><img class="sp" src="${url(s.id[st-1],s.sh)}" onerror="this.style.opacity=.2" draggable="false"><b>${s.n[st-1]}</b>${starsHtml(st)}</div>`}
+ $('bench').innerHTML=bh;$('benchH').textContent=`Bank (${bn.length}/${CFG.benchMax}) – ziehen oder antippen, dann Feld wählen`;
+ const cnt=typeCounts();
+ $('buffs').innerHTML=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).map(t=>{const tb=TB[t],c=cnt[t],k=tierIdx(t,c);
+  return`<div class="bf ${k>=0?'on':''}">${typeBadge(t)} <b>${c}</b><span class="th" style="float:right">${tb.th.map((x,j)=>`<i class="${c>=x?'r':''} ${j==k?'a':''}">${x}</i>`).join('')}</span><div class="bd">${k>=0?tb.d(tb.v[k]):'Noch nicht aktiv'}</div></div>`}).join('')||'<small>Stelle Pokémon auf, um Boni zu sehen.</small>';
+ $('allb').innerHTML=Object.keys(TB).map(t=>`<div class="bf on" style="opacity:1">${typeBadge(t)}<div class="bd">${TB[t].th.map((x,j)=>`<b>${x}:</b> ${TB[t].d(TB[t].v[j])}`).join('<br>')}</div></div>`).join('');
  $('coll').innerHTML=SP.map((s,i)=>`<div class="chip ${S.own[i]?'on':''}" title="${s.n[0]}"><img src="${url(s.id[S.own[i]?star(i)-1:0],s.sh)}" onerror="this.style.display='none'"></div>`).join('');
  refreshView()}
 
 /* ================= ZEICHNEN ================= */
-function hexPath(x,y,r){ctx.beginPath();for(let k=0;k<6;k++){const a=Math.PI/180*(60*k-30);ctx[k?'lineTo':'moveTo'](x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
 const ctx=$('cv').getContext('2d');ctx.imageSmoothingEnabled=false;
+function hexPath(x,y,r){ctx.beginPath();for(let k=0;k<6;k++){const a=Math.PI/180*(60*k-30);ctx[k?'lineTo':'moveTo'](x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
 function draw(t){ctx.clearRect(0,0,720,500);
  const selPos=S&&S.sel!=null&&S.own[S.sel]?S.own[S.sel].pos:null;
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const[x,y]=px(r,c);hexPath(x,y,R-1.5);
-  ctx.fillStyle=r<4?'#2a2233':'#22302f';ctx.fill();ctx.strokeStyle=selPos&&selPos.r==r&&selPos.c==c?'#ff0':'#3d4660';ctx.lineWidth=selPos&&selPos.r==r&&selPos.c==c?3:1;ctx.stroke()}
+  ctx.fillStyle=r<4?'#2a2233':'#22302f';ctx.fill();const sl=selPos&&selPos.r==r&&selPos.c==c;ctx.strokeStyle=sl?'#ff0':'#3d4660';ctx.lineWidth=sl?3:1;ctx.stroke()}
  if(!S||!B.units)return;
+ for(const f of B.fields){const[x,y]=px(f.r,f.c);ctx.fillStyle='rgba(200,130,50,.25)';ctx.beginPath();ctx.arc(x,y,f.rad*W*.9,0,7);ctx.fill()}
  const us=[...B.units].filter(u=>u.hp>0).sort((a,b)=>a.y-b.y);
  for(const u of us){const[tx,ty]=px(u.r,u.c);u.x+=(tx-u.x)*.18;u.y+=(ty-u.y)*.18;u.lx*=.85;u.ly*=.85;
   const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=u.big?96:80;
   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(u.x,u.y+22,22,8,0,0,7);ctx.fill();
-  const im=imgOf(u.id,u.sh);
-  if(im.complete&&im.naturalWidth&&!im.bad)ctx.drawImage(im,x-sz/2,y-sz/2,sz,sz);
-  else{ctx.fillStyle=u.team=='p'?'#4a8':'#a54';ctx.beginPath();ctx.arc(x,y,24,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText(u.name.slice(0,7),x,y+4)}
+  if(u.decoy){ctx.fillStyle='#e8d36a';ctx.beginPath();ctx.arc(x,y,20,0,7);ctx.fill();ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x-7,y-3,3,0,7);ctx.arc(x+7,y-3,3,0,7);ctx.fill();ctx.fillRect(x-6,y+7,12,2)}
+  else{const im=imgOf(u.id,u.sh);
+   if(im.complete&&im.naturalWidth&&!im.bad)ctx.drawImage(im,x-sz/2,y-sz/2,sz,sz);
+   else{ctx.fillStyle=u.team=='p'?'#4a8':'#a54';ctx.beginPath();ctx.arc(x,y,24,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText(u.name.slice(0,7),x,y+4)}}
   const bw=50,by=u.y-46;ctx.fillStyle='#000';ctx.fillRect(u.x-bw/2,by,bw,6);
   ctx.fillStyle=u.team=='p'?'#4d4':'#d44';ctx.fillRect(u.x-bw/2,by,bw*Math.max(0,u.hp/u.max),6);
-  ctx.fillStyle='#38f';ctx.fillRect(u.x-bw/2,by+7,bw*Math.min(1,u.mana/u.mmax),3);
-  if(u.star){ctx.fillStyle='#fd0';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('★'.repeat(u.star),u.x,by-3)}}
+  if(u.shield>0){ctx.fillStyle='#9df';ctx.fillRect(u.x-bw/2,by-3,bw*Math.min(1,u.shield/u.max),3)}
+  if(!u.decoy){ctx.fillStyle='#38f';ctx.fillRect(u.x-bw/2,by+7,bw*Math.min(1,u.mana/u.mmax),3)}
+  if(u.star){ctx.fillStyle=STAR_COL[u.star-1];ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+   const s='★'.repeat(u.star);ctx.strokeText(s,u.x,by-6);ctx.fillText(s,u.x,by-6)}
+  if(u.stun>0){ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('💫',u.x,by-20)}
+  if(u.poisT>0){ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('☠',u.x+28,by+6)}}
  for(const f of B.fx){ctx.strokeStyle=f.col;ctx.lineWidth=f.w;ctx.globalAlpha=Math.min(1,f.t*6);ctx.beginPath();ctx.moveTo(f.x1,f.y1);ctx.lineTo(f.x2,f.y2);ctx.stroke();ctx.globalAlpha=1}
  ctx.font='bold 14px sans-serif';ctx.textAlign='center';
  for(const f of B.txt){ctx.fillStyle=f.col;ctx.fillText(f.s,f.x,f.y)}}
 let last=0;
 function frame(t){const dt=Math.min((t-last)/1000,.05);last=t;
- if(S&&S.phase=='battle')for(let i=0;i<S.speed;i++)step(dt);
+ if(S&&S.phase=='battle')for(let i=0;i<S.speed;i++){if(S.phase!='battle')break;step(dt)}
  draw(t);requestAnimationFrame(frame)}
-if(!load())newGame();else{$('msg').textContent='Spielstand geladen.';render()}
+if(!load())newGame();else{msg('Spielstand geladen.');render()}
 requestAnimationFrame(frame);
 </script></body></html>

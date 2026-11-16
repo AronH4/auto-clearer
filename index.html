@@ -6,7 +6,7 @@ body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;pad
 button{background:#3b4a8a;color:#fff;border:0;border-radius:6px;padding:8px 12px;margin:2px;cursor:pointer;font-size:14px}
 button:disabled{opacity:.4}button.red{background:#a33}
 #bBattle{font-size:22px;font-weight:bold;padding:16px 34px}
-#bRestart{font-size:22px;padding:12px 16px}
+#bRestart,#bRoll{font-size:22px;padding:12px 16px}
 #top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:15px}
 #top .ttl{font-size:18px;color:#fc6}
 #main{display:grid;grid-template-columns:230px 1fr;gap:10px;margin-top:8px}
@@ -62,7 +62,7 @@ h4{margin:8px 0 2px;color:#9ab}
   <canvas id="cv" width="720" height="500"></canvas>
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
-   <button id="bRoll" onclick="reroll()">🎲 Neu würfeln (2)</button>
+   <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
    <button class="red" id="bRestart" onclick="restart()" title="Match neu starten">🔄</button></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
@@ -80,7 +80,7 @@ h4{margin:8px 0 2px;color:#9ab}
 const CFG={startGold:10,income:5,reroll:2,lives:3,   // income = Gold pro Runde (keine Zinsen mehr)
  tempo:1.3,moveDelay:.3,                // Grundtempo des Kampfes (1 = alt) und Sekunden pro Schritt beim Laufen
 
- maxUnits:10,slotAfter:[1,3,5,8,12,17,23,30,40],benchMax:15,   // Platz-Freischaltung: neuer Platz NACH diesen Runden; Bankplätze
+ maxUnits:10,slotAfter:[1,3,5,8,12,17,23,30,40],benchMax:12,   // Platz-Freischaltung: neuer Platz NACH diesen Runden; Bankplätze
  speedUpAfter:20,speedUpTo:3,            // nach 20s Kampf: Tempo auf x3 (= 2 Stufen höher)
  hpMul:[1,1.8,3.2],atkMul:[1,1.7,2.8],skillMul:[2.5,3.5,5],
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
@@ -91,7 +91,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:3,   // income = Gold pro Runde 
     strength = globaler Regler (kleiner = leichter), T = Ziel-Kampfdauer (s), fStart/fEnd = Schwierigkeit Anfang/Ende,
     fRounds = Runden bis fEnd, early = Faktor Runde 1-5, mg = Mana pro Angriff der Gegner,
     dmg = Schadens-Faktor der Gegner (Runde 1), dmgGrow = zusätzlicher Schadens-Zuwachs bis Runde 60 (0.8 = +80%) */
- enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,late:1.12,lateFrom:6,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12,dmg:1.2,dmgGrow:1.15,mid:1.12,endNerf:.92}};   // mid = Faktor Runde 6-25 (stärker), endNerf = Faktor ab Runde 35 (schwächer)
+ enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,late:1.12,lateFrom:6,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12,dmg:1.2,dmgGrow:1.15,tank:.78,tankFrom:32,mid:1.12,endNerf:.92}};   // mid = Faktor Runde 6-25 (stärker), endNerf = Faktor ab Runde 35 (schwächer)
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
 /* Typ-Logos von pokewiki.de. Falls sie nicht laden, wird ein farbiger Kreis mit Buchstabe gezeigt. */
 const TYPE_URL={"Normal": "https://www.pokewiki.de/images/thumb/8/85/Typ-Icon_Normal_%28Symbol%29_PLA.png/32px-Typ-Icon_Normal_%28Symbol%29_PLA.png", "Fighting": "https://www.pokewiki.de/images/thumb/3/3c/Typ-Icon_Kampf_%28Symbol%29_PLA.png/32px-Typ-Icon_Kampf_%28Symbol%29_PLA.png", "Flying": "https://www.pokewiki.de/images/thumb/0/00/Typ-Icon_Flug_%28Symbol%29_PLA.png/32px-Typ-Icon_Flug_%28Symbol%29_PLA.png", "Poison": "https://www.pokewiki.de/images/thumb/b/b5/Typ-Icon_Gift_%28Symbol%29_PLA.png/32px-Typ-Icon_Gift_%28Symbol%29_PLA.png", "Ground": "https://www.pokewiki.de/images/thumb/c/cc/Typ-Icon_Boden_%28Symbol%29_PLA.png/32px-Typ-Icon_Boden_%28Symbol%29_PLA.png", "Rock": "https://www.pokewiki.de/images/thumb/0/0a/Typ-Icon_Gestein_%28Symbol%29_PLA.png/32px-Typ-Icon_Gestein_%28Symbol%29_PLA.png", "Bug": "https://www.pokewiki.de/images/thumb/f/fd/Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png/32px-Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png", "Ghost": "https://www.pokewiki.de/images/thumb/c/c0/Typ-Icon_Geist_%28Symbol%29_PLA.png/32px-Typ-Icon_Geist_%28Symbol%29_PLA.png", "Steel": "https://www.pokewiki.de/images/thumb/2/2b/Typ-Icon_Stahl_%28Symbol%29_PLA.png/32px-Typ-Icon_Stahl_%28Symbol%29_PLA.png", "Fire": "https://www.pokewiki.de/images/thumb/f/f0/Typ-Icon_Feuer_%28Symbol%29_PLA.png/32px-Typ-Icon_Feuer_%28Symbol%29_PLA.png", "Water": "https://www.pokewiki.de/images/thumb/b/b6/Typ-Icon_Wasser_%28Symbol%29_PLA.png/32px-Typ-Icon_Wasser_%28Symbol%29_PLA.png", "Grass": "https://www.pokewiki.de/images/thumb/8/82/Typ-Icon_Pflanze_%28Symbol%29_PLA.png/32px-Typ-Icon_Pflanze_%28Symbol%29_PLA.png", "Electric": "https://www.pokewiki.de/images/thumb/a/a9/Typ-Icon_Elektro_%28Symbol%29_PLA.png/32px-Typ-Icon_Elektro_%28Symbol%29_PLA.png", "Psychic": "https://www.pokewiki.de/images/thumb/1/12/Typ-Icon_Psycho_%28Symbol%29_PLA.png/32px-Typ-Icon_Psycho_%28Symbol%29_PLA.png", "Ice": "https://www.pokewiki.de/images/thumb/d/d8/Typ-Icon_Eis_%28Symbol%29_PLA.png/32px-Typ-Icon_Eis_%28Symbol%29_PLA.png", "Dragon": "https://www.pokewiki.de/images/thumb/6/6f/Typ-Icon_Drache_%28Symbol%29_PLA.png/32px-Typ-Icon_Drache_%28Symbol%29_PLA.png", "Dark": "https://www.pokewiki.de/images/thumb/5/58/Typ-Icon_Unlicht_%28Symbol%29_PLA.png/32px-Typ-Icon_Unlicht_%28Symbol%29_PLA.png", "Fairy": "https://www.pokewiki.de/images/thumb/6/6c/Typ-Icon_Fee_%28Symbol%29_PLA.png/32px-Typ-Icon_Fee_%28Symbol%29_PLA.png"};
@@ -532,7 +532,7 @@ function clearSave(){try{localStorage.removeItem('pab4')}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem('pab4'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;fixSlots();return true}}catch(e){}return false}
 
 function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
- for(let k=0;k<5;k++){
+ for(let k=0;k<6;k++){
   const av=SP.map((s,i)=>({i,c:s.c,w:S.pool[i]})).filter(x=>x.w>0&&!S.units.some(u=>u.sp==x.i&&u.star==3));
   const costs=[1,2,3,4,5].filter(c=>av.some(x=>x.c==c)&&tier[c-1]>0);
   if(!costs.length){S.shop.push(null);continue}
@@ -596,7 +596,7 @@ function buildEnemy(){const g=ENEMIES[Math.min(S.round,ENEMIES.length)-1],m=g.le
  const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1)*(r>=e.lateFrom?e.late:1)*(r>=6&&r<=25?e.mid:1)*(r>=35?e.endNerf:1);
  const n=limitFor(r),q=Math.min(r,45)/45;
  const D=n*28*(1+1.2*q),H=n*300*(1+q);
- const totalHP=D*e.T*f,totalDPS=H/(e.T*2.5)*f;
+ const totalHP=D*e.T*f*(r>=e.tankFrom?e.tank:1),totalDPS=H/(e.T*2.5)*f;
  const dmgF=e.dmg*(1+e.dmgGrow*Math.min(r,60)/60);
  const wH=g.reduce((s,d)=>s+(d.hpX||1),0),wA=g.reduce((s,d)=>s+(d.atkX||1),0);
  return g.map((d,j)=>{const pos=d.pos||[1,Math.floor((COLS-m)/2)+j];

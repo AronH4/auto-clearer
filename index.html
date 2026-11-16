@@ -2,19 +2,20 @@
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Auto-Clearer</title>
 <style>
-body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;padding:0 8px 20px;max-width:1100px;margin:auto}
+body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;padding:0 8px 20px;max-width:1320px;margin:auto}
 button{background:#3b4a8a;color:#fff;border:0;border-radius:6px;padding:8px 12px;margin:2px;cursor:pointer;font-size:14px}
 button:disabled{opacity:.4}button.red{background:#a33}
 #bBattle{font-size:22px;font-weight:bold;padding:16px 34px}
 #bRestart,#bRoll{font-size:22px;padding:12px 16px}
 #top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:15px}
 #top .ttl{font-size:18px;color:#fc6}
-#main{display:grid;grid-template-columns:230px 1fr;gap:10px;margin-top:8px}
-@media(max-width:760px){#main{grid-template-columns:1fr}}
-#left{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 64px);overflow:auto;font-size:12px}
+#main{display:grid;grid-template-columns:225px 1fr 225px;gap:10px;margin-top:8px}
+@media(max-width:980px){#main{grid-template-columns:1fr}}
+#left,#right{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 64px);overflow:auto;font-size:12px;background:#181c28;border:1px solid #2c3350;border-radius:8px;padding:8px}
 #mid{min-width:0}
 canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display:block}
 #ctrl{display:flex;flex-direction:column;gap:6px;padding:6px 2px}
+#btns{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 #stat{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:15px}#plc{cursor:help;border-bottom:1px dotted #889}
 #under{text-align:center}#under h4{text-align:center;margin:12px 0 2px}
 #shop,#bench{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}#shop{justify-content:center}
@@ -51,8 +52,17 @@ h4{margin:8px 0 2px;color:#9ab}
 #tip .pc{display:flex;align-items:center;width:102px;font-size:10px;border:1px solid #333;border-radius:6px;padding:1px;opacity:.3}
 #tip .pc.own{opacity:.7}#tip .pc.on{opacity:1;border-color:#5c5;background:#1c2b1c}
 #tip .pc img{width:28px;height:28px;image-rendering:pixelated}
-#crownBox{display:inline-flex;align-items:center;gap:6px;background:#2a2414;border:1px solid #ffd700;border-radius:8px;padding:3px 10px;cursor:grab;user-select:none;color:#ffd700;font-weight:bold;font-size:13px}
+#crownBox{display:inline-flex;align-items:center;justify-content:center;background:#2a2414;border:2px solid #ffd700;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1}
 #crownBox.hidden{display:none}
+/* DPS-Chart rechts */
+.dps-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;background:#131620;border:1px solid #282f48;border-radius:6px;padding:4px 6px}
+.dps-row img{width:34px;height:34px;image-rendering:pixelated;flex-shrink:0}
+.dps-info{flex:1;min-width:0}
+.dps-top{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;gap:4px}
+.dps-top b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#eee}
+.dps-top span{color:#fd6;font-weight:bold;white-space:nowrap}
+.dps-bar-bg{height:6px;background:#252b3d;border-radius:3px;overflow:hidden}
+.dps-bar{height:100%;background:linear-gradient(90deg,#4a9eff,#6ce5ff);border-radius:3px;transition:width .12s}
 </style></head><body>
 <div id="top"><b class="ttl">Auto-Clearer</b><span id="tr"></span><span id="tl"></span><span id="tn"></span></div>
 <div id="main">
@@ -63,7 +73,7 @@ h4{margin:8px 0 2px;color:#9ab}
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
    <button class="red" id="bRestart" onclick="restart()" title="Match neu starten">🔄</button>
-   <span id="crownBox" class="hidden" title="Ziehe diese Krone auf ein aufgestelltes Pokémon! (+10% ATK, ASPD & Mana/ATK)">👑 Käfer-Krone (ziehen)</span></div>
+   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+10% ATK, ASPD & Mana/ATK)">👑</span></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
   <div id="under">
@@ -72,6 +82,7 @@ h4{margin:8px 0 2px;color:#9ab}
    <div id="benchRow"><div id="bench"></div><div id="trash" onclick="trashClick()" title="Pokémon hierher ziehen, um sie zu verkaufen">🗑️<small>Verkaufen</small></div></div>
   </div>
  </div>
+ <div id="right"><h4 style="margin-top:0">📊 DMG / DPS (Runde)</h4><div id="dpsChart"><small style="color:#889">Starte einen Kampf, um den Schaden zu sehen.</small></div></div>
 </div>
 <div id="tip"></div>
 
@@ -83,13 +94,46 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
  speedUpAfter:20,speedUpTo:3,
  /* Sterne-Faktoren für HP & ATK: 1★ = 1.0, 2★ = 1.75, 3★ = 3.0 */
  hpMul:[1,1.75,3],atkMul:[1,1.75,3],
- /* Cost-Unit-Faktoren für HP & ATK: 1-Cost = 1.0, 2-Cost = 1.1, 3-Cost = 1.15, 4-Cost = 1.2, 5-Cost = 1.25 */
+ /* Cost-Unit-Faktoren für HP & ATK */
  costMul:{1:1,2:1.1,3:1.15,4:1.2,5:1.25},
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
- copies:{1:15,2:13,3:11,4:10,5:9},
+ copies:{1:22,2:18,3:15,4:12,5:9},
  mergeNeeded:3,
- odds:[[2,[80,20,0,0,0]],[5,[60,30,10,0,0]],[9,[40,35,20,5,0]],[14,[25,35,28,10,2]],[24,[15,25,30,22,8]],[999,[10,18,28,28,16]]],
- enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,late:1.12,lateFrom:6,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12,dmg:1.2,dmgGrow:1.15,tank:.75,tankFrom:32,mid:1.12,endNerf:.78,endFrom:26}};
+ /* Gleichmäßigere Shop-Verteilung: 1-Costs bleiben bis ins Endgame gut auffindbar, 5-Costs bleiben selten */
+ odds:[
+  [3,[65,30,5,0,0]],
+  [7,[48,34,15,3,0]],
+  [13,[36,32,22,8,2]],
+  [21,[28,30,25,13,4]],
+  [32,[24,27,26,17,6]],
+  [999,[22,25,25,20,8]]
+ ],
+ /* Deutlich gestaffelte Gegner-Skalierung:
+    - Runden 1-5: machbarer Einstieg
+    - Ab Runde 6: spürbar stärker
+    - Ab Runde 15: deutlich härter
+    - Ab Runde 30: starke Mid-/Lategame-Teams
+    - Ab Runde 42: echte Endgame-Herausforderung */
+ enemy:{
+  strength:1.25,
+  T:17,
+  fStart:0.85,
+  fEnd:1.65,
+  fRounds:52,
+  early:0.95,
+  from6:1.25,
+  from15:1.30,
+  from30:1.32,
+  from42:1.22,
+  aspd:0.78,
+  skill:3.2,
+  def:12,
+  defPerRound:1.15,
+  mg:13,
+  dmg:1.45,
+  dmgGrow:1.45
+ }
+};
 
 /* ================= KLASSEN (laut Tabelle) ================= */
 const CLASSES={
@@ -101,12 +145,13 @@ const CLASSES={
 
 /* ================= FÄHIGKEITEN-BESCHREIBUNGEN ================= */
 const SKILLS={
- 'Close Combat':{col:'#ff3b3b',desc:'Rote Nahkampf-Explosion: Verursacht 10 + Ability DMG an allen Gegnern im Umkreis von 1 Feld.'},
+ 'Close Combat':{col:'#ff3b3b',desc:'Rote Nahkampf-Explosion: Verursacht 10 + Ability DMG an allen Gegnern im Umkreis von 2 Feldern.'},
  'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel und verursacht Ability DMG.'},
  'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts vor dem Anwender für 4s eine Barriere auf (-50% Projektil-Schaden).'},
  'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht Ability DMG.'},
  'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Feuert ein Projektil auf den Gegner mit den meisten HP; trifft Ziel und angrenzende Gegner (1 Feld) für Ability DMG.'},
- 'Toxic':       {col:'#44dd55',desc:'Grüne Giftwolke: Vergiftet den nächsten Gegner für 5s (verursacht insgesamt 1,5x Ability DMG).'}
+ 'Toxic':       {col:'#44dd55',desc:'Grüne Giftwolke: Vergiftet den nächsten Gegner für 5s (verursacht insgesamt 1,5x Ability DMG).'},
+ 'Dream Eater': {col:'#b86bff',desc:'Violette Traum-Welle: Verursacht Ability DMG am Ziel und heilt den Anwender um 40% des Schadens.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -120,7 +165,7 @@ const TYPES={Normal:[1,'Normal','#a8a77a'],Fighting:[2,'Kampf','#c22e28'],Flying
  Psychic:[14,'Psycho','#f95587'],Ice:[15,'Eis','#6fc3c0'],Dragon:[16,'Drache','#6f35fc'],Dark:[17,'Unlicht','#705746'],Fairy:[18,'Fee','#d685ad']};
 const p=v=>Math.round(v*100)+'%';
 
-/* ================= AKTUALISIERTE TYP-BONI (laut Tabelle) ================= */
+/* ================= TYP-BONI ================= */
 const DECOY_HP=[150,300,500];
 const TB={
  Normal:  {th:[3],    v:[3],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
@@ -135,7 +180,7 @@ const TB={
  Ground:  {th:[1],    v:[80],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
  Steel:   {th:[2,3,5],v:[.20,.40,.60],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[1],    v:[2.5],        d:v=>`Jeder 7. Angriff versetzt das Ziel für 2,5s in den Berserker-Modus (greift eigene Allies an, sonst 2,5s Stun)`},
- Ghost:   {th:[2,3,5],v:[150,300,500],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart und zieht Aggro`},
+ Ghost:   {th:[2,3,5],v:[150,300,500],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (wird angegriffen, wenn er am nächsten steht)`},
  Poison:  {th:[1],    v:[.20],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} ATK pro Sekunde (5s)`},
  Dark:    {th:[2,4],  v:[.25,.50],    d:v=>`Alle Unlicht-Pokémon erhalten einen Crit Chance Buff auf ${p(v)}`},
  Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern den Attack Speed des Ziels um ${p(v)} (3s)`},
@@ -148,10 +193,7 @@ const typeIcon=t=>{const T=TYPES[t];return`<span class="ti" style="background:${
 const typeBadge=t=>{const T=TYPES[t];return`<span class="tb" style="background:${T[2]}"><img src="${TYPE_URL[t]}" onerror="this.remove()">${T[1]}</span>`};
 const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000">${'★'.repeat(n)}</span>`;
 
-/* ================= POKÉMON-POOL MIT KLASSEN & FÄHIGKEITEN =================
-   [Kosten, Namen(Entwicklungsreihe), Dex-IDs, Typen, Klasse, Fähigkeit, shiny?, Stat-Overrides]
-   Hinweis: Für Pokémon aus der Tabelle, die noch nicht im Pool waren (Impi/Impoleon, Gengar/Nebulak etc.),
-   sind alle 30 Reihen exakt auf die Klassen & Fähigkeiten der Tabelle abgestimmt. */
+/* ================= POKÉMON-POOL ================= */
 const RAW=[
 [1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison','Caster','Dream Eater'],
 [1,'Samurzel,Blanas,Tengulist','273,274,275','Grass,Dark','Fighter','Close Combat'],
@@ -184,9 +226,6 @@ const RAW=[
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Weather Ball'],
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water','Caster','Snipe Shot']
 ];
-
-/* Dream Eater Beschreibung (da in der Tabelle zugewiesen) ergänzen */
-SKILLS['Dream Eater']={col:'#b86bff',desc:'Violette Traum-Welle: Verursacht Ability DMG am Ziel und heilt den Anwender um 40% des Schadens.'};
 
 const SP=RAW.map(r=>({
  c:r[0],
@@ -270,7 +309,7 @@ function imgOf(id,sh){const k=id+(sh?'s':'');if(!IMG[k]){const i=new Image();i.s
 const url=(id,sh)=>(typeof id=='string'&&/[\/.]/.test(id))?id:(SPRITE_OVERRIDE[id+(sh?'s':'')]||BASE+(sh?'shiny/':'')+id+'.png');
 
 /* ================= SPIELZUSTAND ================= */
-let S,B={units:[],fx:[],proj:[],waves:[],barriers:[],txt:[],fields:[],flag:{}};
+let S,B={units:[],fx:[],proj:[],waves:[],barriers:[],txt:[],fields:[],flag:{},dps:[],time:0};
 const cardsEq=u=>Math.pow(CFG.mergeNeeded,u.star-1);
 const placed=()=>S.units.filter(u=>u.pos);
 const benchCount=()=>S.units.filter(u=>!u.pos).length;
@@ -290,9 +329,9 @@ function newGame(){
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
-function save(){try{localStorage.setItem('pab5',JSON.stringify(S))}catch(e){}}
-function clearSave(){try{localStorage.removeItem('pab5')}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('pab5'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;fixSlots();return true}}catch(e){}return false}
+function save(){try{localStorage.setItem('pab6',JSON.stringify(S))}catch(e){}}
+function clearSave(){try{localStorage.removeItem('pab6')}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem('pab6'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;fixSlots();return true}}catch(e){}return false}
 
 function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
  for(let k=0;k<5;k++){
@@ -345,13 +384,12 @@ function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
   cd:Math.random()*.4,mv:0,star:st.star||0,big:!!st.big,
   dm:1,ls:0,shield:0,fight:0,fire:0,fireDotDone:0,ice:0,fairy:0,bug:0,ground:0,groundDone:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
   fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,
-  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,pAcc:0,atkN:0,spdBuff:0,decoy:false,crowned:false}}
+  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,crowned:false}}
 
 function typeCounts(){const c={},seen=new Set();placed().forEach(u=>{if(seen.has(u.sp))return;seen.add(u.sp);SP[u.sp].t.forEach(t=>c[t]=(c[t]||0)+1)});return c}
 
 function ensureSpecials(){
  const cnt=typeCounts();
- /* Geist-Delegator verwalten (ab 2 Geist-Pokémon auf dem Feld) */
  if((cnt.Ghost||0)>=2){
   if(!S.decoyPos||occAt(S.decoyPos)){
    const h=freeHex();
@@ -360,7 +398,6 @@ function ensureSpecials(){
  }else{
   S.decoyPos=null;
  }
- /* Käfer-Krone verwalten (ab 1 Käfer-Pokémon auf dem Feld) */
  if((cnt.Bug||0)>=1){
   if(S.crownOn!=null){
    const u=unitById(S.crownOn);
@@ -400,7 +437,6 @@ function buildPlayer(bat){
   const cMul=CFG.costMul[s.c]||1;
   const sMulHp=CFG.hpMul[st-1]||1;
   const sMulAtk=CFG.atkMul[st-1]||1;
-  /* Base-Stats aus Klasse * Cost-Faktor * Stern-Faktor */
   const hp=(ov.hp||cl.hp)*cMul*sMulHp;
   const atk=(ov.atk||cl.atk)*cMul*sMulAtk;
   const abDmg=(ov.abDmg||cl.abDmg)*cMul*sMulAtk;
@@ -436,19 +472,38 @@ function buildPlayer(bat){
  return L;
 }
 
-function buildEnemy(){const g=ENEMIES[Math.min(S.round,ENEMIES.length)-1],m=g.length,e=CFG.enemy,r=S.round,pr=Math.min(r,e.fRounds)/e.fRounds;
- const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1)*(r>=e.lateFrom?e.late:1)*(r>=6&&r<=25?e.mid:1)*(r>=e.endFrom?e.endNerf:1);
- const n=limitFor(r),q=Math.min(r,45)/45;
- const D=n*28*(1+1.2*q),H=n*300*(1+q);
- const totalHP=D*e.T*f*(r>=e.tankFrom?e.tank:1),totalDPS=H/(e.T*2.5)*f;
- const dmgF=e.dmg*(1+e.dmgGrow*Math.min(r,60)/60);
+/* Deutlich gestaffelte Gegner-Berechnung */
+function buildEnemy(){
+ const g=ENEMIES[Math.min(S.round,ENEMIES.length)-1],m=g.length,e=CFG.enemy,r=S.round,pr=Math.min(r,e.fRounds)/e.fRounds;
+ const stageMult=
+  (r<=5?e.early:1)*
+  (r>=6?e.from6:1)*
+  (r>=15?e.from15:1)*
+  (r>=30?e.from30:1)*
+  (r>=42?e.from42:1);
+ const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*stageMult;
+ const n=limitFor(r),q=Math.min(r,52)/52;
+ const D=n*34*(1+1.55*q),H=n*360*(1+1.35*q);
+ const totalHP=D*e.T*f;
+ const totalDPS=H/(e.T*2.2)*f;
+ const dmgF=e.dmg*(1+e.dmgGrow*q);
  const wH=g.reduce((s,d)=>s+(d.hpX||1),0),wA=g.reduce((s,d)=>s+(d.atkX||1),0);
  return g.map((d,j)=>{const pos=d.pos||[1,Math.floor((COLS-m)/2)+j];
   const u=mk('e',pos[0],pos[1],d.name,d.sprite,!!d.shiny,{
-   hp:d.hp??totalHP*(d.hpX||1)/wH,atk:d.atk??totalDPS*dmgF*(d.atkX||1)/wA/(e.aspd*1.2),aspd:d.aspd??e.aspd,def:d.def??(e.def+r*e.defPerRound),
-   crit:d.crit??.1,range:d.range??CFG.base.range,mg:d.mg??e.mg,mmax:d.mana,skill:d.skill??e.skill,big:d.big??m<=2});
+   hp:d.hp??totalHP*(d.hpX||1)/wH,
+   atk:d.atk??totalDPS*dmgF*(d.atkX||1)/wA/(e.aspd*1.15),
+   aspd:d.aspd??e.aspd,
+   def:d.def??(e.def+r*e.defPerRound),
+   crit:d.crit??.12,
+   range:d.range??CFG.base.range,
+   mg:d.mg??e.mg,
+   mmax:d.mana,
+   skill:d.skill??e.skill,
+   big:d.big??m<=2
+  });
   u.t=Object.keys(d.bonus||{});for(const t of u.t)applyBonus(u,t,d.bonus[t],0);
-  u.onCast=d.cast||null;u.fb=d.fb??null;u.reviveTo=d.revive||null;u.split=d.split||null;u.die=d.die||null;return u})}
+  u.onCast=d.cast||null;u.fb=d.fb??null;u.reviveTo=d.revive||null;u.split=d.split||null;u.die=d.die||null;return u});
+}
 
 function refreshView(){
  if(S.phase=='prep'){
@@ -466,6 +521,37 @@ function refreshView(){
  }
 }
 
+/* ================= DPS-CHART ================= */
+function recordDamage(attacker,amount){
+ if(!attacker||attacker.team!='p'||attacker.decoy||!attacker.uid||amount<=0)return;
+ const entry=B.dps.find(x=>x.uid===attacker.uid);
+ if(entry)entry.dmg+=amount;
+}
+
+function renderDpsChart(){
+ const el=$('dpsChart');
+ if(!el)return;
+ if(!B.dps||!B.dps.length){
+  el.innerHTML='<small style="color:#889">Starte einen Kampf, um den Schaden zu sehen.</small>';
+  return;
+ }
+ const sorted=[...B.dps].sort((a,b)=>b.dmg-a.dmg);
+ const maxDmg=Math.max(1,sorted[0].dmg);
+ const elapsed=Math.max(0.5,B.time||0.5);
+ el.innerHTML=sorted.map(item=>{
+  const pct=Math.min(100,Math.round((item.dmg/maxDmg)*100));
+  const total=Math.round(item.dmg);
+  const perSec=Math.round(item.dmg/elapsed);
+  return`<div class="dps-row">
+   <img src="${url(item.spriteId,item.sh)}" onerror="this.style.opacity=.2">
+   <div class="dps-info">
+    <div class="dps-top"><b>${item.name}</b><span>${total} (${perSec}/s)</span></div>
+    <div class="dps-bar-bg"><div class="dps-bar" style="width:${pct}%"></div></div>
+   </div>
+  </div>`;
+ }).join('');
+}
+
 /* ================= KAMPF & ANIMATIONEN ================= */
 function restart(){if(!confirm('Match wirklich neu starten? Der aktuelle Fortschritt geht verloren.'))return;clearSave();newGame()}
 
@@ -475,11 +561,15 @@ function startBattle(){
  if(!placed().length)return;
  ensureSpecials();
  S.sel=null;S.speed=1;S.phase='battle';
- B.units=buildPlayer(true).concat(buildEnemy());
+ const playerUnits=buildPlayer(true);
+ B.units=playerUnits.concat(buildEnemy());
  B.fx=[];B.proj=[];B.waves=[];B.barriers=[];B.txt=[];B.fields=[];B.flag={};B.end=0;B.time=0;
+ /* DPS-Chart für die neue Runde zurücksetzen und mit den aufgestellten Pokémon befüllen */
+ B.dps=playerUnits.map(u=>({uid:u.uid,name:u.name,spriteId:u.id,sh:u.sh,dmg:0}));
+ B.dpsTimer=0;
+ renderDpsChart();
 
  const cnt=typeCounts();
- /* Geist-Delegator spawnen */
  if((cnt.Ghost||0)>=2&&S.decoyPos){
   const k=tierIdx('Ghost',cnt.Ghost);
   const dhp=DECOY_HP[k];
@@ -519,11 +609,13 @@ const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-32,s,t:.75,col});
 
 function dealDmg(t,d,col,pre,attacker){
  if(!t||t.hp<=0)return 0;
- let rem=Math.max(1,Math.round(d));
+ const dealt=Math.max(1,Math.round(d));
+ let rem=dealt;
  if(t.shield>0){const a=Math.min(t.shield,rem);t.shield-=a;rem-=a}
  t.hp-=rem;
- B.txt.push({x:t.x,y:t.y-30,s:(pre||'')+Math.max(1,Math.round(d)),t:.7,col:col||'#fff'});
- if(attacker&&attacker.ls>0)heal(attacker,d*attacker.ls);
+ recordDamage(attacker,dealt);
+ B.txt.push({x:t.x,y:t.y-30,s:(pre||'')+dealt,t:.7,col:col||'#fff'});
+ if(attacker&&attacker.ls>0)heal(attacker,dealt*attacker.ls);
  if(t.hp<=0&&!t.rev&&(t.dragon||t.reviveTo)){
   t.rev=1;const rv=t.reviveTo;t.hp=t.max*(rv?rv.hp:t.dragon);
   if(rv)morph(t,rv);
@@ -531,7 +623,7 @@ function dealDmg(t,d,col,pre,attacker){
  }else if(t.hp<=0&&!t.dead){
   t.dead=1;if(t.die)t.die(t,B.units.filter(x=>x.hp>0))
  }
- return d;
+ return dealt;
 }
 
 function morph(u,f){if(f.sprite!=null){u.fb=f.fb??u.id;u.id=f.sprite}if(f.name)u.name=f.name;if(f.atkX)u.atk*=f.atkX;if(f.big!=null)u.big=f.big;say(u,'✨')}
@@ -545,7 +637,6 @@ function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!
 
 const heal=(u,a)=>{if(u&&u.hp>0)u.hp=Math.min(u.max,u.hp+a)};
 
-/* Prüft ob eine Reflect-Barriere ein Projektil abschwächt */
 function checkBarrierMitigation(sx,sy,tx,ty,targetTeam){
  for(const b of B.barriers){
   if(b.team!==targetTeam)continue;
@@ -558,7 +649,6 @@ function checkBarrierMitigation(sx,sy,tx,ty,targetTeam){
  return 1;
 }
 
-/* Punkt-zu-Strecke-Abstand für Snipe-Shot-Laser */
 function segDist(px0,py0,x1,y1,x2,y2){
  const dx=x2-x1,dy=y2-y1,l2=dx*dx+dy*dy;
  if(l2===0)return Math.hypot(px0-x1,py0-y1);
@@ -575,10 +665,10 @@ function castPlayerSkill(u,t,A){
 
  switch(u.abName){
   case 'Close Combat':{
-   /* Rote Animation: 10 + Ability DMG an allen umliegenden Gegnern (1 Feld) */
-   B.waves.push({x:u.x,y:u.y,r:10,maxR:W*1.35,col:'#ff3b3b',t:.42,maxT:.42,fill:true});
+   /* Rote Animation: 10 + Ability DMG an allen umliegenden Gegnern im Umkreis von 2 Feldern */
+   B.waves.push({x:u.x,y:u.y,r:12,maxR:W*2.2,col:'#ff3b3b',t:.45,maxT:.45,fill:true});
    for(const f of foes){
-    if(dist(u,f)<=1){
+    if(dist(u,f)<=2){
      const d=(10+rawAb)*100/(100+f.def);
      dealDmg(f,d,'#ff4d4d','🥊',u);
     }
@@ -586,7 +676,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Snipe Shot':{
-   /* Gelber Laserstrahl: schadet allen Gegnern auf der Linie zum Ziel */
    const dx=t.x-u.x,dy=t.y-u.y,len=Math.hypot(dx,dy)||1;
    const ex=u.x+(dx/len)*850,ey=u.y+(dy/len)*850;
    B.fx.push({x1:u.x,y1:u.y,x2:ex,y2:ey,t:.38,maxT:.38,col:'#ffe63b',w:8,glow:'#ffae00'});
@@ -599,7 +688,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Reflect':{
-   /* Pinke Barriere: links, mittig und rechts vor dem Anwender (4s, -50% Projektil-Schaden) */
    const frontR=Math.max(0,u.r-1);
    const cols=[u.c-1,u.c,u.c+1].filter(c=>c>=0&&c<COLS);
    for(const c of cols){
@@ -611,7 +699,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Bulldoze':{
-   /* Braune Animation: dasht sofort zum Ziel mit den meisten HP und verursacht Ability DMG */
    let boss=foes[0];
    for(const f of foes)if(f.hp>boss.hp)boss=f;
    if(!boss)break;
@@ -631,7 +718,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Weather Ball':{
-   /* Weiße Kugel auf Ziel mit den meisten HP; trifft Ziel + angrenzende Gegner (1 Feld) */
    let boss=foes[0];
    for(const f of foes)if(f.hp>boss.hp)boss=f;
    if(!boss)break;
@@ -652,7 +738,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Toxic':{
-   /* Grüne Animation: vergiftet nächstgelegenen Gegner für 5s (1,5x Ability DMG über 5s) */
    let near=foes[0],nd=99;
    for(const f of foes){const dd=dist(u,f);if(dd<nd){nd=dd;near=f}}
    if(!near)break;
@@ -663,6 +748,7 @@ function castPlayerSkill(u,t,A){
      B.waves.push({x:bx,y:by,r:6,maxR:46,col:'#44dd55',t:.4,maxT:.4,fill:true});
      const totalPoison=(rawAb*1.5)*100/(100+near.def);
      near.poisD=Math.max(near.poisD,totalPoison/5);
+     near.poisOwner=u;
      near.poisT=5;
      say(near,'☠️ Toxic','#44dd55');
     }
@@ -670,7 +756,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   default:{
-   /* Dream Eater: Violette Traum-Welle + Heilung */
    B.proj.push({
     x:u.x,y:u.y,sx:u.x,sy:u.y,tx:t.x,ty:t.y,target:t,
     t:0,dur:.22,col:'#b86bff',glow:'#6b21a8',r:9,team:u.team,
@@ -694,16 +779,12 @@ function fightBuff(u,A){
 }
 
 function applyOnHitEffects(u,t,d){
- /* Eis-Bonus: verringert Attack Speed des Ziels */
  if(u.ice){t.slow=Math.max(t.slow,u.ice);t.slowT=3}
- /* Feuer-Bonus: verringert ATK des Ziels und hinterlässt 1x schwachen DoT */
  if(u.fire){
   t.atkDown=Math.max(t.atkDown,u.fire);t.atkDownT=4;
-  if(!t.fireDotDone){t.fireDotDone=1;t.poisD=Math.max(t.poisD,effAtk(u)*0.12);t.poisT=Math.max(t.poisT,4)}
+  if(!t.fireDotDone){t.fireDotDone=1;t.poisD=Math.max(t.poisD,effAtk(u)*0.12);t.poisOwner=u;t.poisT=Math.max(t.poisT,4)}
  }
- /* Gift-Bonus: 20% ATK pro Sekunde */
- if(u.pois){t.poisD=Math.max(t.poisD,effAtk(u)*u.pois);t.poisT=5}
- /* Psycho-Bonus: Jeder 7. Angriff -> 2,5s Berserker-Modus (oder Stun) */
+ if(u.pois){t.poisD=Math.max(t.poisD,effAtk(u)*u.pois);t.poisOwner=u;t.poisT=5}
  if(u.psy&&u.atkN%7===0){
   const alliesOfTarget=B.units.filter(x=>x.team==t.team&&x!==t&&!x.decoy&&x.hp>0);
   if(alliesOfTarget.length>0){t.berserk=2.5;say(t,'😵 Berserker!','#f95587')}
@@ -719,7 +800,6 @@ function hit(u,t,A){
  const cast=(u.mana>=u.mmax);
  if(cast){
   u.mana=0;
-  /* Fee-Bonus: heilt beim Einsatz der Ability umliegende Allies (1 Feld) um 20% max HP */
   if(u.fairy){
    for(const a of A){
     if(a.team==u.team&&!a.decoy&&a.hp>0&&dist(a,u)<=1){
@@ -735,10 +815,8 @@ function hit(u,t,A){
   }
  }
 
- /* Normaler Angriff (oder Gegner-Skill) */
  const flyExtra=(u.flyBonus&&u.team=='p')?dist(u,t)*u.flyBonus:0;
  let baseD=(effAtk(u)+flyExtra)*(cast?u.skill:1)*u.dm*(1+fightBuff(u,A));
- /* Boden-Bonus: +80 Schaden beim ersten Angriff */
  if(u.ground&&!u.groundDone){u.groundDone=1;baseD+=u.ground}
  const crit=Math.random()<u.crit;
  if(crit)baseD*=2;
@@ -746,14 +824,12 @@ function hit(u,t,A){
  u.lx=(t.x-u.x)*.18;u.ly=(t.y-u.y)*.18;
 
  if(u.team=='e'){
-  /* Gegner: Roter Laserstrahl wie gewünscht */
   B.fx.push({x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.18,maxT:.18,col:'#ff3838',w:cast?5:2.5,glow:'#aa0000'});
   const d=Math.max(1,Math.round(baseD*100/(100+t.def)));
   dealDmg(t,d,cast?'#ff5555':crit?'#ff9944':'#ffcccc',cast?'💥':crit?'!':'',u);
   applyOnHitEffects(u,t,d);
   if(cast&&u.onCast)u.onCast(u,t,A);
  }else{
-  /* Verbündete: Weißes Projektil (oder Nahkampf-Impuls) */
   const isRanged=u.range>=2;
   if(isRanged){
    B.proj.push({
@@ -790,6 +866,8 @@ function stepToward(u,t,A){const occ=new Set();for(const o of A)if(o!==u&&o.hp>0
 
 function step(dt){
  B.time+=dt;
+ B.dpsTimer=(B.dpsTimer||0)+dt;
+ if(B.dpsTimer>=0.25){B.dpsTimer=0;renderDpsChart();}
  if(B.time>=CFG.speedUpAfter&&S.speed<CFG.speedUpTo)S.speed=CFG.speedUpTo;
  const A=B.units.filter(u=>u.hp>0);
 
@@ -800,24 +878,22 @@ function step(dt){
   if(u.atkDownT>0)u.atkDownT-=dt;
   if(u.poisT>0){
    u.poisT-=dt;u.pAcc+=dt;
-   if(u.pAcc>=1){u.pAcc-=1;dealDmg(u,Math.round(u.poisD),'#44dd55','☠')}
+   if(u.pAcc>=1){u.pAcc-=1;dealDmg(u,Math.round(u.poisD),'#44dd55','☠',u.poisOwner)}
   }
  }
  for(const u of A)if(u.split&&!u.splitDone&&u.hp>0&&u.hp<=u.max*u.split.at)doSplit(u);
 
- /* Barrieren & Bodenfelder */
  for(const b of B.barriers)b.t-=dt;
  B.barriers=B.barriers.filter(b=>b.t>0);
  for(const f of B.fields){f.t-=dt;f.acc+=dt;if(f.acc>=1){f.acc-=1;for(const o of A)if(o.hp>0&&o.team!=f.team&&dist(o,f)<=f.rad)dealDmg(o,Math.round(f.dmg),'#c84')}}
  B.fields=B.fields.filter(f=>f.t>0);
 
- /* Einheiten-Aktionen */
  for(const u of A){
   if(u.hp<=0||u.decoy)continue;
   u.cd-=dt;u.mv-=dt;
   if(u.stun>0)continue;
 
-  /* Zielwahl (inkl. Berserker-Modus) */
+  /* Zielwahl: Delegator zieht NICHT global die Aggro – es wird einfach das nächstgelegene Ziel angegriffen */
   let foes;
   if(u.berserk>0){
    foes=A.filter(f=>f.team==u.team&&f!==u&&!f.decoy&&f.hp>0);
@@ -827,14 +903,12 @@ function step(dt){
   }
   if(!foes.length)continue;
 
-  const dec=foes.filter(f=>f.decoy),cand=dec.length?dec:foes;
-  let t=cand[0],d=1e9;
-  for(const f of cand){const x=dist(u,f);if(x<d){d=x;t=f}}
+  let t=foes[0],d=1e9;
+  for(const f of foes){const x=dist(u,f);if(x<d){d=x;t=f}}
   if(d<=u.range){if(u.cd<=0)hit(u,t,A)}
   else if(u.mv<=0){stepToward(u,t,A);u.mv=CFG.moveDelay}
  }
 
- /* Projektile & Effekte aktualisieren */
  for(const pr of B.proj){
   pr.t+=dt;
   const k=Math.min(1,pr.t/pr.dur);
@@ -857,7 +931,7 @@ function step(dt){
  if(!pl||!en){B.end+=dt;if(B.end>1.2)finish(pl)}
 }
 
-function finish(win){if(S.phase!='battle')return;S.phase='prep';const last=S.round>=EN.length;
+function finish(win){if(S.phase!='battle')return;renderDpsChart();S.phase='prep';const last=S.round>=EN.length;
  if(win&&last){S.phase='done';clearSave();B.units=[];render();return}
  S.gold+=income();tryMerge();
  if(win)S.round++;
@@ -883,7 +957,6 @@ function moveTo(id,tgt){const o=unitById(id);if(!o)return;const bat=S.phase=='ba
   return}
  if(bat)return;
  if(S.decoyPos&&S.decoyPos.r==tgt.r&&S.decoyPos.c==tgt.c){
-  /* Tausch mit Delegator */
   if(o.pos){S.decoyPos={r:o.pos.r,c:o.pos.c};o.pos={r:tgt.r,c:tgt.c};return}
   if(placed().length>=limit())return;
   const h=freeHex();if(!h)return;
@@ -952,7 +1025,7 @@ window.addEventListener('pointerup',e=>{if(!D)return;const d=D;D=null;if(d.g)d.g
  else clickCell(cellAt(e.clientX,e.clientY))});
 window.addEventListener('pointercancel',()=>{if(D&&D.g)D.g.remove();D=null;$('trash').classList.remove('over')});
 
-/* ================= TOOLTIPS (Typen & Pokémon) ================= */
+/* ================= TOOLTIPS ================= */
 function tip(t,e){const cnt=typeCounts()[t]||0,k=tierIdx(t,cnt),tb=TB[t];
  const onB=new Set(placed().map(u=>u.sp)),own=new Set(S.units.map(u=>u.sp));
  let h=`<div>${typeBadge(t)} <b>${cnt}</b> aufgestellt</div>`+
@@ -1023,10 +1096,8 @@ function draw(t){ctx.clearRect(0,0,720,500);
   ctx.fillStyle=r<4?'#2a2233':'#22302f';ctx.fill();const sl=selPos&&selPos.r==r&&selPos.c==c;ctx.strokeStyle=sl?'#ff0':'#3d4660';ctx.lineWidth=sl?3:1;ctx.stroke()}
  if(!S||!B.units)return;
 
- /* Bodenfelder */
  for(const f of B.fields){const[x,y]=px(f.r,f.c);ctx.fillStyle='rgba(200,130,50,.25)';ctx.beginPath();ctx.arc(x,y,f.rad*W*.9,0,7);ctx.fill()}
 
- /* Pinke Reflect-Barrieren */
  for(const b of B.barriers){
   const[bx,by]=px(b.r,b.c);
   ctx.save();
@@ -1036,7 +1107,6 @@ function draw(t){ctx.clearRect(0,0,720,500);
   ctx.restore();
  }
 
- /* Einheiten */
  const us=[...B.units].filter(u=>u.hp>0).sort((a,b)=>a.y-b.y);
  for(const u of us){const[tx,ty]=px(u.r,u.c);u.x+=(tx-u.x)*.18;u.y+=(ty-u.y)*.18;u.lx*=.85;u.ly*=.85;
   const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=u.big?96:80;
@@ -1062,7 +1132,6 @@ function draw(t){ctx.clearRect(0,0,720,500);
   if(u.poisT>0){ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('☠',u.x+28,by+6)}
  }
 
- /* Schockwellen / AoE-Kreise */
  for(const w of B.waves){
   const a=Math.max(0,w.t/w.maxT);
   ctx.save();
@@ -1073,7 +1142,6 @@ function draw(t){ctx.clearRect(0,0,720,500);
   ctx.restore();
  }
 
- /* Laserstrahlen / Dash-Linien */
  for(const f of B.fx){
   const a=Math.min(1,(f.t/(f.maxT||0.15))*1.4);
   ctx.save();
@@ -1084,7 +1152,6 @@ function draw(t){ctx.clearRect(0,0,720,500);
   ctx.restore();
  }
 
- /* Projektile (weiße Kugeln, Weather Ball, Toxic etc.) */
  for(const pr of B.proj){
   ctx.save();
   if(pr.glow){ctx.shadowColor=pr.glow;ctx.shadowBlur=12}

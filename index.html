@@ -5,6 +5,8 @@
 body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;padding:0 8px 20px;max-width:1100px;margin:auto}
 button{background:#3b4a8a;color:#fff;border:0;border-radius:6px;padding:8px 12px;margin:2px;cursor:pointer;font-size:14px}
 button:disabled{opacity:.4}button.red{background:#a33}
+#bBattle{font-size:22px;font-weight:bold;padding:16px 34px}
+#bRestart{font-size:22px;padding:12px 16px}
 #top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:15px}
 #top .ttl{font-size:18px;color:#fc6}
 #main{display:grid;grid-template-columns:230px 1fr;gap:10px;margin-top:8px}
@@ -39,7 +41,7 @@ h4{margin:8px 0 2px;color:#9ab}
 #ctrl{display:flex;flex-direction:column;gap:6px;padding:6px 2px}
 #stat{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:15px}#plc{cursor:help;border-bottom:1px dotted #889}
 #benchRow{display:flex;gap:8px;align-items:stretch;justify-content:center}
-#bench{flex:1;min-width:0;display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:4px;margin:0}
+#bench{flex:1;min-width:0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;margin:0}
 @media(max-width:700px){#bench{grid-template-columns:repeat(8,minmax(0,1fr))}}
 #bench .card{width:auto;height:auto;min-height:92px;padding:2px;gap:1px}
 #bench .card img.sp{width:100%;max-width:52px;height:auto;aspect-ratio:1}
@@ -61,7 +63,7 @@ h4{margin:8px 0 2px;color:#9ab}
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()">🎲 Neu würfeln (2)</button>
-   <button class="red" id="bRestart" onclick="restart()">🔄 Match neu starten</button></div>
+   <button class="red" id="bRestart" onclick="restart()" title="Match neu starten">🔄</button></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
   <div id="under">
@@ -89,7 +91,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:3,   // income = Gold pro Runde 
     strength = globaler Regler (kleiner = leichter), T = Ziel-Kampfdauer (s), fStart/fEnd = Schwierigkeit Anfang/Ende,
     fRounds = Runden bis fEnd, early = Faktor Runde 1-5, mg = Mana pro Angriff der Gegner,
     dmg = Schadens-Faktor der Gegner (Runde 1), dmgGrow = zusätzlicher Schadens-Zuwachs bis Runde 60 (0.8 = +80%) */
- enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,late:1.12,lateFrom:6,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12,dmg:1.3,dmgGrow:1.2}};
+ enemy:{strength:1,T:14,fStart:.6,fEnd:1.1,fRounds:50,early:.85,late:1.12,lateFrom:6,aspd:.7,skill:3,def:10,defPerRound:.8,mg:12,dmg:1.3,dmgGrow:1.2,mid:1.12,endNerf:.92}};   // mid = Faktor Runde 6-25 (stärker), endNerf = Faktor ab Runde 35 (schwächer)
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
 /* Typ-Logos von pokewiki.de. Falls sie nicht laden, wird ein farbiger Kreis mit Buchstabe gezeigt. */
 const TYPE_URL={"Normal": "https://www.pokewiki.de/images/thumb/8/85/Typ-Icon_Normal_%28Symbol%29_PLA.png/32px-Typ-Icon_Normal_%28Symbol%29_PLA.png", "Fighting": "https://www.pokewiki.de/images/thumb/3/3c/Typ-Icon_Kampf_%28Symbol%29_PLA.png/32px-Typ-Icon_Kampf_%28Symbol%29_PLA.png", "Flying": "https://www.pokewiki.de/images/thumb/0/00/Typ-Icon_Flug_%28Symbol%29_PLA.png/32px-Typ-Icon_Flug_%28Symbol%29_PLA.png", "Poison": "https://www.pokewiki.de/images/thumb/b/b5/Typ-Icon_Gift_%28Symbol%29_PLA.png/32px-Typ-Icon_Gift_%28Symbol%29_PLA.png", "Ground": "https://www.pokewiki.de/images/thumb/c/cc/Typ-Icon_Boden_%28Symbol%29_PLA.png/32px-Typ-Icon_Boden_%28Symbol%29_PLA.png", "Rock": "https://www.pokewiki.de/images/thumb/0/0a/Typ-Icon_Gestein_%28Symbol%29_PLA.png/32px-Typ-Icon_Gestein_%28Symbol%29_PLA.png", "Bug": "https://www.pokewiki.de/images/thumb/f/fd/Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png/32px-Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png", "Ghost": "https://www.pokewiki.de/images/thumb/c/c0/Typ-Icon_Geist_%28Symbol%29_PLA.png/32px-Typ-Icon_Geist_%28Symbol%29_PLA.png", "Steel": "https://www.pokewiki.de/images/thumb/2/2b/Typ-Icon_Stahl_%28Symbol%29_PLA.png/32px-Typ-Icon_Stahl_%28Symbol%29_PLA.png", "Fire": "https://www.pokewiki.de/images/thumb/f/f0/Typ-Icon_Feuer_%28Symbol%29_PLA.png/32px-Typ-Icon_Feuer_%28Symbol%29_PLA.png", "Water": "https://www.pokewiki.de/images/thumb/b/b6/Typ-Icon_Wasser_%28Symbol%29_PLA.png/32px-Typ-Icon_Wasser_%28Symbol%29_PLA.png", "Grass": "https://www.pokewiki.de/images/thumb/8/82/Typ-Icon_Pflanze_%28Symbol%29_PLA.png/32px-Typ-Icon_Pflanze_%28Symbol%29_PLA.png", "Electric": "https://www.pokewiki.de/images/thumb/a/a9/Typ-Icon_Elektro_%28Symbol%29_PLA.png/32px-Typ-Icon_Elektro_%28Symbol%29_PLA.png", "Psychic": "https://www.pokewiki.de/images/thumb/1/12/Typ-Icon_Psycho_%28Symbol%29_PLA.png/32px-Typ-Icon_Psycho_%28Symbol%29_PLA.png", "Ice": "https://www.pokewiki.de/images/thumb/d/d8/Typ-Icon_Eis_%28Symbol%29_PLA.png/32px-Typ-Icon_Eis_%28Symbol%29_PLA.png", "Dragon": "https://www.pokewiki.de/images/thumb/6/6f/Typ-Icon_Drache_%28Symbol%29_PLA.png/32px-Typ-Icon_Drache_%28Symbol%29_PLA.png", "Dark": "https://www.pokewiki.de/images/thumb/5/58/Typ-Icon_Unlicht_%28Symbol%29_PLA.png/32px-Typ-Icon_Unlicht_%28Symbol%29_PLA.png", "Fairy": "https://www.pokewiki.de/images/thumb/6/6c/Typ-Icon_Fee_%28Symbol%29_PLA.png/32px-Typ-Icon_Fee_%28Symbol%29_PLA.png"};
@@ -105,24 +107,24 @@ const p=v=>Math.round(v*100)+'%';
 /* Typ-Boni: th = benötigte Anzahl Pokémon, v = Wert je Stufe, d = Beschreibung. Gilt für Pokémon mit diesem Typ. */
 const DECOY_HP=v=>120+60*(v-1);
 const TB={
- Steel:{th:[2,3,5],v:[.17,.35,.6],d:v=>`Startet mit Schild: ${p(v)} der Max-HP`},
+ Steel:{th:[2,3,5],v:[.19,.38,.65],d:v=>`Startet mit Schild: ${p(v)} der Max-HP`},
  Ghost:{th:[2,3,5],v:[1,2,3],d:v=>`${v} Delegator(en) (${DECOY_HP(v)} HP), zieht den Fokus auf sich`},
- Grass:{th:[2,4],v:[.17,.35],d:v=>`Angriffe heilen: ${p(v)} des Schadens (Lifesteal)`},
- Electric:{th:[2,4],v:[.2,.4],d:v=>`+${p(v)} Angriffstempo`},
- Fighting:{th:[2,4],v:[.12,.25],d:v=>`Pokémon im Radius 1 verursachen +${p(v)} Schaden`},
- Dark:{th:[2,4],v:[.12,.25],d:v=>`+${p(v)} Crit-Chance`},
- Normal:{th:[3],v:[2.5],d:v=>`Verursacht ${String(v).replace('.',',')}-fachen Schaden`},
- Fire:{th:[2,3],v:[.07,.14],d:v=>`Jeder Angriff aufs gleiche Ziel: +${p(v)} Schaden (max. 15x)`},
- Water:{th:[2,3],v:[.4,.85],d:v=>`+${p(v)} Mana-Gewinn`},
- Flying:{th:[2,4],v:[1,2],d:v=>`+${v} Reichweite`},
- Ice:{th:[2,3],v:[.17,.3],d:v=>`Ziel verliert ${p(v)} Angriffstempo (3s)`},
- Rock:{th:[2,3],v:[12,30],d:v=>`+${v} Verteidigung`},
- Fairy:{th:[2,3],v:[.1,.2],d:v=>`Bei Fähigkeit: heilt Verbündeten in der Nähe um ${p(v)} Max-HP`},
- Bug:{th:[1],v:[.4],d:v=>`Nach 8s: +${p(v)} Angriffstempo für Verbündete im Radius 3`},
- Ground:{th:[1],v:[.4],d:v=>`Nach Fähigkeit: Feld (Radius 2, 5s), jede Sek. ${p(v)} Angriff als Schaden`},
- Poison:{th:[1],v:[.17],d:v=>`Vergiftet das Ziel: ${p(v)} Angriff Schaden pro Sek. (5s)`},
+ Grass:{th:[2,4],v:[.19,.38],d:v=>`Angriffe heilen: ${p(v)} des Schadens (Lifesteal)`},
+ Electric:{th:[2,4],v:[.22,.44],d:v=>`+${p(v)} Angriffstempo`},
+ Fighting:{th:[2,4],v:[.14,.28],d:v=>`Pokémon im Radius 1 verursachen +${p(v)} Schaden`},
+ Dark:{th:[2,4],v:[.14,.28],d:v=>`+${p(v)} Crit-Chance`},
+ Normal:{th:[3],v:[2.7],d:v=>`Verursacht ${String(v).replace('.',',')}-fachen Schaden`},
+ Fire:{th:[2,3],v:[.08,.16],d:v=>`Jeder Angriff aufs gleiche Ziel: +${p(v)} Schaden (max. 15x)`},
+ Water:{th:[2,3],v:[.45,.9],d:v=>`+${p(v)} Mana-Gewinn`},
+ Flying:{th:[2,3],v:[1,2],d:v=>`+${v} Reichweite`},
+ Ice:{th:[2,3],v:[.19,.33],d:v=>`Ziel verliert ${p(v)} Angriffstempo (3s)`},
+ Rock:{th:[2,3],v:[14,33],d:v=>`+${v} Verteidigung`},
+ Fairy:{th:[2,3],v:[.12,.22],d:v=>`Bei Fähigkeit: heilt Verbündeten in der Nähe um ${p(v)} Max-HP`},
+ Bug:{th:[1],v:[.45],d:v=>`Nach 8s: +${p(v)} Angriffstempo für Verbündete im Radius 3`},
+ Ground:{th:[1],v:[.45],d:v=>`Nach Fähigkeit: Feld (Radius 2, 5s), jede Sek. ${p(v)} Angriff als Schaden`},
+ Poison:{th:[1],v:[.2],d:v=>`Vergiftet das Ziel: ${p(v)} Angriff Schaden pro Sek. (5s)`},
  Psychic:{th:[1],v:[1],d:v=>`Jeder 5. Angriff: Ziel 1s betäubt`},
- Dragon:{th:[1],v:[.4],d:v=>`Wird 1x mit ${p(v)} HP wiederbelebt`}};
+ Dragon:{th:[1],v:[.45],d:v=>`Wird 1x mit ${p(v)} HP wiederbelebt`}};
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
 const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};
 const typeIcon=t=>{const T=TYPES[t];return`<span class="ti" style="background:${T[2]}" title="${T[1]}" data-l="${T[1][0]}"><img src="${TYPE_URL[t]}" onerror="this.parentNode.textContent=this.parentNode.dataset.l"></span>`};
@@ -178,8 +180,8 @@ const SP=RAW.map(r=>({c:r[0],n:r[1].split(','),id:r[2].split(',').map(Number),t:
    fb                   Ersatz-Sprite (Dex-ID), falls das eigentliche Bild nicht lädt
    bonus:{Ice:.2,Poison:.17}   Typ-Effekte wie bei Spielern mit eigenem Wert (Bedeutung: siehe TB.v; Ghost nur für Spieler)
    cast:(u,t,A)=>{...}  eigene Fähigkeit beim Auslösen (u = dieser Gegner, t = Ziel, A = alle lebenden Einheiten; Helfer: dealDmg, heal, say, dist)
-   revive:{hp:.3,sprite:10019,name:'..',fb:641,big:true}   1x Wiederbelebung mit hp (Anteil der Max-HP), danach neues Sprite/Name
-   split:{at:.5,into:[{name,sprite,fb,hpX:.45,atkX:1.1},...]}   teilt sich unter at*Max-HP in mehrere neue Gegner (hpX = Anteil der Max-HP je Teil)
+   revive:{hp:.4,sprite:10019,name:'..',fb:641,big:true}   1x Wiederbelebung mit hp (Anteil der Max-HP), danach neues Sprite/Name
+   split:{at:.5,into:[{name,sprite,fb,hpX:1,atkX:1.1},...]}   teilt sich unter at*Max-HP in mehrere neue Gegner (hpX = Anteil der Max-HP je Teil)
    die:(u,A)=>{...}     wird 1x ausgeführt, wenn der Gegner stirbt (A = alle lebenden Einheiten). Helfer: morph(einheit,{name,sprite,fb,atkX,big})
  Hinweis: Form-Sprites haben Dex-IDs ab 10000 (z.B. 10019 = Boreos Tiergeist). Zeigt ein Gegner das falsche Bild, trage hier die richtige ID ein.
 */
@@ -207,7 +209,7 @@ const ENEMIES=[
  /* Runde 5 */ [
     E('Snieboss',903,{pos:[3,4]}),
     E('Salmagnis',902,{pos:[2,4]}),
-    E('Fuegro',880,{pos:[2,5]}),
+    E('Fuegro',727,{pos:[2,5]}),
     E('Pescragon',882,{pos:[1,4]})
  ],
  /* Runde 6 */ [
@@ -231,11 +233,11 @@ const ENEMIES=[
  ],
  /* Runde 10 */ [
     E('Regigigas',486,{pos:[2,4],big:true,hpX:2,atkX:1.5}),
-    E('Regirock',377,{pos:[1,4]}),
-    E('Regice',378,{pos:[2,5]}),
-    E('Registeel',379,{pos:[3,4]}),
-    E('Regidrago',895,{pos:[3,3]}),
-    E('Regieleki',894,{pos:[2,3]})
+    E('Regirock',377,{pos:[2,2]}),
+    E('Regice',378,{pos:[2,3]}),
+    E('Registeel',379,{pos:[2,5]}),
+    E('Regidrago',895,{pos:[2,6]}),
+    E('Regieleki',894,{pos:[2,7]})
  ],
  /* Runde 11 */ [
     E('Latias',380,{pos:[3,4]}),
@@ -252,7 +254,8 @@ const ENEMIES=[
     E('Lepumentas',344,{pos:[2,3]}),
     E('Lepumentas',344,{pos:[1,4]}),
     E('Lepumentas',344,{pos:[1,3]}),
-    E('Lepumentas',344,{pos:[3,4]})
+    E('Lepumentas',344,{pos:[3,4]}),
+    E('Lepumentas',344,{pos:[3,3]})
  ],
  /* Runde 14 */ [
     E('Deoxys',386,{pos:[2,4],big:true,hpX:3,atkX:2}),
@@ -276,7 +279,8 @@ const ENEMIES=[
     E('Zobiris',302,{pos:[2,3]}),
     E('Zobiris',302,{pos:[1,4]}),
     E('Zobiris',302,{pos:[3,4]}),
-    E('Zobiris',302,{pos:[3,3]})
+    E('Zobiris',302,{pos:[3,3]}),
+    E('Zobiris',302,{pos:[1,3]})
  ],
  /* Runde 18 */ [
     E('Darkrai',491,{pos:[2,3]}),
@@ -317,10 +321,10 @@ const ENEMIES=[
     E('Keldeo',647,{pos:[1,4]})
  ],
  /* Runde 24 */ [
-    E('Boreos',641,{pos:[3,3],revive:{hp:.3,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),
-    E('Voltolos',642,{pos:[3,4],revive:{hp:.3,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),
-    E('Demeteros',645,{pos:[3,5],revive:{hp:.3,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),
-    E('Cupidos',905,{pos:[2,4],revive:{hp:.3,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})
+    E('Boreos',641,{pos:[3,3],revive:{hp:.4,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),
+    E('Voltolos',642,{pos:[3,4],revive:{hp:.4,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),
+    E('Demeteros',645,{pos:[3,5],revive:{hp:.4,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),
+    E('Cupidos',905,{pos:[2,4],revive:{hp:.4,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})
  ],
  /* Runde 25 */ [
     E('Reshiram',643,{pos:[2,4]}),
@@ -332,7 +336,8 @@ const ENEMIES=[
     E('Frigometri',615,{pos:[2,3]}),
     E('Frigometri',615,{pos:[1,4]}),
     E('Frigometri',615,{pos:[1,3]}),
-    E('Frigometri',615,{pos:[3,4]})
+    E('Frigometri',615,{pos:[3,4]}),
+    E('Frigometri',615,{pos:[3,3]})
  ],
  /* Runde 27 */ [
     E('Meloetta',648,{pos:[2,0]}),
@@ -357,7 +362,9 @@ const ENEMIES=[
     E('Rocara',703,{pos:[3,3]})
  ],
  /* Runde 31 */ [
-    E('Volcanion',721,{pos:[1,4]})
+    E('Volcanion',721,{pos:[1,4],hpX:2,atkX:1.5}),
+    E('Flamara',136,{pos:[2,4]}),
+    E('Aquana',134,{pos:[2,5]})
  ],
  /* Runde 32 */ [
     E('Hoopa',720,{pos:[1,4],revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})
@@ -373,7 +380,7 @@ const ENEMIES=[
     E('Lunala',792,{pos:[2,5]})
  ],
  /* Runde 35 */ [
-    E('Necrozma',800,{pos:[1,4],split:{at:.5,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:.45,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:.45,atkX:1.1}]}})
+    E('Necrozma',800,{pos:[1,4],split:{at:.5,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})
  ],
  /* Runde 36 */ [
     E('Agoyon',803,{pos:[2,4],big:true}),
@@ -586,7 +593,7 @@ function buildPlayer(bat){const cnt=typeCounts();
  return L}
 /* Gegner aus der Tabelle ENEMIES (oben) bauen. Nicht angegebene Werte werden automatisch skaliert (hpX/atkX = Gewichtung). */
 function buildEnemy(){const g=ENEMIES[Math.min(S.round,ENEMIES.length)-1],m=g.length,e=CFG.enemy,r=S.round,pr=Math.min(r,e.fRounds)/e.fRounds;
- const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1)*(r>=e.lateFrom?e.late:1);
+ const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*(r<=5?e.early:1)*(r>=e.lateFrom?e.late:1)*(r>=6&&r<=25?e.mid:1)*(r>=35?e.endNerf:1);
  const n=limitFor(r),q=Math.min(r,45)/45;
  const D=n*28*(1+1.2*q),H=n*300*(1+q);
  const totalHP=D*e.T*f,totalDPS=H/(e.T*2.5)*f;
@@ -625,8 +632,8 @@ function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)cells.push({r,c});cells.sort((a,b)=>dist(a,u)-dist(b,u));
  u.hp=0;u.dead=1;
  for(const k of u.split.into){const cell=cells.find(x=>!occ.has(x.r*100+x.c));if(!cell)break;occ.add(cell.r*100+cell.c);
-  const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||.4),atk:u.atk*(k.atkX||1),aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
-  n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
+  const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:u.atk*(k.atkX||1),aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
+  n.hp=n.max*u.split.at;n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 const heal=(u,a)=>{u.hp=Math.min(u.max,u.hp+a)};
 function hit(u,t,A){u.cd=1/asp(u);u.mana+=u.mg;let m=1,cast=false;
  if(u.mana>=u.mmax){u.mana=0;m=u.skill;cast=true}
@@ -753,7 +760,7 @@ function render(){if(!S)return;tipHide();const pl=placed().length;
  $('tl').innerHTML=`❤️ <b>${S.lives}</b>`;
  $('tn').innerHTML=S.phase=='done'?(S.lives<=0?'💀 <b>Game Over</b>':'🏆 <b>Gewonnen!</b>'):`Nächster Gegner: <b>${EN[Math.min(S.round,EN.length)-1].map(e=>e.name).join(', ')}</b>`;
  $('gold').innerHTML=`💰 <b>${S.gold}</b> (+${income()} nächste Runde)`;
- $('plc').innerHTML=`Verfügbar: <b>${pl}/${limit()}</b>`;$('plc').title=slotInfo();
+ $('plc').innerHTML=`Verfügbar: <b>${pl}/${limit()}</b>`;$('plc').title=slotInfo();$('plc').style.color=(S.phase=='prep'&&pl<limit())?'#ff5555':'';
  const prep=S.phase=='prep';$('bBattle').disabled=S.phase=='battle';$('bBattle').textContent=S.phase=='done'?'🔄 Neues Spiel':'⚔️ Kampf!';$('bRoll').disabled=!act()||S.gold<CFG.reroll;
  $('shop').innerHTML=S.shop.map((i,k)=>{if(i==null)return`<div class="card sold">–</div>`;const s=SP[i];
   return`<div class="card c${s.c}" onclick="buy(${k})"><img class="sp" src="${url(s.id[0],s.sh)}" onerror="this.style.opacity=.2"><b>${s.n[0]}</b><div class="tys">${s.t.map(typeIcon).join('')}</div><span class="co">${s.c} 💰</span></div>`}).join('');
@@ -761,7 +768,7 @@ function render(){if(!S)return;tipHide();const pl=placed().length;
  for(let k=0;k<CFG.benchMax;k++){const u=bn.find(x=>x.slot===k);
   if(!u){bh+=`<div class="card empty" data-slot="${k}" onclick="slotClick(${k})"></div>`;continue}
   const s=SP[u.sp];
-  bh+=`<div class="card c${s.c} ${S.sel==u.id?'sel':''}" data-slot="${k}" onpointerdown="bdown(event,${u.id})"><img class="sp" src="${url(s.id[u.star-1],s.sh)}" onerror="this.style.opacity=.2" draggable="false"><b>${s.n[u.star-1]}</b>${starsHtml(u.star)}</div>`}
+  bh+=`<div class="card c${s.c} ${S.sel==u.id?'sel':''}" data-slot="${k}" title="${s.n[u.star-1]}" onpointerdown="bdown(event,${u.id})"><img class="sp" src="${url(s.id[u.star-1],s.sh)}" onerror="this.style.opacity=.2" draggable="false"><div class="tys">${s.t.map(typeIcon).join('')}</div>${starsHtml(u.star)}</div>`}
  $('bench').innerHTML=bh;
  const cnt=typeCounts();
  $('buffs').innerHTML=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).map(t=>{const tb=TB[t],c=cnt[t],k=tierIdx(t,c);

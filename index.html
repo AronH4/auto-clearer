@@ -39,20 +39,27 @@ canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display
 h4{margin:8px 0 2px;color:#9ab}
 #ghost{position:fixed;width:64px;height:64px;pointer-events:none;z-index:99;image-rendering:pixelated;opacity:.85}
 #benchRow{display:flex;gap:8px;align-items:stretch;justify-content:center}
-#bench{
+#bench {
   display: flex;
+  flex-wrap: nowrap;          /* Verhindert das Umbrechen in eine zweite Zeile */
   gap: 6px;
-  overflow-x: auto;
+  overflow-x: auto;           /* Ermöglicht horizontales Scrollen, falls der Platz nicht reicht */
   white-space: nowrap;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
+  width: 100%;
 }
-#bench .card{
-  flex: 0 0 100px;
-  width: 100px;
-  height: auto;
-  min-height: 94px;
-  padding: 2px;
-  gap: 1px;
+#bench .card {
+  flex: 0 0 90px;             /* Fixe Breite von 90px pro Karte, damit alle 12 bequem reinpassen */
+  width: 90px;
+  height: 120px;              /* Einheitliche Höhe für eine saubere Optik */
+  min-height: 120px;
+  box-sizing: border-box;
+  padding: 3px;
+  gap: 2px;
+}
+#bench .card img.sp {
+  width: 48px;
+  height: 48px;
 }
 #bench .card img.sp{width:100%;max-width:50px;height:auto;aspect-ratio:1}
 #bench .card b{font-size:10px;line-height:1.05}

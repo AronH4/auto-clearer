@@ -115,23 +115,23 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
     - Ab Runde 30: starke Mid-/Lategame-Teams
     - Ab Runde 42: echte Endgame-Herausforderung */
  enemy:{
-  strength:1.2,
+  strength:1.15,
   T:17,
   fStart:0.85,
   fEnd:1.65,
   fRounds:52,
   early:0.95,
-  from6:1.25,
-  from15:1.30,
-  from30:1.32,
-  from42:1.22,
+  from6:1.05,
+  from15:1.15,
+  from30:1.25,
+  from42:1.3,
   aspd:0.8,
   skill:3,
   def:10,
   defPerRound:1.1,
   mg:12,
   dmg:1.2,
-  dmgGrow:1.2
+  dmgGrow:1.1
  }
 };
 
@@ -140,7 +140,7 @@ const CLASSES={
  Tank:   {hp:400,atk:30,abDmg:60, def:20,aspd:0.7,crit:0.10,range:1,mg:15,icon:'🛡️'},
  Fighter:{hp:350,atk:40,abDmg:80, def:15,aspd:0.8,crit:0.20,range:2,mg:15,icon:'⚔️'},
  Caster: {hp:300,atk:30,abDmg:100,def:10,aspd:0.8,crit:0.10,range:4,mg:20,icon:'🔮'},
- Sniper: {hp:250,atk:35,abDmg:70, def:10,aspd:1.4,crit:0.10,range:6,mg:15,icon:'🎯'}
+ Sniper: {hp:250,atk:35,abDmg:70, def:10,aspd:1.4,crit:0.10,range:5,mg:15,icon:'🎯'}
 };
 
 /* ================= FÄHIGKEITEN-BESCHREIBUNGEN ================= */
@@ -151,7 +151,7 @@ const SKILLS={
  'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht Ability DMG.'},
  'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Feuert ein Projektil auf den Gegner mit den meisten HP; trifft Ziel und angrenzende Gegner (1 Feld) für Ability DMG.'},
  'Toxic':       {col:'#44dd55',desc:'Grüne Giftwolke: Vergiftet den nächsten Gegner für 5s (verursacht insgesamt 1,5x Ability DMG).'},
- 'Dream Eater': {col:'#b86bff',desc:'Violette Traum-Welle: Verursacht Ability DMG am Ziel und heilt den Anwender um 40% des Schadens.'}
+ 'Dream Eater': {col:'#b86bff',desc:'Violette Traum-Welle: Verursacht Ability DMG am Ziel und heilt den Anwender um 80% des Schadens.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -182,7 +182,7 @@ const TB={
  Psychic: {th:[1],    v:[2.5],        d:v=>`Jeder 7. Angriff versetzt das Ziel für 2,5s in den Berserker-Modus (greift eigene Allies an, sonst 2,5s Stun)`},
  Ghost:   {th:[2,3,5],v:[150,300,500],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (wird angegriffen, wenn er am nächsten steht)`},
  Poison:  {th:[1],    v:[.20],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} ATK pro Sekunde (5s)`},
- Dark:    {th:[2,4],  v:[.25,.50],    d:v=>`Alle Unlicht-Pokémon erhalten einen Crit Chance Buff auf ${p(v)}`},
+ Dark:    {th:[2,4],  v:[.40,.90],    d:v=>`Alle -Pokémon erhalten einen Crit Chance Buff auf ${p(v)}`},
  Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern den Attack Speed des Ziels um ${p(v)} (3s)`},
  Dragon:  {th:[1],    v:[.50],        d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} Leben wiederbelebt`},
  Fairy:   {th:[2],    v:[.20],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability umliegende Allies (1 Feld) um 20% max HP`}
@@ -763,7 +763,7 @@ function castPlayerSkill(u,t,A){
      B.waves.push({x:bx,y:by,r:6,maxR:44,col:'#b86bff',t:.35,maxT:.35,fill:true});
      const d=rawAb*100/(100+t.def);
      const dealt=dealDmg(t,d,'#d896ff','🔮',u);
-     heal(u,dealt*0.4);
+     heal(u,dealt*0.8);
     }
    });
   }

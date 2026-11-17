@@ -151,7 +151,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
 const CLASSES={
  Tank:   {hp:400,atk:35,abDmg:70, def:25,aspd:0.7,crit:0.10,range:1,mg:15,icon:'🛡️'},
  Fighter:{hp:350,atk:45,abDmg:90, def:20,aspd:0.9,crit:0.20,range:2,mg:15,icon:'⚔️'},
- Caster: {hp:300,atk:35,abDmg:110,def:15,aspd:0.9,crit:0.10,range:4,mg:20,icon:'🔮'},
+ Caster: {hp:300,atk:35,abDmg:110,def:15,aspd:0.9,crit:0.10,range:3,mg:20,icon:'🔮'},
  Sniper: {hp:250,atk:40,abDmg:80, def:15,aspd:1.5,crit:0.10,range:5,mg:15,icon:'🎯'}
 };
 
@@ -205,15 +205,15 @@ const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000
 
 /* ================= POKÉMON-POOL ================= */
 const RAW=[
-[1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison','Caster','Weather Ball'],
-[1,'Samurzel,Blanas,Tengulist','273,274,275','Grass,Dark','Fighter','Close Combat'],
+[1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison','Caster','Close Combat'],
+[1,'Samurzel,Blanas,Tengulist','273,274,275','Grass,Dark','Fighter','Snipe Shot'],
 [1,'Wingull,Pelipper,Pelipper','278,279,279','Water,Flying','Caster','Weather Ball'],
 [1,'Ganovil,Rokkaiman,Rabigator','551,552,553','Ground,Dark','Fighter','Close Combat'],
 [1,'Dartiri,Dartignis,Fiaro','661,662,663','Fire,Flying','Sniper','Snipe Shot'],
 [1,'Eguana,Elezard,Elezard','694,695,695','Electric,Normal','Sniper','Snipe Shot'],
 [1,'Alola-Sandan,Alola-Sandamer,Alola-Sandamer','10101,10102,10102','Ice,Steel','Fighter','Bulldoze'],
-[1,'Meikro ✨,Kranoviz ✨,Krarmor ✨','821,822,823','Flying,Steel','Tank','Bulldoze',1],
-[1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Close Combat'],
+[1,'Meikro ✨,Kranoviz ✨,Krarmor ✨','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
+[1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
 [1,'Geosali,Sedisal,Saltigant','932,933,934','Rock','Tank','Bulldoze'],
 [2,'Shnebedeck,Rexblisar,Rexblisar','459,460,460','Grass,Ice','Tank','Weather Ball'],
 [2,'Fukano,Arkani,Arkani','58,59,59','Fire','Fighter','Weather Ball'],
@@ -226,14 +226,14 @@ const RAW=[
 [3,'Panflam,Panpyro,Panferno','390,391,392','Fire,Fighting','Fighter','Close Combat'],
 [3,'Karnimani,Tyracroc,Impi','158,159,160','Water','Fighter','Close Combat'],
 [3,'Evoli,Nachtara,Nachtara','133,197,197','Dark','Caster','Reflect'],
-[3,'Pichu,Pikachu,Pikachu','172,25,25','Electric','Sniper','Snipe Shot'],
-[3,'Igamaro,Igastarnish,Brigaron','650,651,652','Grass,Fighting','Tank','Reflect'],
+[3,'Pichu,Pikachu,Pikachu','172,25,25','Electric','Sniper','Weather Ball'],
+[3,'Igamaro,Igastarnish,Brigaron','650,651,652','Grass,Fighting','Tank','Close Combat'],
 [3,'Bauz,Arboretoss,Silvarro','722,723,724','Grass,Ghost','Sniper','Snipe Shot'],
 [4,'Rotom,Rotom,Rotom','479,479,479','Electric,Ghost','Sniper','Reflect'],
 [4,'Fermicula,Fermicula,Fermicula','632,632,632','Bug,Steel','Fighter','Close Combat'],
 [4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Weather Ball'],
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
-[5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Weather Ball'],
+[5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Bulldoze'],
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water','Caster','Snipe Shot']
 ];
 

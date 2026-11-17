@@ -115,23 +115,23 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
     - Ab Runde 30: starke Mid-/Lategame-Teams
     - Ab Runde 42: echte Endgame-Herausforderung */
  enemy:{
-  strength:1.1,
+  strength:1.05,
   T:15,
   fStart:0.85,
-  fEnd:1.65,
+  fEnd:1.45,
   fRounds:52,
   early:0.95,
   from6:1.05,
-  from15:1.15,
-  from30:1.25,
-  from42:1.3,
+  from15:1.08,
+  from30:1.15,
+  from42:1.2,
   aspd:0.8,
-  skill:3,
+  skill:2.2,
   def:10,
-  defPerRound:1.1,
+  defPerRound:1.05,
   mg:12,
-  dmg:1.2,
-  dmgGrow:1.1
+  dmg:1.1,
+  dmgGrow:1.05
  }
 };
 
@@ -169,23 +169,23 @@ const p=v=>Math.round(v*100)+'%';
 const DECOY_HP=[150,300,500];
 const TB={
  Normal:  {th:[3],    v:[3],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
- Grass:   {th:[2,4],  v:[.10,.20],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
- Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern ATK des Ziels um ${p(v)} und hinterlassen 1x einen schwachen DoT`},
+ Grass:   {th:[2,4],  v:[.20,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
+ Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern den ATK-Stat des Ziels um ${p(v)} und hinterlassen einen schwachen DoT`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
  Electric:{th:[2,4],  v:[.25,.50],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
- Bug:     {th:[1],    v:[.10],        d:v=>`Drag-n-Drop Krone erscheint! Träger erhält +10% ATK, Attack Speed und Mana pro ATK`},
+ Bug:     {th:[1],    v:[.10],        d:v=>`Käfer-Krone erscheint! Träger erhält +10% ATK, Attack Speed und Mana pro ATK`},
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2,5 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
- Fighting:{th:[2,4],  v:[.15,.25],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
- Rock:    {th:[2],    v:[20],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
- Ground:  {th:[1],    v:[80],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
- Steel:   {th:[2,3,5],v:[.20,.40,.60],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[1],    v:[2.5],        d:v=>`Jeder 7. Angriff versetzt das Ziel für 2,5s in den Berserker-Modus (greift eigene Allies an, sonst 2,5s Stun)`},
- Ghost:   {th:[2,3,5],v:[150,300,500],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (wird angegriffen, wenn er am nächsten steht)`},
- Poison:  {th:[1],    v:[.20],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} ATK pro Sekunde (5s)`},
+ Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
+ Rock:    {th:[2],    v:[25],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
+ Ground:  {th:[1],    v:[150],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
+ Steel:   {th:[2,3,5],v:[.25,.40,.75],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
+ Psychic: {th:[1],    v:[2.5],        d:v=>`Jeder 7. Angriff versetzt das Ziel für 2,5s in den Berserker-Modus oder stunnt es`},
+ Ghost:   {th:[2,3,5],v:[200,350,600],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart`},
+ Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} ATK pro Sekunde (5s)`},
  Dark:    {th:[2,4],  v:[.40,.90],    d:v=>`Alle -Pokémon erhalten einen Crit Chance Buff auf ${p(v)}`},
- Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern den Attack Speed des Ziels um ${p(v)} (3s)`},
+ Ice:     {th:[2,3],  v:[.20,.30],    d:v=>`Alle Eis-Pokémon verringern den Attack Speed des Ziels um ${p(v)} (3s)`},
  Dragon:  {th:[1],    v:[.50],        d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} Leben wiederbelebt`},
- Fairy:   {th:[2],    v:[.20],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability umliegende Allies (1 Feld) um 20% max HP`}
+ Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability umliegende Allies (1 Feld) um 60% max HP`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
 const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};

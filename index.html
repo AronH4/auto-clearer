@@ -39,8 +39,20 @@ canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display
 h4{margin:8px 0 2px;color:#9ab}
 #ghost{position:fixed;width:64px;height:64px;pointer-events:none;z-index:99;image-rendering:pixelated;opacity:.85}
 #benchRow{display:flex;gap:8px;align-items:stretch;justify-content:center}
-#bench{flex:1;min-width:0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;margin:0}
-@media(max-width:700px){#bench{grid-template-columns:repeat(8,minmax(0,1fr))}}
+#bench{
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 4px;
+}
+#bench .card{
+  flex: 0 0 100px; /* Zwingt jede Karte exakt auf 100px Breite, ohne zu schrumpfen */
+  width: 100px;
+  height: auto;
+  min-height: 94px;
+}
+
 #bench .card{width:auto;height:auto;min-height:94px;padding:2px;gap:1px}
 #bench .card img.sp{width:100%;max-width:50px;height:auto;aspect-ratio:1}
 #bench .card b{font-size:10px;line-height:1.05}
@@ -90,7 +102,7 @@ h4{margin:8px 0 2px;color:#9ab}
 /* ================= KONFIGURATION ================= */
 const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
- maxUnits:11,slotAfter:[1,3,5,8,11,15,20,26,33,40],benchMax:12,
+ maxUnits:11,slotAfter:[1,3,5,8,11,15,20,26,33,40],benchMax:14,
  speedUpAfter:20,speedUpTo:3,
  /* Sterne-Faktoren für HP & ATK: 1★ = 1.0, 2★ = 1.75, 3★ = 3.0 */
  hpMul:[1,1.75,3],atkMul:[1,1.75,3],
@@ -118,13 +130,13 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
   strength:1.0,
   T:15,
   fStart:0.85,
-  fEnd:1.22,
+  fEnd:1.20,
   fRounds:52,
   early:0.90,
   from6:1.0,
   from15:1.03,
-  from30:1.05,
-  from42:1.07,
+  from30:1.03,
+  from42:1.00,
   aspd:0.8,
   skill:2,
   def:10,

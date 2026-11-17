@@ -47,13 +47,13 @@ h4{margin:8px 0 2px;color:#9ab}
   padding-bottom: 4px;
 }
 #bench .card{
-  flex: 0 0 100px; /* Zwingt jede Karte exakt auf 100px Breite, ohne zu schrumpfen */
+  flex: 0 0 100px;
   width: 100px;
   height: auto;
   min-height: 94px;
+  padding: 2px;
+  gap: 1px;
 }
-
-#bench .card{width:auto;height:auto;min-height:94px;padding:2px;gap:1px}
 #bench .card img.sp{width:100%;max-width:50px;height:auto;aspect-ratio:1}
 #bench .card b{font-size:10px;line-height:1.05}
 #trash{width:78px;border:2px dashed #a55;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;cursor:pointer;color:#c88}
@@ -66,7 +66,6 @@ h4{margin:8px 0 2px;color:#9ab}
 #tip .pc img{width:28px;height:28px;image-rendering:pixelated}
 #crownBox{display:inline-flex;align-items:center;justify-content:center;background:#2a2414;border:2px solid #ffd700;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1}
 #crownBox.hidden{display:none}
-/* DPS-Chart rechts */
 .dps-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;background:#131620;border:1px solid #282f48;border-radius:6px;padding:4px 6px}
 .dps-row img{width:34px;height:34px;image-rendering:pixelated;flex-shrink:0}
 .dps-info{flex:1;min-width:0}
@@ -102,7 +101,7 @@ h4{margin:8px 0 2px;color:#9ab}
 /* ================= KONFIGURATION ================= */
 const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
- maxUnits:11,slotAfter:[1,3,5,8,11,15,20,26,33,40],benchMax:14,
+ maxUnits:8,slotAfter:[1,3,6,10,15,21,28],benchMax:12,
  speedUpAfter:20,speedUpTo:3,
  /* Sterne-Faktoren für HP & ATK: 1★ = 1.0, 2★ = 1.75, 3★ = 3.0 */
  hpMul:[1,1.75,3],atkMul:[1,1.75,3],
@@ -111,57 +110,51 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
  copies:{1:22,2:18,3:15,4:12,5:9},
  mergeNeeded:3,
- /* Gleichmäßigere Shop-Verteilung: 1-Costs bleiben bis ins Endgame gut auffindbar, 5-Costs bleiben selten */
  odds:[
   [3,[65,30,5,0,0]],
-  [7,[48,34,15,3,0]],
-  [13,[36,32,22,8,2]],
-  [21,[28,30,25,13,4]],
-  [32,[24,27,26,17,6]],
+  [6,[48,34,15,3,0]],
+  [11,[36,32,22,8,2]],
+  [17,[28,30,25,13,4]],
+  [26,[24,27,26,17,6]],
   [999,[22,25,25,20,8]]
  ],
- /* Deutlich gestaffelte Gegner-Skalierung:
-    - Runden 1-5: machbarer Einstieg
-    - Ab Runde 6: spürbar stärker
-    - Ab Runde 15: deutlich härter
-    - Ab Runde 30: starke Mid-/Lategame-Teams
-    - Ab Runde 42: echte Endgame-Herausforderung */
+ /* Angepasste Gegner-Skalierung für 43 Runden und max. 8 eigene Plätze */
  enemy:{
-  strength:1.0,
-  T:15,
-  fStart:0.85,
-  fEnd:1.2,
-  fRounds:52,
-  early:0.90,
-  from6:1.0,
-  from15:1.03,
-  from30:1.03,
-  from42:1.03,
+  strength:0.92,
+  T:14,
+  fStart:0.80,
+  fEnd:1.10,
+  fRounds:43,
+  early:0.88,
+  from6:0.98,
+  from15:1.01,
+  from30:1.01,
+  from42:1.02,
   aspd:0.8,
   skill:2,
   def:10,
-  defPerRound:1.05,
+  defPerRound:0.95,
   mg:12,
-  dmg:1.1,
-  dmgGrow:1.0
+  dmg:1.02,
+  dmgGrow:0.90
  }
 };
 
 /* ================= KLASSEN (laut Tabelle) ================= */
 const CLASSES={
- Tank:   {hp:400,atk:35,abDmg:70, def:25,aspd:0.7,crit:0.10,range:1,mg:15,icon:'🛡️'},
- Fighter:{hp:350,atk:45,abDmg:90, def:20,aspd:0.9,crit:0.20,range:2,mg:15,icon:'⚔️'},
- Caster: {hp:300,atk:35,abDmg:110,def:15,aspd:0.9,crit:0.10,range:3,mg:20,icon:'🔮'},
- Sniper: {hp:250,atk:40,abDmg:80, def:15,aspd:1.5,crit:0.10,range:5,mg:15,icon:'🎯'}
+ Tank:   {hp:400,atk:40,abDmg:120,def:30,aspd:0.8,crit:0.15,range:1,mg:15,icon:'🛡️'},
+ Fighter:{hp:350,atk:45,abDmg:110,def:25,aspd:0.9,crit:0.20,range:2,mg:10,icon:'⚔️'},
+ Caster: {hp:300,atk:30,abDmg:150,def:15,aspd:1.0,crit:0.10,range:3,mg:25,icon:'🔮'},
+ Sniper: {hp:250,atk:35,abDmg:130,def:20,aspd:1.5,crit:0.08,range:5,mg:20,icon:'🎯'}
 };
 
 /* ================= FÄHIGKEITEN-BESCHREIBUNGEN ================= */
 const SKILLS={
- 'Close Combat':{col:'#ff3b3b',desc:'Rote Nahkampf-Explosion: Verursacht 10 + Ability DMG an allen Gegnern im Umkreis von 2 Feldern.'},
- 'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel und verursacht Ability DMG.'},
- 'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts vor dem Anwender für 4s eine Barriere auf (-50% Projektil-Schaden).'},
- 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht Ability DMG.'},
- 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Feuert ein Projektil auf den Gegner mit den meisten HP; trifft Ziel und angrenzende Gegner (1 Feld) für Ability DMG.'}
+ 'Close Combat':{col:'#ff3b3b',desc:'Rote Explosion: Verursacht insgesamt 2x Ability DMG aufgeteilt auf alle Gegner auf dem Feld.'},
+ 'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 3x Ability DMG.'},
+ 'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 5s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
+ 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht 1,5x Ability DMG.'},
+ 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 5s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain und erleiden Ability DMG.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -176,26 +169,26 @@ const TYPES={Normal:[1,'Normal','#a8a77a'],Fighting:[2,'Kampf','#c22e28'],Flying
 const p=v=>Math.round(v*100)+'%';
 
 /* ================= TYP-BONI ================= */
-const DECOY_HP=[150,300,500];
+const DECOY_HP=[250,350,600];
 const TB={
  Normal:  {th:[3],    v:[3],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
  Grass:   {th:[2,4],  v:[.20,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
- Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern den ATK-Stat des Ziels um ${p(v)} und hinterlassen einen schwachen DoT`},
+ Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
- Electric:{th:[2,4],  v:[.25,.50],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
+ Electric:{th:[2,4],  v:[.25,.75],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
  Bug:     {th:[1],    v:[.10],        d:v=>`Käfer-Krone erscheint! Träger erhält +10% ATK, Attack Speed und Mana pro ATK`},
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2,5 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
- Rock:    {th:[2],    v:[25],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
- Ground:  {th:[1],    v:[150],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
- Steel:   {th:[2,3,5],v:[.25,.40,.75],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[1],    v:[2.5],        d:v=>`Jeder 7. Angriff versetzt das Ziel für 2,5s in den Berserker-Modus oder stunnt es`},
- Ghost:   {th:[2,3,5],v:[200,350,600],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart`},
- Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} ATK pro Sekunde (5s)`},
- Dark:    {th:[2,4],  v:[.40,.90],    d:v=>`Alle -Pokémon erhalten einen Crit Chance Buff auf ${p(v)}`},
- Ice:     {th:[2,3],  v:[.20,.30],    d:v=>`Alle Eis-Pokémon verringern den Attack Speed des Ziels um ${p(v)} (3s)`},
+ Rock:    {th:[2],    v:[30],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
+ Ground:  {th:[1],    v:[150],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
+ Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
+ Psychic: {th:[1],    v:[2],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 2 Sekunden`},
+ Ghost:   {th:[2,3,5],v:[250,350,600],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
+ Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
+ Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
+ Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
  Dragon:  {th:[1],    v:[.50],        d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} Leben wiederbelebt`},
- Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability umliegende Allies (1 Feld) um 60% max HP`}
+ Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability alle umliegenden Allies (1 Feld) um 60% max HP`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
 const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};
@@ -207,16 +200,16 @@ const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000
 const RAW=[
 [1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison','Caster','Close Combat'],
 [1,'Samurzel,Blanas,Tengulist','273,274,275','Grass,Dark','Fighter','Snipe Shot'],
-[1,'Wingull,Pelipper,Pelipper','278,279,279','Water,Flying','Caster','Weather Ball'],
+[1,'Wingull,Pelipper,Pelipper','278,279,279','Water,Flying','Sniper','Weather Ball'],
 [1,'Ganovil,Rokkaiman,Rabigator','551,552,553','Ground,Dark','Fighter','Close Combat'],
 [1,'Dartiri,Dartignis,Fiaro','661,662,663','Fire,Flying','Sniper','Snipe Shot'],
-[1,'Eguana,Elezard,Elezard','694,695,695','Electric,Normal','Sniper','Snipe Shot'],
-[1,'Alola-Sandan,Alola-Sandamer,Alola-Sandamer','10101,10102,10102','Ice,Steel','Fighter','Bulldoze'],
+[1,'Eguana,Elezard,Elezard','694,695,695','Electric,Normal','Sniper','Close Combat'],
+[1,'Alola-Sandan,Alola-Sandamer,Alola-Sandamer','10101,10102,10102','Ice,Steel','Caster','Bulldoze'],
 [1,'Meikro ✨,Kranoviz ✨,Krarmor ✨','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
 [1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
-[1,'Geosali,Sedisal,Saltigant','932,933,934','Rock','Tank','Bulldoze'],
+[1,'Geosali,Sedisal,Saltigant','932,933,934','Rock','Tank','Weather Ball'],
 [2,'Shnebedeck,Rexblisar,Rexblisar','459,460,460','Grass,Ice','Tank','Weather Ball'],
-[2,'Fukano,Arkani,Arkani','58,59,59','Fire','Fighter','Weather Ball'],
+[2,'Fukano,Arkani,Arkani','58,59,59','Fire','Caster','Weather Ball'],
 [2,'Mampfaxo,Relaxo,Relaxo','446,143,143','Normal','Tank','Bulldoze'],
 [2,'Stollunior,Stollrak,Stolloss','304,305,306','Steel,Rock','Tank','Bulldoze'],
 [2,'Monozyto,Mitodos,Zytomega','577,578,579','Psychic','Caster','Reflect'],
@@ -224,9 +217,9 @@ const RAW=[
 [2,'Galar-Porenta,Lauchzelot,Lauchzelot','10166,865,865','Fighting','Fighter','Bulldoze'],
 [2,'Bähmon,Pelzebub,Olangaar','859,860,861','Dark,Fairy','Fighter','Reflect'],
 [3,'Panflam,Panpyro,Panferno','390,391,392','Fire,Fighting','Fighter','Close Combat'],
-[3,'Karnimani,Tyracroc,Impi','158,159,160','Water','Fighter','Close Combat'],
+[3,'Karnimani,Tyracroc,Impi','158,159,160','Water','Fighter','Weather Ball'],
 [3,'Evoli,Nachtara,Nachtara','133,197,197','Dark','Caster','Reflect'],
-[3,'Pichu,Pikachu,Pikachu','172,25,25','Electric','Sniper','Weather Ball'],
+[3,'Pichu,Pikachu,Pikachu','172,25,25','Electric','Sniper','Bulldoze'],
 [3,'Igamaro,Igastarnish,Brigaron','650,651,652','Grass,Fighting','Tank','Close Combat'],
 [3,'Bauz,Arboretoss,Silvarro','722,723,724','Grass,Ghost','Sniper','Snipe Shot'],
 [4,'Rotom,Rotom,Rotom','479,479,479','Electric,Ghost','Sniper','Reflect'],
@@ -250,60 +243,72 @@ const SP=RAW.map(r=>({
 
 /* ================= GEGNER ================= */
 const E=(name,sprite,o={})=>({name,sprite,...o});
-const CROWN=(name,sprite,fb)=>(u,A)=>{if(B.flag.crown)return;B.flag.crown=1;for(const a of A)if(a.team=='e')morph(a,{name,sprite,fb,atkX:1.4,big:true})};
+/* Coronospa-Runde: die beiden letzten Einheiten mergen zu einer zusammen */
+const CALY_MERGE=(u,A)=>{
+ const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
+ if(liveE.length===1){
+  const last=liveE[0];
+  B.flag.calyMerged=1;
+  morph(last,{name:'Coronospa (Reiter-Fusion)',sprite:10194,fb:898,atkX:1.45,big:true});
+  last.max*=1.5;
+  last.hp=last.max;
+  B.waves.push({x:last.x,y:last.y,r:8,maxR:65,col:'#a98ff3',t:.55,maxT:.55,fill:true});
+  say(last,'👑 Fusion!','#ffd700');
+ }
+};
 const ENEMIES=[
- [E('Karpador',129,{pos:[1,4]})],
- [E('Bidiza',399,{pos:[1,4]}),E('Bidifas',400,{pos:[1,5]})],
- [E('Icognito',201,{pos:[1,3]}),E('Woingenau',202,{pos:[1,4]}),E('Icognito',201,{pos:[1,5]})],
- [E('Kappalores',272,{pos:[1,3]}),E('Maracamba',556,{pos:[1,4]}),E('Choreogel',741,{pos:[1,5]})],
- [E('Snieboss',903,{pos:[3,4]}),E('Salmagnis',902,{pos:[2,4]}),E('Fuegro',727,{pos:[2,5]}),E('Pescragon',882,{pos:[1,4]})],
- [E('Arktos',144,{pos:[1,4]}),E('Zapdos',145,{pos:[1,5]}),E('Lavados',146,{pos:[2,5]})],
- [E('Mewtu',150,{pos:[3,4]}),E('Mew',151,{pos:[1,4]})],
- [E('Raikou',243,{pos:[3,4]}),E('Entei',244,{pos:[3,5]}),E('Suicune',245,{pos:[2,5]})],
- [E('Lugia',249,{pos:[2,4]}),E('Ho-Oh',250,{pos:[2,5]}),E('Celebi',251,{pos:[1,4]})],
- [E('Regigigas',486,{pos:[2,4],big:true,hpX:2,atkX:1.5}),E('Regirock',377,{pos:[2,2]}),E('Regice',378,{pos:[2,3]}),E('Registeel',379,{pos:[2,5]}),E('Regidrago',895,{pos:[2,6]}),E('Regieleki',894,{pos:[2,7]})],
- [E('Latias',380,{pos:[3,4]}),E('Latios',381,{pos:[3,5]}),E('Jirachi',385,{pos:[2,5]})],
- [E('Kyogre',382,{pos:[2,4]}),E('Groudon',383,{pos:[2,5]})],
- [E('Rayquaza',384,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Lepumentas',344,{pos:[2,5]}),E('Lepumentas',344,{pos:[2,3]}),E('Lepumentas',344,{pos:[1,4]}),E('Lepumentas',344,{pos:[1,3]}),E('Lepumentas',344,{pos:[3,4]}),E('Lepumentas',344,{pos:[3,3]})],
- [E('Deoxys',386,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meteno',774,{pos:[1,3]}),E('Meteno',774,{pos:[2,5]}),E('Meteno',774,{pos:[3,4]}),E('Meteno',774,{pos:[2,3]})],
- [E('Selfe',480,{pos:[2,4]}),E('Vesprit',481,{pos:[2,5]}),E('Tobutz',482,{pos:[3,4]})],
- [E('Dialga',483,{pos:[1,4]}),E('Palkia',484,{pos:[1,5]})],
- [E('Giratina',487,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Zobiris',302,{pos:[2,5]}),E('Zobiris',302,{pos:[2,3]}),E('Zobiris',302,{pos:[1,4]}),E('Zobiris',302,{pos:[3,4]}),E('Zobiris',302,{pos:[3,3]}),E('Zobiris',302,{pos:[1,3]})],
- [E('Darkrai',491,{pos:[2,3]}),E('Cresselia',488,{pos:[2,6]})],
- [E('Rihornior',464,{pos:[2,3]}),E('Heatran',485,{pos:[2,4],big:true}),E('Rihornior',464,{pos:[2,5]})],
- [E('Manaphy',490,{pos:[1,4]}),E('Phione',489,{pos:[2,4]}),E('Phione',489,{pos:[2,5]}),E('Phione',489,{pos:[3,4]})],
- [E('Shaymin',492,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Flabebe',669,{pos:[2,5]}),E('Flabebe',669,{pos:[2,3]}),E('Flabebe',669,{pos:[1,4]}),E('Flabebe',669,{pos:[1,3]}),E('Flabebe',669,{pos:[3,4]}),E('Flabebe',669,{pos:[3,3]}),E('Flabebe',669,{pos:[2,2]}),E('Flabebe',669,{pos:[2,6]})],
- [E('Victini',494,{pos:[2,4],big:true,hpX:2,atkX:1.5}),E('Serpiroyal',497,{pos:[1,3]}),E('Flambirex',500,{pos:[2,5]}),E('Admurai',503,{pos:[3,3]})],
- [E('Kobalium',638,{pos:[3,4]}),E('Terrakium',639,{pos:[2,4]}),E('Viridium',640,{pos:[2,5]}),E('Keldeo',647,{pos:[1,4]})],
- [E('Boreos',641,{pos:[3,3],revive:{hp:.4,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),E('Voltolos',642,{pos:[3,4],revive:{hp:.4,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),E('Demeteros',645,{pos:[3,5],revive:{hp:.4,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),E('Cupidos',905,{pos:[2,4],revive:{hp:.4,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})],
- [E('Reshiram',643,{pos:[2,4]}),E('Zekrom',644,{pos:[2,5]})],
- [E('Kyurem',646,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Frigometri',615,{pos:[2,5]}),E('Frigometri',615,{pos:[2,3]}),E('Frigometri',615,{pos:[1,4]}),E('Frigometri',615,{pos:[1,3]}),E('Frigometri',615,{pos:[3,4]}),E('Frigometri',615,{pos:[3,3]})],
- [E('Meloetta',648,{pos:[2,0]}),E('Genesect',649,{pos:[2,9]})],
- [E('Xerneas',716,{pos:[1,3]}),E('Yveltal',717,{pos:[1,5]})],
- [E('Zygarde (10%)',10118,{pos:[3,5],fb:718}),E('Zygarde (50%)',718,{pos:[2,5]}),E('Zygarde (Optimum)',10120,{pos:[1,4],fb:718})],
- [E('Diancie',719,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Rocara',703,{pos:[2,5]}),E('Rocara',703,{pos:[2,3]}),E('Rocara',703,{pos:[1,4]}),E('Rocara',703,{pos:[1,3]}),E('Rocara',703,{pos:[3,4]}),E('Rocara',703,{pos:[3,3]})],
- [E('Volcanion',721,{pos:[1,4],hpX:2,atkX:1.5}),E('Flamara',136,{pos:[2,4]}),E('Aquana',134,{pos:[2,5]})],
- [E('Hoopa',720,{pos:[1,4],hpx:0.8,revive:{hp:.25,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})],
- [E('Kapu-Riki',785,{pos:[2,3]}),E('Kapu-Fala',788,{pos:[2,4]}),E('Kapu-Toro',786,{pos:[2,5]}),E('Kapu-Kime',787,{pos:[2,6]})],
- [E('Solgaleo',791,{pos:[2,4]}),E('Lunala',792,{pos:[2,5]})],
- [E('Necrozma',800,{pos:[1,4],hpx:0.8,split:{at:.2,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})],
- [E('Agoyon',803,{pos:[2,4],big:true}),E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlinkging',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),E('Kopplosio',806,{pos:[0,4]})],
- [E('Magearna',801,{pos:[1,0]}),E('Marshadow',802,{pos:[1,4]}),E('Zeraora',807,{pos:[1,9]})],
- [E('Melmetal',809,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meltan',808,{pos:[2,5]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[1,4]}),E('Meltan',808,{pos:[1,3]}),E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[3,3]}),E('Meltan',808,{pos:[2,2]}),E('Meltan',808,{pos:[2,6]}),E('Meltan',808,{pos:[0,3]}),E('Meltan',808,{pos:[0,5]})],
- [E('Zacian (Königsform)',10188,{pos:[2,4],fb:888}),E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889})],
- [E('Endynalos',890,{pos:[1,4],hpx:0.8,revive:{hp:.25,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
- [E('Wulaosu (Wasser)',10191,{pos:[3,4],fb:892}),E('Wulaosu (Unlicht)',892,{pos:[3,5]}),E('Zarude',893,{pos:[2,5]})],
- [E('Polaross',896,{pos:[3,4],die:CROWN('Rappenreiter Coronospa',10194,898)}),E('Phantoross',897,{pos:[3,5],die:CROWN('Schimmelreiter Coronospa',10193,898)}),E('Coronospa',898,{pos:[2,5]})],
- [E('Chongjian',1001,{pos:[2,3]}),E('Baojian',1002,{pos:[2,4]}),E('Dinglu',1003,{pos:[2,5]}),E('Yuyu',1004,{pos:[2,6]})],
- [E('Koraidon',1007,{pos:[3,4]}),E('Miraidon',1008,{pos:[3,5]}),E('Mopex',967,{pos:[2,5]})],
- [E('Riesenzahn',984,{pos:[2,3]}),E('Brüllschweif',985,{pos:[2,4]}),E('Wutpilz',986,{pos:[2,5]}),E('Flatterhaar',987,{pos:[2,6]}),E('Kriechflügel',988,{pos:[1,3]}),E('Sandfell',989,{pos:[1,4]}),E('Donnersichel',1005,{pos:[1,5]})],
- [E('Windewoge',1009,{pos:[1,3]}),E('Keilflamme',1020,{pos:[1,4]}),E('Furienblitz',1021,{pos:[1,5]})],
- [E('Eisenrad',990,{pos:[3,3]}),E('Eisenbündel',991,{pos:[3,4]}),E('Eisenhand',992,{pos:[3,5]}),E('Eisenhals',993,{pos:[2,3]}),E('Eisenfalter',994,{pos:[2,4]}),E('Eisendorn',995,{pos:[2,5]}),E('Eisenkrieger',1006,{pos:[2,6]})],
- [E('Eisenblatt',1010,{pos:[2,3]}),E('Eisenfels',1022,{pos:[2,4]}),E('Eisenhaupt',1023,{pos:[2,5]})],
- [E('Ogerpon (Türkis)',1017,{pos:[3,4]}),E('Ogerpon (Brunnen)',10273,{pos:[2,4],fb:1017}),E('Ogerpon (Ofen)',10274,{pos:[2,5],fb:1017}),E('Ogerpon (Fels)',10275,{pos:[1,4],fb:1017})],
- [E('Boninu',1014,{pos:[3,3],hpx:0.8}),E('Benesaur',1015,{pos:[3,4],hpx:0.8}),E('Beatori',1016,{pos:[3,5],hpx:0.8}),E('Infamomo',1025,{pos:[2,4],hpx:0.8})],
- [E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,hpx:0.7,revive:{hp:.25,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})],
- [E('Arceus',493,{pos:[2,4],big:true,hpX:4,atkX:2.5}),E('Amigento',773,{pos:[2,5]}),E('Amigento',773,{pos:[2,3]}),E('Amigento',773,{pos:[1,4]}),E('Amigento',773,{pos:[1,3]}),E('Amigento',773,{pos:[3,4]}),E('Amigento',773,{pos:[3,3]}),E('Amigento',773,{pos:[2,2]}),E('Amigento',773,{pos:[2,6]}),E('Amigento',773,{pos:[0,3]}),E('Amigento',773,{pos:[0,5]})]
+ /* 1 */ [E('Karpador',129,{pos:[1,4]})],
+ /* 2 */ [E('Bidiza',399,{pos:[1,4]}),E('Bidifas',400,{pos:[1,5]})],
+ /* 3 */ [E('Icognito',201,{pos:[1,3]}),E('Woingenau',202,{pos:[1,4]}),E('Icognito',201,{pos:[1,5]})],
+ /* 4 */ [E('Arktos',144,{pos:[1,4]}),E('Zapdos',145,{pos:[1,5]}),E('Lavados',146,{pos:[2,5]})],
+ /* 5 */ [E('Mewtu',150,{pos:[3,4]}),E('Mew',151,{pos:[1,4]})],
+ /* 6 */ [E('Raikou',243,{pos:[3,4]}),E('Entei',244,{pos:[3,5]}),E('Suicune',245,{pos:[2,5]})],
+ /* 7 */ [E('Lugia',249,{pos:[2,4]}),E('Ho-Oh',250,{pos:[2,5]}),E('Celebi',251,{pos:[1,4]})],
+ /* 8 */ [E('Regigigas',486,{pos:[2,4],big:true,hpX:2,atkX:1.5}),E('Regirock',377,{pos:[2,2]}),E('Regice',378,{pos:[2,3]}),E('Registeel',379,{pos:[2,5]}),E('Regidrago',895,{pos:[2,6]}),E('Regieleki',894,{pos:[2,7]})],
+ /* 9 */ [E('Latias',380,{pos:[3,4]}),E('Latios',381,{pos:[3,5]}),E('Jirachi',385,{pos:[2,5]})],
+ /* 10 */ [E('Kyogre',382,{pos:[2,4]}),E('Groudon',383,{pos:[2,5]})],
+ /* 11 */ [E('Rayquaza',384,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Lepumentas',344,{pos:[2,5]}),E('Lepumentas',344,{pos:[2,3]}),E('Lepumentas',344,{pos:[1,4]}),E('Lepumentas',344,{pos:[1,3]}),E('Lepumentas',344,{pos:[3,4]}),E('Lepumentas',344,{pos:[3,3]})],
+ /* 12 */ [E('Deoxys',386,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meteno',774,{pos:[1,3]}),E('Meteno',774,{pos:[2,5]}),E('Meteno',774,{pos:[3,4]}),E('Meteno',774,{pos:[2,3]})],
+ /* 13: Selfe, Vesprit, Tobutz + Dialga, Palkia */
+ [E('Selfe',480,{pos:[2,3]}),E('Vesprit',481,{pos:[2,4]}),E('Tobutz',482,{pos:[2,5]}),E('Dialga',483,{pos:[1,3],hpX:1.3,atkX:1.2}),E('Palkia',484,{pos:[1,5],hpX:1.3,atkX:1.2})],
+ /* 14 */ [E('Giratina',487,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Zobiris',302,{pos:[2,5]}),E('Zobiris',302,{pos:[2,3]}),E('Zobiris',302,{pos:[1,4]}),E('Zobiris',302,{pos:[3,4]}),E('Zobiris',302,{pos:[3,3]}),E('Zobiris',302,{pos:[1,3]})],
+ /* 15 */ [E('Darkrai',491,{pos:[2,3]}),E('Cresselia',488,{pos:[2,6]})],
+ /* 16 */ [E('Rihornior',464,{pos:[2,3]}),E('Heatran',485,{pos:[2,4],big:true}),E('Rihornior',464,{pos:[2,5]})],
+ /* 17 */ [E('Manaphy',490,{pos:[1,4]}),E('Phione',489,{pos:[2,4]}),E('Phione',489,{pos:[2,5]}),E('Phione',489,{pos:[3,4]})],
+ /* 18 */ [E('Shaymin',492,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Flabebe',669,{pos:[2,5]}),E('Flabebe',669,{pos:[2,3]}),E('Flabebe',669,{pos:[1,4]}),E('Flabebe',669,{pos:[1,3]}),E('Flabebe',669,{pos:[3,4]}),E('Flabebe',669,{pos:[3,3]}),E('Flabebe',669,{pos:[2,2]}),E('Flabebe',669,{pos:[2,6]})],
+ /* 19 */ [E('Kobalium',638,{pos:[3,4]}),E('Terrakium',639,{pos:[2,4]}),E('Viridium',640,{pos:[2,5]}),E('Keldeo',647,{pos:[1,4]})],
+ /* 20 */ [E('Boreos',641,{pos:[3,3],revive:{hp:.4,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),E('Voltolos',642,{pos:[3,4],revive:{hp:.4,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),E('Demeteros',645,{pos:[3,5],revive:{hp:.4,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),E('Cupidos',905,{pos:[2,4],revive:{hp:.4,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})],
+ /* 21: Victini + Reshiram + Zekrom */
+ [E('Victini',494,{pos:[1,4],hpX:1.2,atkX:1.2}),E('Reshiram',643,{pos:[2,3],hpX:1.3,atkX:1.25}),E('Zekrom',644,{pos:[2,5],hpX:1.3,atkX:1.25})],
+ /* 22 */ [E('Kyurem',646,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Frigometri',615,{pos:[2,5]}),E('Frigometri',615,{pos:[2,3]}),E('Frigometri',615,{pos:[1,4]}),E('Frigometri',615,{pos:[1,3]}),E('Frigometri',615,{pos:[3,4]}),E('Frigometri',615,{pos:[3,3]})],
+ /* 23: Meloetta + Genesect unterstützt von Wie-Shu (620) & Klikdiklak (601) */
+ [E('Meloetta',648,{pos:[1,3],hpX:1.3,atkX:1.25}),E('Genesect',649,{pos:[1,6],hpX:1.3,atkX:1.25}),E('Wie-Shu',620,{pos:[2,3]}),E('Klikdiklak',601,{pos:[2,6]})],
+ /* 24: Xerneas + Yveltal + Zygarde (nur 100%-Form) */
+ [E('Xerneas',716,{pos:[2,3],hpX:1.2,atkX:1.15}),E('Yveltal',717,{pos:[2,5],hpX:1.2,atkX:1.15}),E('Zygarde (Optimum)',10120,{pos:[1,4],fb:718,big:true,hpX:1.6,atkX:1.35})],
+ /* 25: Diancie + Rocara + Volcanion */
+ [E('Diancie',719,{pos:[2,4],big:true,hpX:2.4,atkX:1.7}),E('Volcanion',721,{pos:[1,4],big:true,hpX:1.8,atkX:1.5}),E('Rocara',703,{pos:[2,5]}),E('Rocara',703,{pos:[2,3]}),E('Rocara',703,{pos:[1,3]}),E('Rocara',703,{pos:[1,5]}),E('Rocara',703,{pos:[3,4]})],
+ /* 26 */ [E('Hoopa',720,{pos:[1,4],hpx:0.8,revive:{hp:.25,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})],
+ /* 27 */ [E('Kapu-Riki',785,{pos:[2,3]}),E('Kapu-Fala',788,{pos:[2,4]}),E('Kapu-Toro',786,{pos:[2,5]}),E('Kapu-Kime',787,{pos:[2,6]})],
+ /* 28 */ [E('Solgaleo',791,{pos:[2,4]}),E('Lunala',792,{pos:[2,5]})],
+ /* 29 */ [E('Necrozma',800,{pos:[1,4],hpx:0.8,split:{at:.2,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})],
+ /* 30 */ [E('Agoyon',803,{pos:[2,4],big:true}),E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlinkging',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),E('Kopplosio',806,{pos:[0,4]})],
+ /* 31 */ [E('Magearna',801,{pos:[1,0]}),E('Marshadow',802,{pos:[1,4]}),E('Zeraora',807,{pos:[1,9]})],
+ /* 32 */ [E('Melmetal',809,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meltan',808,{pos:[2,5]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[1,4]}),E('Meltan',808,{pos:[1,3]}),E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[3,3]}),E('Meltan',808,{pos:[2,2]}),E('Meltan',808,{pos:[2,6]}),E('Meltan',808,{pos:[0,3]}),E('Meltan',808,{pos:[0,5]})],
+ /* 33: Zacian/Zamazenta + Endynalos kombiniert & abgeschwächt */
+ [E('Zacian (Königsform)',10188,{pos:[2,3],fb:888,hpX:1.05,atkX:1.05}),E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889,hpX:1.15,atkX:0.95}),E('Endynalos',890,{pos:[1,4],hpX:1.15,atkX:1.0,revive:{hp:.20,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
+ /* 34 */ [E('Wulaosu (Wasser)',10191,{pos:[3,4],fb:892}),E('Wulaosu (Unlicht)',892,{pos:[3,5]}),E('Zarude',893,{pos:[2,5]})],
+ /* 35: Coronospa-Runde: beide übrigen Einheiten mergen zu einer zusammen */
+ [E('Polaross',896,{pos:[3,3],die:CALY_MERGE}),E('Phantoross',897,{pos:[3,5],die:CALY_MERGE}),E('Coronospa',898,{pos:[2,4],die:CALY_MERGE})],
+ /* 36 */ [E('Chongjian',1001,{pos:[2,3]}),E('Baojian',1002,{pos:[2,4]}),E('Dinglu',1003,{pos:[2,5]}),E('Yuyu',1004,{pos:[2,6]})],
+ /* 37 */ [E('Koraidon',1007,{pos:[3,4]}),E('Miraidon',1008,{pos:[3,5]}),E('Mopex',967,{pos:[2,5]})],
+ /* 38: Riesenzahn + Windewoge kombiniert & abgeschwächt */
+ [E('Riesenzahn',984,{pos:[2,2],hpX:0.85,atkX:0.85}),E('Brüllschweif',985,{pos:[2,3],hpX:0.85,atkX:0.85}),E('Wutpilz',986,{pos:[2,4],hpX:0.85,atkX:0.85}),E('Flatterhaar',987,{pos:[2,5],hpX:0.85,atkX:0.85}),E('Kriechflügel',988,{pos:[2,6],hpX:0.85,atkX:0.85}),E('Sandfell',989,{pos:[1,2],hpX:0.85,atkX:0.85}),E('Donnersichel',1005,{pos:[1,3],hpX:0.9,atkX:0.9}),E('Windewoge',1009,{pos:[1,4],hpX:0.95,atkX:0.95}),E('Keilflamme',1020,{pos:[1,5],hpX:0.9,atkX:0.9}),E('Furienblitz',1021,{pos:[1,6],hpX:0.9,atkX:0.9})],
+ /* 39: Eisenrad + Eisenblatt kombiniert & abgeschwächt */
+ [E('Eisenrad',990,{pos:[2,2],hpX:0.85,atkX:0.85}),E('Eisenbündel',991,{pos:[2,3],hpX:0.85,atkX:0.85}),E('Eisenhand',992,{pos:[2,4],hpX:0.85,atkX:0.85}),E('Eisenhals',993,{pos:[2,5],hpX:0.85,atkX:0.85}),E('Eisenfalter',994,{pos:[2,6],hpX:0.85,atkX:0.85}),E('Eisendorn',995,{pos:[1,2],hpX:0.85,atkX:0.85}),E('Eisenkrieger',1006,{pos:[1,3],hpX:0.9,atkX:0.9}),E('Eisenblatt',1010,{pos:[1,4],hpX:0.95,atkX:0.95}),E('Eisenfels',1022,{pos:[1,5],hpX:0.9,atkX:0.9}),E('Eisenhaupt',1023,{pos:[1,6],hpX:0.9,atkX:0.9})],
+ /* 40 */ [E('Ogerpon (Türkis)',1017,{pos:[3,4]}),E('Ogerpon (Brunnen)',10273,{pos:[2,4],fb:1017}),E('Ogerpon (Ofen)',10274,{pos:[2,5],fb:1017}),E('Ogerpon (Fels)',10275,{pos:[1,4],fb:1017})],
+ /* 41 */ [E('Boninu',1014,{pos:[3,3],hpx:0.8}),E('Benesaur',1015,{pos:[3,4],hpx:0.8}),E('Beatori',1016,{pos:[3,5],hpx:0.8}),E('Infamomo',1025,{pos:[2,4],hpx:0.8})],
+ /* 42 */ [E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,hpx:0.7,revive:{hp:.25,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})],
+ /* 43 */ [E('Arceus',493,{pos:[2,4],big:true,hpX:3.5,atkX:2.2}),E('Amigento',773,{pos:[2,5]}),E('Amigento',773,{pos:[2,3]}),E('Amigento',773,{pos:[1,4]}),E('Amigento',773,{pos:[1,3]}),E('Amigento',773,{pos:[3,4]}),E('Amigento',773,{pos:[3,3]}),E('Amigento',773,{pos:[2,2]}),E('Amigento',773,{pos:[2,6]}),E('Amigento',773,{pos:[0,3]}),E('Amigento',773,{pos:[0,5]})]
 ];
 const EN=ENEMIES;
 
@@ -339,9 +344,9 @@ function newGame(){
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
-function save(){try{localStorage.setItem('pab6',JSON.stringify(S))}catch(e){}}
-function clearSave(){try{localStorage.removeItem('pab6')}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('pab6'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;fixSlots();return true}}catch(e){}return false}
+function save(){try{localStorage.setItem('pab7',JSON.stringify(S))}catch(e){}}
+function clearSave(){try{localStorage.removeItem('pab7')}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;fixSlots();return true}}catch(e){}return false}
 
 function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
  for(let k=0;k<5;k++){
@@ -389,12 +394,12 @@ function trashClick(){if(!act()||S.sel==null)return;const u=unitById(S.sel);if(S
 
 /* ================= EINHEITEN & STATS ================= */
 function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
- return{team,r,c,name,id,sh,x,y,lx:0,ly:0,hp:st.hp,max:st.hp,atk:st.atk,abDmg:st.abDmg||90,aspd:st.aspd,def:st.def,crit:st.crit,range:st.range,
+ return{team,r,c,name,id,sh,x,y,lx:0,ly:0,hp:st.hp,max:st.hp,atk:st.atk,abDmg:st.abDmg||90,aspd:st.aspd,def:st.def,crit:st.crit,critMult:2,range:st.range,
   mana:0,mmax:st.mmax||CFG.base.mana,mg:st.mg,skill:st.skill||1,abName:st.abName||null,cls:st.cls||null,uid:st.uid||null,
   cd:Math.random()*.4,mv:0,star:st.star||0,big:!!st.big,
   dm:1,ls:0,shield:0,fight:0,fire:0,fireDotDone:0,ice:0,fairy:0,bug:0,ground:0,groundDone:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
   fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,
-  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,crowned:false}}
+  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyDmg:0,crowned:false}}
 
 function typeCounts(){const c={},seen=new Set();placed().forEach(u=>{if(seen.has(u.sp))return;seen.add(u.sp);SP[u.sp].t.forEach(t=>c[t]=(c[t]||0)+1)});return c}
 
@@ -424,7 +429,7 @@ function applyBonus(u,t,v,tier){
   case'Grass':u.ls=v;break;
   case'Electric':u.aspd*=1+v;break;
   case'Fighting':u.fight=v;break;
-  case'Dark':u.crit=Math.max(u.crit,v);break;
+  case'Dark':u.crit=Math.max(u.crit,v);if(tier===1)u.critMult=1.5;break;
   case'Normal':u.dm*=v;break;
   case'Fire':u.fire=v;break;
   case'Water':u.mg*=1+v;break;
@@ -482,7 +487,6 @@ function buildPlayer(bat){
  return L;
 }
 
-/* Deutlich gestaffelte Gegner-Berechnung */
 function buildEnemy(){
  const g=ENEMIES[Math.min(S.round,ENEMIES.length)-1],m=g.length,e=CFG.enemy,r=S.round,pr=Math.min(r,e.fRounds)/e.fRounds;
  const stageMult=
@@ -492,16 +496,14 @@ function buildEnemy(){
   (r>=30?e.from30:1)*
   (r>=42?e.from42:1);
  const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*stageMult;
- const n=limitFor(r),q=Math.min(r,52)/52;
+ const n=limitFor(r),q=Math.min(r,43)/43;
  const D=n*34*(1+1.55*q),H=n*360*(1+1.35*q);
 
- // --- NEU: Automatische Dämpfung für Einzelgegner, Revive & Split ---
- const soloFactor = (m === 1) ? 0.78 : 1; // Einzelgegner (wie Hoopa/Necrozma) haben 22% weniger Gesamt-Pool
- const phaseFactor = g.some(d => d.revive || d.split) ? 0.82 : 1; // Runden mit 2. Phase sind 18% schwächer
+ const soloFactor = (m === 1) ? 0.78 : 1;
+ const phaseFactor = g.some(d => d.revive || d.split) ? 0.82 : 1;
 
  const totalHP = D * e.T * f * soloFactor * phaseFactor;
  const totalDPS = (H / (e.T * 2.2)) * f * soloFactor * phaseFactor;
- // -------------------------------------------------------------------
 
  const dmgF=e.dmg*(1+e.dmgGrow*q);
  const wH=g.reduce((s,d)=>s+(d.hpX||1),0),wA=g.reduce((s,d)=>s+(d.atkX||1),0);
@@ -531,7 +533,7 @@ function refreshView(){
    const k=tierIdx('Ghost',gc);
    const dhp=DECOY_HP[k];
    const d=mk('p',S.decoyPos.r,S.decoyPos.c,'Delegator',0,false,{hp:dhp,atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});
-   d.decoy=true;
+   d.decoy=true;d.decoyDmg=dhp;
    list.push(d);
   }
   B.units=list;
@@ -581,7 +583,6 @@ function startBattle(){
  const playerUnits=buildPlayer(true);
  B.units=playerUnits.concat(buildEnemy());
  B.fx=[];B.proj=[];B.waves=[];B.barriers=[];B.txt=[];B.fields=[];B.flag={};B.end=0;B.time=0;
- /* DPS-Chart für die neue Runde zurücksetzen und mit den aufgestellten Pokémon befüllen */
  B.dps=playerUnits.map(u=>({uid:u.uid,name:u.name,spriteId:u.id,sh:u.sh,dmg:0}));
  B.dpsTimer=0;
  renderDpsChart();
@@ -591,7 +592,7 @@ function startBattle(){
   const k=tierIdx('Ghost',cnt.Ghost);
   const dhp=DECOY_HP[k];
   const d=mk('p',S.decoyPos.r,S.decoyPos.c,'Delegator',0,false,{hp:dhp,atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});
-  d.decoy=true;
+  d.decoy=true;d.decoyDmg=dhp;
   B.units.push(d);
  }
 
@@ -626,12 +627,10 @@ const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-32,s,t:.75,col});
 
 function dealDmg(t, d, col, pre, attacker){
  if(!t||t.hp<=0)return 0;
- 
- // --- NEU: Reflect-Schadensreduktion für Verbündete (75% weniger Schaden) ---
  if(t.team == 'p') {
   const inReflect = B.barriers.some(b => b.team == t.team && b.type == 'reflectZone' && b.r == t.r && b.c == t.c);
   if(inReflect) {
-   d = d * 0.25; // Reduziert den Schaden auf 25% (erleidet also 75% weniger)
+   d = d * 0.50;
   }
  }
  const dealt=Math.max(1,Math.round(d));
@@ -646,7 +645,12 @@ function dealDmg(t, d, col, pre, attacker){
   if(rv)morph(t,rv);
   else{B.waves.push({x:t.x,y:t.y,r:6,maxR:55,col:'#6f35fc',t:.5,maxT:.5});say(t,'🐉 Revive','#a98ff3')}
  }else if(t.hp<=0&&!t.dead){
-  t.dead=1;if(t.die)t.die(t,B.units.filter(x=>x.hp>0))
+  t.dead=1;
+  if(t.decoy&&t.decoyDmg>0&&attacker&&attacker.hp>0){
+   B.waves.push({x:t.x,y:t.y,r:6,maxR:48,col:'#735797',t:.4,maxT:.4,fill:true});
+   dealDmg(attacker,t.decoyDmg,'#b894ff','👻',null);
+  }
+  if(t.die)t.die(t,B.units.filter(x=>x.hp>0))
  }
  return dealt;
 }
@@ -656,9 +660,8 @@ function morph(u,f){if(f.sprite!=null){u.fb=f.fb??u.id;u.id=f.sprite}if(f.name)u
 function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!==u).map(o=>o.r*100+o.c)),cells=[];
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)cells.push({r,c});cells.sort((a,b)=>dist(a,u)-dist(b,u));
  u.hp=0;u.dead=1;
- const splitCount = u.split.into.length; // NEU: Anzahl der Teile (bei Necrozma = 2)
+ const splitCount = u.split.into.length;
  for(const k of u.split.into){const cell=cells.find(x=>!occ.has(x.r*100+x.c));if(!cell)break;occ.add(cell.r*100+cell.c);
-  // NEU: atk wird durch splitCount geteilt, damit sich der Gesamtschaden nicht verdoppelt
   const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:(u.atk*(k.atkX||1))/splitCount,aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
   n.hp=n.max*u.split.at;n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 
@@ -667,10 +670,6 @@ const heal=(u,a)=>{if(u&&u.hp>0)u.hp=Math.min(u.max,u.hp+a)};
 function checkBarrierMitigation(sx,sy,tx,ty,targetTeam){
  for(const b of B.barriers){
   if(b.team!==targetTeam)continue;
-  // Wenn es eine Reflect-Zone ist (oder eine normale Barriere)
-  if(b.r === Math.round((ty - OY) / RH) && b.c === Math.round((tx - OX) / W)) { // oder deine alte Distanzprüfung
-   // Alternativ mit deiner Distanzprüfung zum Feld:
-  }
   const[bx,by]=px(b.r,b.c);
   if(Math.hypot(bx-tx,by-ty)<W*1.15){
    B.waves.push({x:bx,y:by,r:4,maxR:26,col:'#ff66cc',t:.25,maxT:.25});
@@ -688,6 +687,10 @@ function segDist(px0,py0,x1,y1,x2,y2){
  return Math.hypot(px0-(x1+t*dx),py0-(y1+t*dy));
 }
 
+function isInWeatherField(u){
+ return B.fields.some(f=>f.type==='weather'&&dist(u,f)<=1);
+}
+
 /* ================= SPEZIAL-FÄHIGKEITEN DER SPIELER-POKÉMON ================= */
 function castPlayerSkill(u,t,A){
  const foes=A.filter(f=>f.team!=u.team&&f.hp>0);
@@ -696,48 +699,52 @@ function castPlayerSkill(u,t,A){
 
  switch(u.abName){
   case 'Close Combat':{
-   /* Rote Animation: 10 + Ability DMG an allen umliegenden Gegnern im Umkreis von 2 Feldern */
-   B.waves.push({x:u.x,y:u.y,r:12,maxR:W*2.2,col:'#ff3b3b',t:.45,maxT:.45,fill:true});
+   /* Rote Explosion: 2x Ability DMG aufgeteilt auf alle Gegner auf dem Feld */
+   if(!foes.length)break;
+   const splitDmg=(rawAb*2)/foes.length;
+   B.waves.push({x:u.x,y:u.y,r:12,maxR:W*3.2,col:'#ff3b3b',t:.45,maxT:.45,fill:true});
    for(const f of foes){
-    if(dist(u,f)<=2){
-     const d=(10+rawAb)*100/(100+f.def);
-     dealDmg(f,d,'#ff4d4d','🥊',u);
-    }
+    const effDef=isInWeatherField(f)?f.def*0.5:f.def;
+    const d=splitDmg*100/(100+effDef);
+    B.waves.push({x:f.x,y:f.y,r:6,maxR:W*0.9,col:'#ff3b3b',t:.35,maxT:.35,fill:true});
+    dealDmg(f,d,'#ff4d4d','🥊',u);
    }
    break;
   }
   case 'Snipe Shot':{
+   /* Gelber Laserstrahl: trifft alle im Weg befindlichen Gegner für 3x Ability DMG */
    const dx=t.x-u.x,dy=t.y-u.y,len=Math.hypot(dx,dy)||1;
    const ex=u.x+(dx/len)*850,ey=u.y+(dy/len)*850;
    B.fx.push({x1:u.x,y1:u.y,x2:ex,y2:ey,t:.38,maxT:.38,col:'#ffe63b',w:8,glow:'#ffae00'});
    for(const f of foes){
     if(segDist(f.x,f.y,u.x,u.y,ex,ey)<=W*0.58){
-     const d=rawAb*100/(100+f.def);
+     const effDef=isInWeatherField(f)?f.def*0.5:f.def;
+     const d=(rawAb*3)*100/(100+effDef);
      dealDmg(f,d,'#ffe63b','⚡',u);
     }
    }
    break;
   }
   case 'Reflect':{
-   // Erstelle ein Objekt für die 3 Felder (Eigenes Feld + links + rechts in derselben Reihe r)
-   const targetCols = [u.c - 1, u.c, u.c + 1].filter(c => c >= 0 && c < COLS);
-   for (const c of targetCols) {
-    // Wir nutzen das barriers-Array, speichern aber Dauer (5s) und Typ ab
+   /* Pinke Animation: baut links, mittig und rechts für 5s Barriere auf (-50% Schaden, +50% ASPD für Allies) */
+   const targetCols=[u.c-1,u.c,u.c+1].filter(c=>c>=0&&c<COLS);
+   for(const c of targetCols){
     B.barriers.push({
-     team: u.team, 
-     r: u.r, 
-     c: c, 
-     t: 5, 
-     maxT: 5, 
-     type: 'reflectZone'
+     team:u.team,
+     r:u.r,
+     c:c,
+     t:5,
+     maxT:5,
+     type:'reflectZone'
     });
-    const [bx, by] = px(u.r, c);
-    B.waves.push({x: bx, y: by, r: 6, maxR: 38, col: '#ff66cc', t: .4, maxT: .4, fill: true});
+    const[bx,by]=px(u.r,c);
+    B.waves.push({x:bx,y:by,r:6,maxR:38,col:'#ff66cc',t:.4,maxT:.4,fill:true});
    }
-   say(u, '🛡️ Reflect', '#ff66cc');
+   say(u,'🛡️ Reflect','#ff66cc');
    break;
   }
   case 'Bulldoze':{
+   /* Braune Animation: dasht zum Ziel mit meisten HP und verursacht 1,5x Ability DMG */
    let boss=foes[0];
    for(const f of foes)if(f.hp>boss.hp)boss=f;
    if(!boss)break;
@@ -752,33 +759,36 @@ function castPlayerSkill(u,t,A){
    if(bestCell){u.r=bestCell.r;u.c=bestCell.c;const[nx,ny]=px(u.r,u.c);u.x=nx;u.y=ny}
    B.fx.push({x1:ox,y1:oy,x2:u.x,y2:u.y,t:.35,maxT:.35,col:'#c87d32',w:10,glow:'#8a4b14'});
    B.waves.push({x:boss.x,y:boss.y,r:8,maxR:W*1.1,col:'#c87d32',t:.4,maxT:.4,fill:true});
-   const d=rawAb*100/(100+boss.def);
+   const effDef=isInWeatherField(boss)?boss.def*0.5:boss.def;
+   const d=(rawAb*1.5)*100/(100+effDef);
    dealDmg(boss,d,'#e09a48','🪨',u);
    break;
   }
   case 'Weather Ball':{
-    let boss=foes[0];
-    for(const f of foes)if(f.hp>boss.hp)boss=f;
-    if(!boss)break;
-    B.proj.push({
-     x:u.x,y:u.y,sx:u.x,sy:u.y,tx:boss.x,ty:boss.y,target:boss,
-     t:0,dur:.26,col:'#ffffff',glow:'#99e6ff',r:11,team:u.team,
-     onHit:(bx,by)=>{
-      // Große weiße Schockwelle für den Hauptschaden
-      B.waves.push({x:bx,y:by,r:10,maxR:W*1.4,col:'#ffffff',t:.42,maxT:.42,fill:true});
-      const live=B.units.filter(x=>x.team!=u.team&&x.hp>0);
-      for(const f of live){
-       if(f===boss||dist(f,boss)<=1){
-        const d=rawAb*100/(100+f.def);
-        dealDmg(f,d,'#ffffff','❄️',u);
-        // NEU: Kurzes weißes Aufleuchten direkt auf den betroffenen Gegner-Feldern
-        B.waves.push({x:f.x,y:f.y,r:4,maxR:W*0.8,col:'#ffffff',t:.25,maxT:.25,fill:true});
-       }
+   /* Weiße Animation: greift Gegner mit meisten HP an, erzeugt für 5s weißes Feld (Ziel + umliegende Waben): -50% DEF, -50% Mana Gain, Ability DMG */
+   let boss=foes[0];
+   for(const f of foes)if(f.hp>boss.hp)boss=f;
+   if(!boss)break;
+   B.proj.push({
+    x:u.x,y:u.y,sx:u.x,sy:u.y,tx:boss.x,ty:boss.y,target:boss,
+    t:0,dur:.26,col:'#ffffff',glow:'#99e6ff',r:11,team:u.team,
+    onHit:(bx,by)=>{
+     const centerR=boss.hp>0?boss.r:Math.round((by-OY)/RH);
+     const centerC=boss.hp>0?boss.c:Math.round((bx-OX)/W);
+     B.fields.push({r:centerR,c:centerC,rad:1.3,t:5,maxT:5,type:'weather'});
+     B.waves.push({x:bx,y:by,r:10,maxR:W*1.5,col:'#ffffff',t:.42,maxT:.42,fill:true});
+     const live=B.units.filter(x=>x.team!=u.team&&x.hp>0);
+     for(const f of live){
+      if(f===boss||dist(f,{r:centerR,c:centerC})<=1){
+       const effDef=f.def*0.5;
+       const d=rawAb*100/(100+effDef);
+       dealDmg(f,d,'#ffffff','❄️',u);
       }
      }
-    });
-    break;
-   }
+    }
+   });
+   break;
+  }
   default:{
    B.proj.push({
     x:u.x,y:u.y,sx:u.x,sy:u.y,tx:t.x,ty:t.y,target:t,
@@ -806,24 +816,34 @@ function applyOnHitEffects(u,t,d){
  if(u.ice){t.slow=Math.max(t.slow,u.ice);t.slowT=3}
  if(u.fire){
   t.atkDown=Math.max(t.atkDown,u.fire);t.atkDownT=4;
-  if(!t.fireDotDone){t.fireDotDone=1;t.poisD=Math.max(t.poisD,effAtk(u)*0.12);t.poisOwner=u;t.poisT=Math.max(t.poisT,4)}
  }
- if(u.pois){t.poisD=Math.max(t.poisD,effAtk(u)*u.pois);t.poisOwner=u;t.poisT=5}
- if(u.psy&&u.atkN%7===0){
-  const alliesOfTarget=B.units.filter(x=>x.team==t.team&&x!==t&&!x.decoy&&x.hp>0);
-  if(alliesOfTarget.length>0){t.berserk=2.5;say(t,'😵 Berserker!','#f95587')}
-  else{t.stun=2.5;say(t,'💫 Stun','#f95587')}
+ if(u.pois){
+  const pDmg=(u.abDmg||effAtk(u))*u.pois;
+  t.poisD=Math.max(t.poisD,pDmg);t.poisOwner=u;t.poisT=5;
  }
 }
 
 function hit(u,t,A){
- u.cd=1/asp(u);
- u.mana+=u.mg;
+ const reflectAs=B.barriers.some(b=>b.team==u.team&&b.type=='reflectZone'&&b.r==u.r&&b.c==u.c)?0.5:0;
+ u.cd=1/(asp(u)*(1+reflectAs));
+ const manaMult=(u.team=='e'&&isInWeatherField(u))?0.5:1;
+ u.mana+=u.mg*manaMult;
  u.atkN++;
 
  const cast=(u.mana>=u.mmax);
  if(cast){
   u.mana=0;
+  /* Psycho-Bonus: beim Casten der Ability automatisch das nächstgelegene Ziel für 2s stunnen */
+  if(u.psy){
+   const foes=A.filter(f=>f.team!=u.team&&f.hp>0);
+   if(foes.length){
+    let near=foes[0],bd=1e9;
+    for(const f of foes){const dd=dist(u,f);if(dd<bd){bd=dd;near=f}}
+    near.stun=Math.max(near.stun,2);
+    say(near,'💫 Stun','#f95587');
+   }
+  }
+  /* Fee-Bonus: beim Casten umliegende Allies (1 Feld) um 60% max HP heilen */
   if(u.fairy){
    for(const a of A){
     if(a.team==u.team&&!a.decoy&&a.hp>0&&dist(a,u)<=1){
@@ -843,7 +863,7 @@ function hit(u,t,A){
  let baseD=(effAtk(u)+flyExtra)*(cast?u.skill:1)*u.dm*(1+fightBuff(u,A));
  if(u.ground&&!u.groundDone){u.groundDone=1;baseD+=u.ground}
  const crit=Math.random()<u.crit;
- if(crit)baseD*=2;
+ if(crit)baseD*=(u.critMult||2);
 
  u.lx=(t.x-u.x)*.18;u.ly=(t.y-u.y)*.18;
 
@@ -862,7 +882,8 @@ function hit(u,t,A){
     onHit:(bx,by)=>{
      if(!t||t.hp<=0)return;
      const mit=checkBarrierMitigation(u.x,u.y,t.x,t.y,t.team);
-     const d=Math.max(1,Math.round(baseD*mit*100/(100+t.def)));
+     const effDef=isInWeatherField(t)?t.def*0.5:t.def;
+     const d=Math.max(1,Math.round(baseD*mit*100/(100+effDef)));
      dealDmg(t,d,crit?'#ffe066':'#ffffff',crit?'!':'',u);
      applyOnHitEffects(u,t,d);
     }
@@ -870,7 +891,8 @@ function hit(u,t,A){
   }else{
    B.fx.push({x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.14,maxT:.14,col:'#ffffff',w:3,glow:'#cfe8ff'});
    B.waves.push({x:t.x,y:t.y,r:4,maxR:24,col:'#ffffff',t:.2,maxT:.2});
-   const d=Math.max(1,Math.round(baseD*100/(100+t.def)));
+   const effDef=isInWeatherField(t)?t.def*0.5:t.def;
+   const d=Math.max(1,Math.round(baseD*100/(100+effDef)));
    dealDmg(t,d,crit?'#ffe066':'#ffffff',crit?'!':'',u);
    applyOnHitEffects(u,t,d);
   }
@@ -907,21 +929,17 @@ function step(dt){
  }
  for(const u of A)if(u.split&&!u.splitDone&&u.hp>0&&u.hp<=u.max*u.split.at)doSplit(u);
 
-for(const b of B.barriers){
-  const[bx,by]=px(b.r,b.c);
-  ctx.save();
-  ctx.strokeStyle='#ff66cc';ctx.fillStyle='rgba(255,102,204,0.35)';ctx.lineWidth=3;
-  ctx.shadowColor='#ff66cc';ctx.shadowBlur=10;
-  hexPath(bx,by,R-2);ctx.fill();ctx.stroke();
-  ctx.restore();
- }
+ B.barriers.forEach(b=>b.t-=dt);
+ B.barriers=B.barriers.filter(b=>b.t>0);
+
+ B.fields.forEach(f=>f.t-=dt);
+ B.fields=B.fields.filter(f=>f.t>0);
 
  for(const u of A){
   if(u.hp<=0||u.decoy)continue;
   u.cd-=dt;u.mv-=dt;
   if(u.stun>0)continue;
 
-  /* Zielwahl: Delegator zieht NICHT global die Aggro – es wird einfach das nächstgelegene Ziel angegriffen */
   let foes;
   if(u.berserk>0){
    foes=A.filter(f=>f.team==u.team&&f!==u&&!f.decoy&&f.hp>0);
@@ -1124,7 +1142,21 @@ function draw(t){ctx.clearRect(0,0,720,500);
   ctx.fillStyle=r<4?'#2a2233':'#22302f';ctx.fill();const sl=selPos&&selPos.r==r&&selPos.c==c;ctx.strokeStyle=sl?'#ff0':'#3d4660';ctx.lineWidth=sl?3:1;ctx.stroke()}
  if(!S||!B.units)return;
 
- for(const f of B.fields){const[x,y]=px(f.r,f.c);ctx.fillStyle='rgba(200,130,50,.25)';ctx.beginPath();ctx.arc(x,y,f.rad*W*.9,0,7);ctx.fill()}
+ for(const f of B.fields){
+  if(f.type==='weather'){
+   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(dist({r,c},f)<=1){
+     const[wx,wy]=px(r,c);
+     ctx.save();
+     ctx.strokeStyle='#ffffff';ctx.fillStyle='rgba(255,255,255,0.24)';ctx.lineWidth=2;
+     hexPath(wx,wy,R-3);ctx.fill();ctx.stroke();
+     ctx.restore();
+    }
+   }
+  }else{
+   const[x,y]=px(f.r,f.c);ctx.fillStyle='rgba(200,130,50,.25)';ctx.beginPath();ctx.arc(x,y,f.rad*W*.9,0,7);ctx.fill();
+  }
+ }
 
  for(const b of B.barriers){
   const[bx,by]=px(b.r,b.c);

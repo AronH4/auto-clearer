@@ -90,7 +90,7 @@ h4{margin:8px 0 2px;color:#9ab}
 /* ================= KONFIGURATION ================= */
 const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
- maxUnits:10,slotAfter:[1,3,5,8,12,17,23,30,40],benchMax:12,
+ maxUnits:11,slotAfter:[1,3,5,8,11,15,20,26,33,40],benchMax:12,
  speedUpAfter:20,speedUpTo:3,
  /* Sterne-Faktoren für HP & ATK: 1★ = 1.0, 2★ = 1.75, 3★ = 3.0 */
  hpMul:[1,1.75,3],atkMul:[1,1.75,3],
@@ -273,15 +273,15 @@ const ENEMIES=[
  [E('Zygarde (10%)',10118,{pos:[3,5],fb:718}),E('Zygarde (50%)',718,{pos:[2,5]}),E('Zygarde (Optimum)',10120,{pos:[1,4],fb:718})],
  [E('Diancie',719,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Rocara',703,{pos:[2,5]}),E('Rocara',703,{pos:[2,3]}),E('Rocara',703,{pos:[1,4]}),E('Rocara',703,{pos:[1,3]}),E('Rocara',703,{pos:[3,4]}),E('Rocara',703,{pos:[3,3]})],
  [E('Volcanion',721,{pos:[1,4],hpX:2,atkX:1.5}),E('Flamara',136,{pos:[2,4]}),E('Aquana',134,{pos:[2,5]})],
- [E('Hoopa',720,{pos:[1,4],revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})],
+ [E('Hoopa',720,{pos:[1,4],hpx:0.8,revive:{hp:.25,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})],
  [E('Kapu-Riki',785,{pos:[2,3]}),E('Kapu-Fala',788,{pos:[2,4]}),E('Kapu-Toro',786,{pos:[2,5]}),E('Kapu-Kime',787,{pos:[2,6]})],
  [E('Solgaleo',791,{pos:[2,4]}),E('Lunala',792,{pos:[2,5]})],
- [E('Necrozma',800,{pos:[1,4],split:{at:.5,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})],
+ [E('Necrozma',800,{pos:[1,4],hpx:0.8,split:{at:.2,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})],
  [E('Agoyon',803,{pos:[2,4],big:true}),E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlinkging',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),E('Kopplosio',806,{pos:[0,4]})],
  [E('Magearna',801,{pos:[1,0]}),E('Marshadow',802,{pos:[1,4]}),E('Zeraora',807,{pos:[1,9]})],
  [E('Melmetal',809,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meltan',808,{pos:[2,5]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[1,4]}),E('Meltan',808,{pos:[1,3]}),E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[3,3]}),E('Meltan',808,{pos:[2,2]}),E('Meltan',808,{pos:[2,6]}),E('Meltan',808,{pos:[0,3]}),E('Meltan',808,{pos:[0,5]})],
  [E('Zacian (Königsform)',10188,{pos:[2,4],fb:888}),E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889})],
- [E('Endynalos',890,{pos:[1,4],revive:{hp:.5,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
+ [E('Endynalos',890,{pos:[1,4],hpx:0.8,revive:{hp:.25,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
  [E('Wulaosu (Wasser)',10191,{pos:[3,4],fb:892}),E('Wulaosu (Unlicht)',892,{pos:[3,5]}),E('Zarude',893,{pos:[2,5]})],
  [E('Polaross',896,{pos:[3,4],die:CROWN('Rappenreiter Coronospa',10194,898)}),E('Phantoross',897,{pos:[3,5],die:CROWN('Schimmelreiter Coronospa',10193,898)}),E('Coronospa',898,{pos:[2,5]})],
  [E('Chongjian',1001,{pos:[2,3]}),E('Baojian',1002,{pos:[2,4]}),E('Dinglu',1003,{pos:[2,5]}),E('Yuyu',1004,{pos:[2,6]})],
@@ -292,7 +292,7 @@ const ENEMIES=[
  [E('Eisenblatt',1010,{pos:[2,3]}),E('Eisenfels',1022,{pos:[2,4]}),E('Eisenhaupt',1023,{pos:[2,5]})],
  [E('Ogerpon (Türkis)',1017,{pos:[3,4]}),E('Ogerpon (Brunnen)',10273,{pos:[2,4],fb:1017}),E('Ogerpon (Ofen)',10274,{pos:[2,5],fb:1017}),E('Ogerpon (Fels)',10275,{pos:[1,4],fb:1017})],
  [E('Boninu',1014,{pos:[3,3]}),E('Benesaur',1015,{pos:[3,4]}),E('Beatori',1016,{pos:[3,5]}),E('Infamomo',1025,{pos:[2,4]})],
- [E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,revive:{hp:.5,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})],
+ [E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,hpx:0.8,revive:{hp:.25,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})],
  [E('Arceus',493,{pos:[2,4],big:true,hpX:4,atkX:2.5}),E('Amigento',773,{pos:[2,5]}),E('Amigento',773,{pos:[2,3]}),E('Amigento',773,{pos:[1,4]}),E('Amigento',773,{pos:[1,3]}),E('Amigento',773,{pos:[3,4]}),E('Amigento',773,{pos:[3,3]}),E('Amigento',773,{pos:[2,2]}),E('Amigento',773,{pos:[2,6]}),E('Amigento',773,{pos:[0,3]}),E('Amigento',773,{pos:[0,5]})]
 ];
 const EN=ENEMIES;

@@ -161,9 +161,7 @@ const SKILLS={
  'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel und verursacht Ability DMG.'},
  'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts vor dem Anwender für 4s eine Barriere auf (-50% Projektil-Schaden).'},
  'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht Ability DMG.'},
- 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Feuert ein Projektil auf den Gegner mit den meisten HP; trifft Ziel und angrenzende Gegner (1 Feld) für Ability DMG.'},
- 'Toxic':       {col:'#44dd55',desc:'Grüne Giftwolke: Vergiftet den nächsten Gegner für 5s (verursacht insgesamt 1,5x Ability DMG).'},
- 'Dream Eater': {col:'#b86bff',desc:'Violette Traum-Welle: Verursacht Ability DMG am Ziel und heilt den Anwender um 80% des Schadens.'}
+ 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Feuert ein Projektil auf den Gegner mit den meisten HP; trifft Ziel und angrenzende Gegner (1 Feld) für Ability DMG.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -207,7 +205,7 @@ const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000
 
 /* ================= POKÉMON-POOL ================= */
 const RAW=[
-[1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison','Caster','Dream Eater'],
+[1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison','Caster','Weather Ball'],
 [1,'Samurzel,Blanas,Tengulist','273,274,275','Grass,Dark','Fighter','Close Combat'],
 [1,'Wingull,Pelipper,Pelipper','278,279,279','Water,Flying','Caster','Weather Ball'],
 [1,'Ganovil,Rokkaiman,Rabigator','551,552,553','Ground,Dark','Fighter','Close Combat'],
@@ -227,13 +225,13 @@ const RAW=[
 [2,'Bähmon,Pelzebub,Olangaar','859,860,861','Dark,Fairy','Fighter','Reflect'],
 [3,'Panflam,Panpyro,Panferno','390,391,392','Fire,Fighting','Fighter','Close Combat'],
 [3,'Karnimani,Tyracroc,Impi','158,159,160','Water','Fighter','Close Combat'],
-[3,'Evoli,Nachtara,Nachtara','133,197,197','Dark','Caster','Dream Eater'],
+[3,'Evoli,Nachtara,Nachtara','133,197,197','Dark','Caster','Reflect'],
 [3,'Pichu,Pikachu,Pikachu','172,25,25','Electric','Sniper','Snipe Shot'],
 [3,'Igamaro,Igastarnish,Brigaron','650,651,652','Grass,Fighting','Tank','Reflect'],
 [3,'Bauz,Arboretoss,Silvarro','722,723,724','Grass,Ghost','Sniper','Snipe Shot'],
-[4,'Rotom,Rotom,Rotom','479,479,479','Electric,Ghost','Sniper','Snipe Shot'],
+[4,'Rotom,Rotom,Rotom','479,479,479','Electric,Ghost','Sniper','Reflect'],
 [4,'Fermicula,Fermicula,Fermicula','632,632,632','Bug,Steel','Fighter','Close Combat'],
-[4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Dream Eater'],
+[4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Weather Ball'],
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Weather Ball'],
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water','Caster','Snipe Shot']
@@ -626,8 +624,16 @@ const asp=u=>u.aspd*(1+u.spdBuff)*(1-(u.slowT>0?u.slow:0));
 const effAtk=u=>u.atk*(1-(u.atkDownT>0?u.atkDown:0));
 const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-32,s,t:.75,col});
 
-function dealDmg(t,d,col,pre,attacker){
+function dealDmg(t, d, col, pre, attacker){
  if(!t||t.hp<=0)return 0;
+ 
+ // --- NEU: Reflect-Schadensreduktion für Verbündete (75% weniger Schaden) ---
+ if(t.team == 'p') {
+  const inReflect = B.barriers.some(b => b.team == t.team && b.type == 'reflectZone' && b.r == t.r && b.c == t.c);
+  if(inReflect) {
+   d = d * 0.25; // Reduziert den Schaden auf 25% (erleidet also 75% weniger)
+  }
+ }
  const dealt=Math.max(1,Math.round(d));
  let rem=dealt;
  if(t.shield>0){const a=Math.min(t.shield,rem);t.shield-=a;rem-=a}
@@ -661,6 +667,10 @@ const heal=(u,a)=>{if(u&&u.hp>0)u.hp=Math.min(u.max,u.hp+a)};
 function checkBarrierMitigation(sx,sy,tx,ty,targetTeam){
  for(const b of B.barriers){
   if(b.team!==targetTeam)continue;
+  // Wenn es eine Reflect-Zone ist (oder eine normale Barriere)
+  if(b.r === Math.round((ty - OY) / RH) && b.c === Math.round((tx - OX) / W)) { // oder deine alte Distanzprüfung
+   // Alternativ mit deiner Distanzprüfung zum Feld:
+  }
   const[bx,by]=px(b.r,b.c);
   if(Math.hypot(bx-tx,by-ty)<W*1.15){
    B.waves.push({x:bx,y:by,r:4,maxR:26,col:'#ff66cc',t:.25,maxT:.25});
@@ -709,14 +719,22 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Reflect':{
-   const frontR=Math.max(0,u.r-1);
-   const cols=[u.c-1,u.c,u.c+1].filter(c=>c>=0&&c<COLS);
-   for(const c of cols){
-    B.barriers.push({team:u.team,r:frontR,c,t:4,maxT:4});
-    const[bx,by]=px(frontR,c);
-    B.waves.push({x:bx,y:by,r:6,maxR:34,col:'#ff66cc',t:.35,maxT:.35});
+   // Erstelle ein Objekt für die 3 Felder (Eigenes Feld + links + rechts in derselben Reihe r)
+   const targetCols = [u.c - 1, u.c, u.c + 1].filter(c => c >= 0 && c < COLS);
+   for (const c of targetCols) {
+    // Wir nutzen das barriers-Array, speichern aber Dauer (5s) und Typ ab
+    B.barriers.push({
+     team: u.team, 
+     r: u.r, 
+     c: c, 
+     t: 5, 
+     maxT: 5, 
+     type: 'reflectZone'
+    });
+    const [bx, by] = px(u.r, c);
+    B.waves.push({x: bx, y: by, r: 6, maxR: 38, col: '#ff66cc', t: .4, maxT: .4, fill: true});
    }
-   say(u,'🛡️ Reflect','#ff66cc');
+   say(u, '🛡️ Reflect', '#ff66cc');
    break;
   }
   case 'Bulldoze':{
@@ -739,43 +757,28 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Weather Ball':{
-   let boss=foes[0];
-   for(const f of foes)if(f.hp>boss.hp)boss=f;
-   if(!boss)break;
-   B.proj.push({
-    x:u.x,y:u.y,sx:u.x,sy:u.y,tx:boss.x,ty:boss.y,target:boss,
-    t:0,dur:.26,col:'#ffffff',glow:'#99e6ff',r:11,team:u.team,
-    onHit:(bx,by)=>{
-     B.waves.push({x:bx,y:by,r:10,maxR:W*1.4,col:'#ffffff',t:.42,maxT:.42,fill:true});
-     const live=B.units.filter(x=>x.team!=u.team&&x.hp>0);
-     for(const f of live){
-      if(f===boss||dist(f,boss)<=1){
-       const d=rawAb*100/(100+f.def);
-       dealDmg(f,d,'#ffffff','❄️',u);
+    let boss=foes[0];
+    for(const f of foes)if(f.hp>boss.hp)boss=f;
+    if(!boss)break;
+    B.proj.push({
+     x:u.x,y:u.y,sx:u.x,sy:u.y,tx:boss.x,ty:boss.y,target:boss,
+     t:0,dur:.26,col:'#ffffff',glow:'#99e6ff',r:11,team:u.team,
+     onHit:(bx,by)=>{
+      // Große weiße Schockwelle für den Hauptschaden
+      B.waves.push({x:bx,y:by,r:10,maxR:W*1.4,col:'#ffffff',t:.42,maxT:.42,fill:true});
+      const live=B.units.filter(x=>x.team!=u.team&&x.hp>0);
+      for(const f of live){
+       if(f===boss||dist(f,boss)<=1){
+        const d=rawAb*100/(100+f.def);
+        dealDmg(f,d,'#ffffff','❄️',u);
+        // NEU: Kurzes weißes Aufleuchten direkt auf den betroffenen Gegner-Feldern
+        B.waves.push({x:f.x,y:f.y,r:4,maxR:W*0.8,col:'#ffffff',t:.25,maxT:.25,fill:true});
+       }
       }
      }
-    }
-   });
-   break;
-  }
-  case 'Toxic':{
-   let near=foes[0],nd=99;
-   for(const f of foes){const dd=dist(u,f);if(dd<nd){nd=dd;near=f}}
-   if(!near)break;
-   B.proj.push({
-    x:u.x,y:u.y,sx:u.x,sy:u.y,tx:near.x,ty:near.y,target:near,
-    t:0,dur:.22,col:'#44dd55',glow:'#1f8a2e',r:9,team:u.team,
-    onHit:(bx,by)=>{
-     B.waves.push({x:bx,y:by,r:6,maxR:46,col:'#44dd55',t:.4,maxT:.4,fill:true});
-     const totalPoison=(rawAb*1.5)*100/(100+near.def);
-     near.poisD=Math.max(near.poisD,totalPoison/5);
-     near.poisOwner=u;
-     near.poisT=5;
-     say(near,'☠️ Toxic','#44dd55');
-    }
-   });
-   break;
-  }
+    });
+    break;
+   }
   default:{
    B.proj.push({
     x:u.x,y:u.y,sx:u.x,sy:u.y,tx:t.x,ty:t.y,target:t,
@@ -904,10 +907,14 @@ function step(dt){
  }
  for(const u of A)if(u.split&&!u.splitDone&&u.hp>0&&u.hp<=u.max*u.split.at)doSplit(u);
 
- for(const b of B.barriers)b.t-=dt;
- B.barriers=B.barriers.filter(b=>b.t>0);
- for(const f of B.fields){f.t-=dt;f.acc+=dt;if(f.acc>=1){f.acc-=1;for(const o of A)if(o.hp>0&&o.team!=f.team&&dist(o,f)<=f.rad)dealDmg(o,Math.round(f.dmg),'#c84')}}
- B.fields=B.fields.filter(f=>f.t>0);
+for(const b of B.barriers){
+  const[bx,by]=px(b.r,b.c);
+  ctx.save();
+  ctx.strokeStyle='#ff66cc';ctx.fillStyle='rgba(255,102,204,0.35)';ctx.lineWidth=3;
+  ctx.shadowColor='#ff66cc';ctx.shadowBlur=10;
+  hexPath(bx,by,R-2);ctx.fill();ctx.stroke();
+  ctx.restore();
+ }
 
  for(const u of A){
   if(u.hp<=0||u.decoy)continue;

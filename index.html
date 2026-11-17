@@ -41,25 +41,40 @@ h4{margin:8px 0 2px;color:#9ab}
 #benchRow{display:flex;gap:8px;align-items:stretch;justify-content:center}
 #bench {
   display: flex;
-  flex-wrap: nowrap;          /* Verhindert das Umbrechen in eine zweite Zeile */
-  gap: 6px;
-  overflow-x: auto;           /* Ermöglicht horizontales Scrollen, falls der Platz nicht reicht */
+  flex-wrap: nowrap;          /* Zwingt alles in eine Zeile */
+  gap: 3px;                   /* Sehr kompakter Abstand zwischen den Karten */
+  overflow-x: visible;        /* Kein Scrollbalken mehr nötig */
   white-space: nowrap;
-  padding-bottom: 6px;
+  padding-bottom: 2px;
   width: 100%;
-}
-#bench .card {
-  flex: 0 0 90px;             /* Fixe Breite von 90px pro Karte, damit alle 12 bequem reinpassen */
-  width: 90px;
-  height: 120px;              /* Einheitliche Höhe für eine saubere Optik */
-  min-height: 120px;
   box-sizing: border-box;
-  padding: 3px;
-  gap: 2px;
 }
+
+#bench .card {
+  flex: 1 1 0;                /* Passt sich automatisch dynamisch an den verfügbaren Platz an */
+  min-width: 0;               /* Verhindert, dass Flexbox die minimale Inhaltsbreite erzwingt */
+  width: auto;
+  height: 100px;              /* Etwas kompakter in der Höhe */
+  min-height: 100px;
+  box-sizing: border-box;
+  padding: 2px;
+  gap: 1px;
+}
+
 #bench .card img.sp {
-  width: 48px;
-  height: 48px;
+  width: 38px;                /* Kleinere Sprites, damit alles perfekt reinpasst */
+  height: 38px;
+}
+
+#bench .card b {
+  font-size: 9px;             /* Kompaktere Schriftgröße für Namen */
+  line-height: 1;
+}
+
+#trash {
+  flex: 0 0 55px;             /* Mülleimer ebenfalls etwas schmaler machen */
+  width: 55px;
+  font-size: 22px;
 }
 #bench .card img.sp{width:100%;max-width:50px;height:auto;aspect-ratio:1}
 #bench .card b{font-size:10px;line-height:1.05}

@@ -142,23 +142,23 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
  ],
  /* Angepasste Gegner-Skalierung für 43 Runden und max. 8 eigene Plätze */
  enemy:{
-  strength:0.92,
+  strength:1.00,
   T:14,
   fStart:0.80,
-  fEnd:1.10,
+  fEnd:1.20,
   fRounds:43,
   early:0.88,
-  from6:0.98,
-  from15:1.01,
-  from30:1.01,
-  from42:1.02,
+  from6:1.00,
+  from15:1.03,
+  from30:1.05,
+  from42:1.07,
   aspd:0.8,
   skill:2,
   def:10,
-  defPerRound:0.95,
+  defPerRound:1.0,
   mg:12,
   dmg:1.02,
-  dmgGrow:0.90
+  dmgGrow:1.0
  }
 };
 
@@ -173,10 +173,10 @@ const CLASSES={
 /* ================= FÄHIGKEITEN-BESCHREIBUNGEN ================= */
 const SKILLS={
  'Close Combat':{col:'#ff3b3b',desc:'Rote Explosion: Verursacht insgesamt 2x Ability DMG aufgeteilt auf alle Gegner auf dem Feld.'},
- 'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 3x Ability DMG.'},
- 'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 5s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
+ 'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 2,5x Ability DMG.'},
+ 'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 3s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
  'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht 1,5x Ability DMG.'},
- 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 5s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain und erleiden Ability DMG.'}
+ 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 3s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain und erleiden Ability DMG.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -204,7 +204,7 @@ const TB={
  Rock:    {th:[2],    v:[30],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
  Ground:  {th:[1],    v:[150],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[1],    v:[2],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 2 Sekunden`},
+ Psychic: {th:[1],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
  Ghost:   {th:[2,3,5],v:[250,350,600],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
  Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
@@ -734,29 +734,29 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Snipe Shot':{
-   /* Gelber Laserstrahl: trifft alle im Weg befindlichen Gegner für 3x Ability DMG */
+   /* Gelber Laserstrahl: trifft alle im Weg befindlichen Gegner für 2,5x Ability DMG */
    const dx=t.x-u.x,dy=t.y-u.y,len=Math.hypot(dx,dy)||1;
    const ex=u.x+(dx/len)*850,ey=u.y+(dy/len)*850;
    B.fx.push({x1:u.x,y1:u.y,x2:ex,y2:ey,t:.38,maxT:.38,col:'#ffe63b',w:8,glow:'#ffae00'});
    for(const f of foes){
     if(segDist(f.x,f.y,u.x,u.y,ex,ey)<=W*0.58){
      const effDef=isInWeatherField(f)?f.def*0.5:f.def;
-     const d=(rawAb*3)*100/(100+effDef);
+     const d=(rawAb*2,5)*100/(100+effDef);
      dealDmg(f,d,'#ffe63b','⚡',u);
     }
    }
    break;
   }
   case 'Reflect':{
-   /* Pinke Animation: baut links, mittig und rechts für 5s Barriere auf (-50% Schaden, +50% ASPD für Allies) */
+   /* Pinke Animation: baut links, mittig und rechts für 3s Barriere auf (-50% Schaden, +50% ASPD für Allies) */
    const targetCols=[u.c-1,u.c,u.c+1].filter(c=>c>=0&&c<COLS);
    for(const c of targetCols){
     B.barriers.push({
      team:u.team,
      r:u.r,
      c:c,
-     t:5,
-     maxT:5,
+     t:3,
+     maxT:3,
      type:'reflectZone'
     });
     const[bx,by]=px(u.r,c);
@@ -787,7 +787,7 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Weather Ball':{
-   /* Weiße Animation: greift Gegner mit meisten HP an, erzeugt für 5s weißes Feld (Ziel + umliegende Waben): -50% DEF, -50% Mana Gain, Ability DMG */
+   /* Weiße Animation: greift Gegner mit meisten HP an, erzeugt für 3s weißes Feld (Ziel + umliegende Waben): -50% DEF, -50% Mana Gain, Ability DMG */
    let boss=foes[0];
    for(const f of foes)if(f.hp>boss.hp)boss=f;
    if(!boss)break;
@@ -797,7 +797,7 @@ function castPlayerSkill(u,t,A){
     onHit:(bx,by)=>{
      const centerR=boss.hp>0?boss.r:Math.round((by-OY)/RH);
      const centerC=boss.hp>0?boss.c:Math.round((bx-OX)/W);
-     B.fields.push({r:centerR,c:centerC,rad:1.3,t:5,maxT:5,type:'weather'});
+     B.fields.push({r:centerR,c:centerC,rad:1.3,t:3,maxT:3,type:'weather'});
      B.waves.push({x:bx,y:by,r:10,maxR:W*1.5,col:'#ffffff',t:.42,maxT:.42,fill:true});
      const live=B.units.filter(x=>x.team!=u.team&&x.hp>0);
      for(const f of live){

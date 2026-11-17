@@ -484,8 +484,15 @@ function buildEnemy(){
  const f=(e.fStart+(e.fEnd-e.fStart)*pr)*e.strength*stageMult;
  const n=limitFor(r),q=Math.min(r,52)/52;
  const D=n*34*(1+1.55*q),H=n*360*(1+1.35*q);
- const totalHP=D*e.T*f;
- const totalDPS=H/(e.T*2.2)*f;
+
+ // --- NEU: Automatische Dämpfung für Einzelgegner, Revive & Split ---
+ const soloFactor = (m === 1) ? 0.78 : 1; // Einzelgegner (wie Hoopa/Necrozma) haben 22% weniger Gesamt-Pool
+ const phaseFactor = g.some(d => d.revive || d.split) ? 0.82 : 1; // Runden mit 2. Phase sind 18% schwächer
+
+ const totalHP = D * e.T * f * soloFactor * phaseFactor;
+ const totalDPS = (H / (e.T * 2.2)) * f * soloFactor * phaseFactor;
+ // -------------------------------------------------------------------
+
  const dmgF=e.dmg*(1+e.dmgGrow*q);
  const wH=g.reduce((s,d)=>s+(d.hpX||1),0),wA=g.reduce((s,d)=>s+(d.atkX||1),0);
  return g.map((d,j)=>{const pos=d.pos||[1,Math.floor((COLS-m)/2)+j];
@@ -631,8 +638,10 @@ function morph(u,f){if(f.sprite!=null){u.fb=f.fb??u.id;u.id=f.sprite}if(f.name)u
 function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!==u).map(o=>o.r*100+o.c)),cells=[];
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)cells.push({r,c});cells.sort((a,b)=>dist(a,u)-dist(b,u));
  u.hp=0;u.dead=1;
+ const splitCount = u.split.into.length; // NEU: Anzahl der Teile (bei Necrozma = 2)
  for(const k of u.split.into){const cell=cells.find(x=>!occ.has(x.r*100+x.c));if(!cell)break;occ.add(cell.r*100+cell.c);
-  const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:u.atk*(k.atkX||1),aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
+  // NEU: atk wird durch splitCount geteilt, damit sich der Gesamtschaden nicht verdoppelt
+  const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:(u.atk*(k.atkX||1))/splitCount,aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
   n.hp=n.max*u.split.at;n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 
 const heal=(u,a)=>{if(u&&u.hp>0)u.hp=Math.min(u.max,u.hp+a)};

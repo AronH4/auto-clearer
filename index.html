@@ -123,7 +123,7 @@ h4{margin:8px 0 2px;color:#9ab}
 /* ================= KONFIGURATION ================= */
 const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
- maxUnits:8,slotAfter:[1,3,6,10,15,21,28],benchMax:12,
+ maxUnits:8,slotAfter:[1,3,7,12,19,28,39],benchMax:12,
  speedUpAfter:20,speedUpTo:3,
  /* Sterne-Faktoren für HP & ATK: 1★ = 1.0, 2★ = 1.75, 3★ = 3.0 */
  hpMul:[1,1.75,3],atkMul:[1,1.75,3],
@@ -142,23 +142,23 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
  ],
  /* Angepasste Gegner-Skalierung für 43 Runden und max. 8 eigene Plätze */
  enemy:{
-  strength:1.00,
-  T:14,
-  fStart:0.85,
+  strength:1.10,
+  T:15,
+  fStart:0.9,
   fEnd:1.20,
   fRounds:50,
   early:0.9,
-  from6:1.01,
-  from15:1.03,
-  from30:1.05,
-  from42:1.07,
-  aspd:0.8,
+  from6:1.03,
+  from15:1.05,
+  from30:1.07,
+  from42:1.09,
+  aspd:1.0,
   skill:2,
   def:10,
   defPerRound:1.0,
-  mg:12,
+  mg:12.5,
   dmg:1.02,
-  dmgGrow:1.0
+  dmgGrow:1.05
  }
 };
 
@@ -174,7 +174,7 @@ const CLASSES={
 const SKILLS={
  'Close Combat':{col:'#ff3b3b',desc:'Rote Explosion: Verursacht insgesamt 2x Ability DMG aufgeteilt auf alle Gegner auf dem Feld.'},
  'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 2,5x Ability DMG.'},
- 'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 3s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
+ 'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 2s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
  'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht 1,5x Ability DMG.'},
  'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 2s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain und erleiden Ability DMG.'}
 };
@@ -205,7 +205,7 @@ const TB={
  Ground:  {th:[1],    v:[150],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[1],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
- Ghost:   {th:[2,3,5],v:[250,350,600],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
+ Ghost:   {th:[2,3,5],v:[150,300,600],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
  Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
  Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
@@ -331,7 +331,7 @@ const ENEMIES=[
  /* 2: Arbok, Smogmog, Mauzi (im Dreieck, Mauzi hinten) */
  [E('Arbok',24,{pos:[2,3]}),E('Smogmog',110,{pos:[2,5]}),E('Mauzi',52,{pos:[1,4]})],
  /* 3: Pikachu, Relaxo, Bisaflor, Glurak, Turtok, Mewtu (in einer Reihe ganz hinten) */
- [E('Pikachu',25,{pos:[0,2]}),E('Relaxo',143,{pos:[0,3]}),E('Bisaflor',3,{pos:[0,4]}),E('Glurak',6,{pos:[0,5]}),E('Turtok',9,{pos:[0,6]}),E('Mewtu',150,{pos:[0,7]})],
+ [E('Pikachu',25,{pos:[0,2]}),E('Relaxo',143,{pos:[0,3]}),E('Bisaflor',3,{pos:[0,4]}),E('Glurak',6,{pos:[0,5]}),E('Turtok',9,{pos:[0,6]}),E('Gengar',94,{pos:[0,7]})],
  /* 4: Arktos, Zapdos, Lavados (im Dreieck) */
  [E('Arktos',144,{pos:[2,4]}),E('Zapdos',145,{pos:[1,3]}),E('Lavados',146,{pos:[1,5]})],
  /* 5: Mewtu, Mew (Mew hinter Mewtu) */
@@ -357,9 +357,9 @@ const ENEMIES=[
  /* 13: Regigigas, Regirock, Regice, Registeel, Regidrago, Regieleki (5 in einer Reihe, Regigigas dahinter) */
  [E('Regirock',377,{pos:[2,2]}),E('Regice',378,{pos:[2,3]}),E('Registeel',379,{pos:[2,4]}),E('Regidrago',895,{pos:[2,5]}),E('Regieleki',894,{pos:[2,6]}),E('Regigigas',486,{pos:[1,4],big:true,hpX:2,atkX:1.5})],
  /* 14: Kyogre, Groudon, Latias, Latios, Jirachi (vorne Kyogre & Groudon, dahinter Latias & Latios, ganz dahinter Jirachi) */
- [E('Kyogre',382,{pos:[3,3]}),E('Groudon',383,{pos:[3,5]}),E('Latias',380,{pos:[2,3]}),E('Latios',381,{pos:[2,5]}),E('Jirachi',385,{pos:[1,4]})],
+ [E('Rayquaza',384,{pos:[0,4]}),E('Kyogre',382,{pos:[1,3]}),E('Groudon',383,{pos:[1,5]}),E('Latias',380,{pos:[3,3]}),E('Latios',381,{pos:[3,5]}),E('Jirachi',385,{pos:[2,4]})],
  /* 15: Deoxys, Sonnfel, Lunastein, 2x Meteno (Deoxys umgeben, ATK-Buff wenn 3 Gegner down) */
- [E('Deoxys',386,{pos:[2,4],big:true,hpX:2.5,atkX:1.6}),E('Sonnfel',338,{pos:[2,3],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Lunastein',337,{pos:[2,5],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Meteno',774,{pos:[1,4],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Meteno',774,{pos:[3,4],die:ON_3_DOWN('Deoxys','atk',1.5)})],
+ [E('Deoxys',386,{pos:[2,4],big:true,hpX:2.5,atkX:1.6}),E('Sonnfel',338,{pos:[2,3],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Lunastein',337,{pos:[2,5],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Meteno',774,{pos:[3,3],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Meteno',774,{pos:[3,4],die:ON_3_DOWN('Deoxys','atk',1.5)})],
 
  /* ================= SINNOH (16–20) ================= */
  /* 16: Shaymin, 8x Knospi, Manaphy, Phione (vorne Manaphy & Phione, dahinter Shaymin umgeben von 8 Knospi) */
@@ -418,7 +418,7 @@ const ENEMIES=[
  [E('Agoyon',804,{pos:[2,4],big:true,hpX:2.4,atkX:1.6}),
   E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),
   E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlingking',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),
-  E('Kopplosio',806,{pos:[0,4]}),E('Agoyon',804,{pos:[3,5]})],
+  E('Kopplosio',806,{pos:[0,4]})],
  /* 32: Wolwerock, Alola-Vulnona, Washakwil, Magnezone, Relaxo, Fuegro (in einer Reihe ganz hinten) */
  [E('Wolwerock',745,{pos:[0,2]}),E('Alola-Vulnona',10104,{pos:[0,3],fb:38}),E('Washakwil',628,{pos:[0,4]}),E('Magnezone',462,{pos:[0,5]}),E('Relaxo',143,{pos:[0,6]}),E('Fuegro',727,{pos:[0,7]})],
  /* 33: Kapu-Riki, Kapu-Fala, Kapu-Toro, Kapu-Kime (in einer Reihe) */
@@ -454,10 +454,10 @@ const ENEMIES=[
  /* 43: Boninu, Benesaru, Beatori, Infamomo (Ogerpon spawnt erst, wenn alle 4 down sind) */
  [E('Boninu',1014,{pos:[3,3],die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[2,4],die:SPAWN_OGERPON})],
  /* 44: Koraidon, Miraidon, Riesenzahn, Eisenrad, Donnersichel, Eisenkrieger (in 2 Säulen) */
- [E('Koraidon',1007,{pos:[3,3]}),E('Riesenzahn',984,{pos:[2,3]}),E('Donnersichel',1005,{pos:[1,3]}),
-  E('Miraidon',1008,{pos:[3,5]}),E('Eisenrad',990,{pos:[2,5]}),E('Eisenkrieger',1006,{pos:[1,5]})],
+ [E('Koraidon',1007,{pos:[1,3]}),E('Riesenzahn',984,{pos:[3,3]}),E('Donnersichel',1005,{pos:[2,3]}),
+  E('Miraidon',1008,{pos:[1,5]}),E('Eisenrad',990,{pos:[3,5]}),E('Eisenkrieger',1006,{pos:[2,5]})],
  /* 45: Terapagos Stellar (revived mit 60% zu Terakristall-Terapagos) */
- [E('Terapagos (Stellar)',10277,{pos:[1,4],fb:1024,hpX:0.85,revive:{hp:.6,sprite:10276,fb:1024,name:'Terakristall-Terapagos',big:true}})],
+ [E('Terapagos (Stellar)',10276,{pos:[1,4],fb:1024,hpX:0.85,revive:{hp:.6,sprite:10277,fb:1024,name:'Terakristall-Terapagos',big:true}})],
 
  /* ================= FINALE: GO & HISUI (46–50) ================= */
  /* 46: Melmetal, 10x Meltan (Melmetal umgeben von den anderen) */
@@ -895,15 +895,15 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Reflect':{
-   /* Pinke Animation: baut links, mittig und rechts für 3s Barriere auf (-50% Schaden, +50% ASPD für Allies) */
+   /* Pinke Animation: baut links, mittig und rechts für 2s Barriere auf (-50% Schaden, +50% ASPD für Allies) */
    const targetCols=[u.c-1,u.c,u.c+1].filter(c=>c>=0&&c<COLS);
    for(const c of targetCols){
     B.barriers.push({
      team:u.team,
      r:u.r,
      c:c,
-     t:3,
-     maxT:3,
+     t:2,
+     maxT:2,
      type:'reflectZone'
     });
     const[bx,by]=px(u.r,c);

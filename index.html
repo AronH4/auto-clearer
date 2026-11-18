@@ -314,8 +314,8 @@ const SPAWN_OGERPON=(u,A)=>{
   B.flag.ogerponSpawned=1;
   const base=B.units.find(x=>x.team=='e');
   const oger=mk('e',1,4,'Ogerpon',1017,false,{
-   hp:(base?base.max:1500)*1.8,
-   atk:(base?base.atk:150)*1.5,
+   hp:(base?base.max:1500)*1.0,
+   atk:(base?base.atk:150)*1.0,
    aspd:1.05,def:45,crit:0.2,range:2,mg:15,skill:2,big:true
   });
   oger.t=[];
@@ -453,7 +453,7 @@ const ENEMIES=[
  /* 42: Lumiflora, Psiopatra, Chevrumm, Agiluza, Arktilas, Gladimperio (in einer Reihe ganz hinten) */
  [E('Lumiflora',970,{pos:[0,2]}),E('Psiopatra',956,{pos:[0,3]}),E('Chevrumm',673,{pos:[0,4]}),E('Agiluza',976,{pos:[0,5]}),E('Arktilas',713,{pos:[0,6]}),E('Gladimperio',983,{pos:[0,7]})],
  /* 43: Boninu, Benesaru, Beatori, Infamomo (Ogerpon spawnt erst, wenn alle 4 down sind) */
- [E('Boninu',1014,{pos:[3,3],die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[2,4],die:SPAWN_OGERPON})],
+ [E('Boninu',1014,{pos:[3,3],hpX:0.9,die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],hpX:0.9,die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],hpX:0.9,die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[2,4],die:SPAWN_OGERPON})],
  /* 44: Koraidon, Miraidon, Riesenzahn, Eisenrad, Donnersichel, Eisenkrieger (in 2 Säulen) */
  [E('Koraidon',1007,{pos:[1,3]}),E('Riesenzahn',984,{pos:[3,3]}),E('Donnersichel',1005,{pos:[2,3]}),
   E('Miraidon',1008,{pos:[1,5]}),E('Eisenrad',990,{pos:[3,5]}),E('Eisenkrieger',1006,{pos:[2,5]})],

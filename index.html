@@ -176,7 +176,7 @@ const SKILLS={
  'Close Combat':{col:'#ff3b3b',desc:'Rote Explosion: Verursacht insgesamt 2x Ability DMG aufgeteilt auf alle Gegner auf dem Feld.'},
  'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 2,5x Ability DMG.'},
  'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 2s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
- 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den meisten HP und verursacht 1,5x Ability DMG.'},
+ 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den wenigsten HP und verursacht 1,5x Ability DMG.'},
  'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 2s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain und erleiden Ability DMG.'}
 };
 
@@ -942,7 +942,7 @@ function castPlayerSkill(u,t,A){
   case 'Bulldoze':{
    /* Braune Animation: dasht zum Ziel mit meisten HP und verursacht 1,5x Ability DMG */
    let boss=foes[0];
-   for(const f of foes)if(f.hp>boss.hp)boss=f;
+   for(const f of foes)if(f.hp<boss.hp)boss=f;
    if(!boss)break;
    const occ=new Set(A.filter(o=>o!==u&&o.hp>0).map(o=>o.r+','+o.c));
    let bestCell=null,bestD=99;

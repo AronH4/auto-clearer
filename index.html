@@ -309,15 +309,15 @@ const ENEMIES=[
  [E('Xerneas',716,{pos:[2,3],hpX:1.2,atkX:1.15}),E('Yveltal',717,{pos:[2,5],hpX:1.2,atkX:1.15}),E('Zygarde (Optimum)',10120,{pos:[1,4],fb:718,big:true,hpX:1.6,atkX:1.35})],
  /* 25: Diancie + Rocara + Volcanion */
  [E('Diancie',719,{pos:[2,4],big:true,hpX:2.4,atkX:1.7}),E('Volcanion',721,{pos:[1,4],big:true,hpX:1.8,atkX:1.5}),E('Rocara',703,{pos:[2,5]}),E('Rocara',703,{pos:[2,3]}),E('Rocara',703,{pos:[1,3]}),E('Rocara',703,{pos:[1,5]}),E('Rocara',703,{pos:[3,4]})],
- /* 26 */ [E('Hoopa',720,{pos:[1,4],hpx:0.8,revive:{hp:.25,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})],
+ /* 26 */ [E('Hoopa',720,{pos:[1,4],hpx:0.8,revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})],
  /* 27 */ [E('Kapu-Riki',785,{pos:[2,3]}),E('Kapu-Fala',788,{pos:[2,4]}),E('Kapu-Toro',786,{pos:[2,5]}),E('Kapu-Kime',787,{pos:[2,6]})],
  /* 28 */ [E('Solgaleo',791,{pos:[2,4]}),E('Lunala',792,{pos:[2,5]})],
- /* 29 */ [E('Necrozma',800,{pos:[1,4],hpx:0.8,split:{at:.2,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})],
- /* 30 */ [E('Agoyon',803,{pos:[2,4],big:true}),E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlinkging',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),E('Kopplosio',806,{pos:[0,4]})],
+ /* 29 */ [E('Necrozma',800,{pos:[1,4],hpx:0.8,split:{at:.4,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})],
+ /* 30 */ [E('Agoyon',804,{pos:[2,4],big:true}),E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlinkging',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),E('Kopplosio',806,{pos:[0,4]})],
  /* 31 */ [E('Magearna',801,{pos:[1,0]}),E('Marshadow',802,{pos:[1,4]}),E('Zeraora',807,{pos:[1,9]})],
  /* 32 */ [E('Melmetal',809,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meltan',808,{pos:[2,5]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[1,4]}),E('Meltan',808,{pos:[1,3]}),E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[3,3]}),E('Meltan',808,{pos:[2,2]}),E('Meltan',808,{pos:[2,6]}),E('Meltan',808,{pos:[0,3]}),E('Meltan',808,{pos:[0,5]})],
  /* 33: Zacian/Zamazenta + Endynalos kombiniert & abgeschwächt */
- [E('Zacian (Königsform)',10188,{pos:[2,3],fb:888,hpX:1.05,atkX:1.05}),E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889,hpX:1.15,atkX:0.95}),E('Endynalos',890,{pos:[1,4],hpX:1.15,atkX:1.0,revive:{hp:.20,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
+ [E('Zacian (Königsform)',10188,{pos:[2,3],fb:888,hpX:1.05,atkX:1.05}),E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889,hpX:1.15,atkX:0.95}),E('Endynalos',890,{pos:[1,4],hpX:1.15,atkX:1.0,revive:{hp:.5,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
  /* 34 */ [E('Wulaosu (Wasser)',10191,{pos:[3,4],fb:892}),E('Wulaosu (Unlicht)',892,{pos:[3,5]}),E('Zarude',893,{pos:[2,5]})],
  /* 35: Coronospa-Runde: beide übrigen Einheiten mergen zu einer zusammen */
  [E('Polaross',896,{pos:[3,3],die:CALY_MERGE}),E('Phantoross',897,{pos:[3,5],die:CALY_MERGE}),E('Coronospa',898,{pos:[2,4],die:CALY_MERGE})],
@@ -329,7 +329,7 @@ const ENEMIES=[
  [E('Eisenrad',990,{pos:[2,2],hpX:0.85,atkX:0.85}),E('Eisenbündel',991,{pos:[2,3],hpX:0.85,atkX:0.85}),E('Eisenhand',992,{pos:[2,4],hpX:0.85,atkX:0.85}),E('Eisenhals',993,{pos:[2,5],hpX:0.85,atkX:0.85}),E('Eisenfalter',994,{pos:[2,6],hpX:0.85,atkX:0.85}),E('Eisendorn',995,{pos:[1,2],hpX:0.85,atkX:0.85}),E('Eisenkrieger',1006,{pos:[1,3],hpX:0.9,atkX:0.9}),E('Eisenblatt',1010,{pos:[1,4],hpX:0.95,atkX:0.95}),E('Eisenfels',1022,{pos:[1,5],hpX:0.9,atkX:0.9}),E('Eisenhaupt',1023,{pos:[1,6],hpX:0.9,atkX:0.9})],
  /* 40 */ [E('Ogerpon (Türkis)',1017,{pos:[3,4]}),E('Ogerpon (Brunnen)',10273,{pos:[2,4],fb:1017}),E('Ogerpon (Ofen)',10274,{pos:[2,5],fb:1017}),E('Ogerpon (Fels)',10275,{pos:[1,4],fb:1017})],
  /* 41 */ [E('Boninu',1014,{pos:[3,3],hpx:0.8}),E('Benesaur',1015,{pos:[3,4],hpx:0.8}),E('Beatori',1016,{pos:[3,5],hpx:0.8}),E('Infamomo',1025,{pos:[2,4],hpx:0.8})],
- /* 42 */ [E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,hpx:0.7,revive:{hp:.25,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})],
+ /* 42 */ [E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,hpx:0.7,revive:{hp:.5,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})],
  /* 43 */ [E('Arceus',493,{pos:[2,4],big:true,hpX:3.5,atkX:2.2}),E('Amigento',773,{pos:[2,5]}),E('Amigento',773,{pos:[2,3]}),E('Amigento',773,{pos:[1,4]}),E('Amigento',773,{pos:[1,3]}),E('Amigento',773,{pos:[3,4]}),E('Amigento',773,{pos:[3,3]}),E('Amigento',773,{pos:[2,2]}),E('Amigento',773,{pos:[2,6]}),E('Amigento',773,{pos:[0,3]}),E('Amigento',773,{pos:[0,5]})]
 ];
 const EN=ENEMIES;

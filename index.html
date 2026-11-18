@@ -146,9 +146,9 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
   strength:1.07,
   T:15,
   fStart:0.9,
-  fEnd:1.20,
+  fEnd:1.18,
   fRounds:50,
-  early:1.02,
+  early:1.03,
   from6:1.05,
   from15:1.05,
   from30:1.05,
@@ -156,9 +156,9 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
   aspd:1.0,
   skill:2,
   def:10,
-  defPerRound:1.0,
+  defPerRound:0.9,
   mg:12.5,
-  dmg:1.02,
+  dmg:1.00,
   dmgGrow:1.05
  }
 };
@@ -194,7 +194,7 @@ const p=v=>Math.round(v*100)+'%';
 /* ================= TYP-BONI ================= */
 const DECOY_HP=[250,350,600];
 const TB={
- Normal:  {th:[3],    v:[3],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
+ Normal:  {th:[3],    v:[2,5],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
  Grass:   {th:[2,4],  v:[.20,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
  Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
@@ -766,28 +766,54 @@ function startBattle(){
   B.units.push(d);
  }
 
- /* Boden-Bonus: Bei Rundenbeginn ans hintere Ende der Gegner schleichen */
- const occ=new Set(B.units.filter(u=>u.hp>0).map(u=>u.r+','+u.c));
- for(const u of B.units){
-  if(u.team=='p'&&u.ground>0){
-   occ.delete(u.r+','+u.c);
-   let best=null;
-   for(let r=0;r<4;r++){
-    for(let c=0;c<COLS;c++){
-     if(!occ.has(r+','+c)){best={r,c};break;}
+ /* Boden-Bonus: Bei Rundenbeginn ans hintere Ende der Gegner in die Mitte springen */
+const occ = new Set(B.units.filter(u => u.hp > 0).map(u => u.r + ',' + u.c));
+for (const u of B.units) {
+ if (u.team == 'p' && u.ground > 0) {
+  occ.delete(u.r + ',' + u.c);
+  let best = null;
+  const midC = Math.floor(COLS / 2); // Die Mitte des Spielfelds (Spalte 4 oder 5)
+
+  // Wir suchen zuerst in Reihe 0 (ganz hinten) und priorisieren die Felder nahe der Mitte
+  let bestDist = 999;
+  for (let c = 0; c < COLS; c++) {
+   const cell = { r: 0, c: c };
+   if (!occ.has(cell.r + ',' + cell.c)) {
+    const d = Math.abs(c - midC); // Abstand zur Mitte
+    if (d < bestDist) {
+     bestDist = d;
+     best = cell;
     }
-    if(best)break;
    }
-   if(best){
-    u.r=best.r;u.c=best.c;
-    const[nx,ny]=px(u.r,u.c);
-    u.x=nx;u.y=ny;
-    B.waves.push({x:nx,y:ny,r:4,maxR:42,col:'#c9a24a',t:.4,maxT:.4});
-    say(u,'💨','#c9a24a');
-   }
-   occ.add(u.r+','+u.c);
   }
+
+  // Falls Reihe 0 komplett besetzt ist, weichen wir auf Reihe 1 aus (ebenfalls mittig)
+  if (!best) {
+   for (let r = 1; r < 4; r++) {
+    for (let c = 0; c < COLS; c++) {
+     const cell = { r: r, c: c };
+     if (!occ.has(cell.r + ',' + cell.c)) {
+      const d = Math.abs(c - midC);
+      if (d < bestDist) {
+       bestDist = d;
+       best = cell;
+      }
+     }
+    }
+    if (best) break;
+   }
+  }
+
+  if (best) {
+   u.r = best.r; u.c = best.c;
+   const [nx, ny] = px(u.r, u.c);
+   u.x = nx; u.y = ny;
+   B.waves.push({ x: nx, y: ny, r: 4, maxR: 42, col: '#c9a24a', t: .4, maxT: .4 });
+   say(u, '💨', '#c9a24a');
+  }
+  occ.add(u.r + ',' + u.c);
  }
+}
  render();
 }
 

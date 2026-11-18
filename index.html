@@ -146,7 +146,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
   T:14,
   fStart:0.85,
   fEnd:1.20,
-  fRounds:43,
+  fRounds:50,
   early:0.9,
   from6:1.01,
   from15:1.03,
@@ -265,72 +265,219 @@ const SP=RAW.map(r=>({
 
 /* ================= GEGNER ================= */
 const E=(name,sprite,o={})=>({name,sprite,...o});
-/* Coronospa-Runde: die beiden letzten Einheiten mergen zu einer zusammen */
-const CALY_MERGE=(u,A)=>{
- const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
- if(liveE.length===1){
-  const last=liveE[0];
-  B.flag.calyMerged=1;
-  morph(last,{name:'Coronospa (Reiter-Fusion)',sprite:10194,fb:898,atkX:1.45,big:true});
-  last.max*=1.5;
-  last.hp=last.max;
-  B.waves.push({x:last.x,y:last.y,r:8,maxR:65,col:'#a98ff3',t:.55,maxT:.55,fill:true});
-  say(last,'👑 Fusion!','#ffd700');
+
+/* Hilfsfunktionen für Spezialmechaniken der Runden */
+const ON_3_DOWN=(bossName,stat,mult)=> (u,A)=>{
+ if(B.flag[bossName+'Buff'])return;
+ const deadCount=B.units.filter(x=>x.team=='e'&&x.hp<=0).length;
+ if(deadCount>=3){
+  const boss=A.find(x=>x.team=='e'&&x.name===bossName&&x.hp>0);
+  if(boss){
+   B.flag[bossName+'Buff']=1;
+   if(stat==='atk'){boss.atk*=mult;say(boss,'⚔️ ATK Boost!','#ff6644');}
+   if(stat==='def'){boss.def*=mult;say(boss,'🛡️ DEF Boost!','#66ccff');}
+   B.waves.push({x:boss.x,y:boss.y,r:8,maxR:55,col:'#ffcc33',t:.45,maxT:.45,fill:true});
+  }
  }
 };
+
+/* Runde 40: Polaross down -> Rappenreiter (10194), Phantoross down -> Schimmelreiter (10193) */
+const CALY_MERGE_V2=(u,A)=>{
+ if(B.flag.calyMerged)return;
+ const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
+ if(liveE.length===2){
+  B.flag.calyMerged=1;
+  const caly=liveE.find(x=>x.name==='Coronospa')||liveE[0];
+  const other=liveE.find(x=>x!==caly);
+  if(other){other.hp=0;other.dead=1;}
+  const isShadow=(u.name==='Polaross');
+  morph(caly,{
+   name:isShadow?'Rappenreiter-Coronospa':'Schimmelreiter-Coronospa',
+   sprite:isShadow?10194:10193,
+   fb:898,
+   atkX:1.45,
+   big:true
+  });
+  caly.max*=1.6;
+  caly.hp=caly.max;
+  B.waves.push({x:caly.x,y:caly.y,r:8,maxR:65,col:isShadow?'#9966ff':'#88ddff',t:.55,maxT:.55,fill:true});
+  say(caly,'👑 Fusion!','#ffd700');
+ }
+};
+
+/* Runde 43: Ogerpon spawnt erst, wenn die anderen 4 down sind */
+const SPAWN_OGERPON=(u,A)=>{
+ if(B.flag.ogerponSpawned)return;
+ const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
+ if(liveE.length===0){
+  B.flag.ogerponSpawned=1;
+  const base=B.units.find(x=>x.team=='e');
+  const oger=mk('e',1,4,'Ogerpon',1017,false,{
+   hp:(base?base.max:1500)*1.8,
+   atk:(base?base.atk:150)*1.5,
+   aspd:1.05,def:45,crit:0.2,range:2,mg:15,skill:2,big:true
+  });
+  oger.t=[];
+  B.units.push(oger);
+  B.waves.push({x:oger.x,y:oger.y,r:10,maxR:70,col:'#55dd77',t:.5,maxT:.5,fill:true});
+  say(oger,'🎭 Ogerpon!','#7ac74c');
+ }
+};
+
 const ENEMIES=[
- /* 1 */ [E('Karpador',129,{pos:[1,4]})],
- /* 2 */ [E('Bidiza',399,{pos:[1,4]}),E('Bidifas',400,{pos:[1,5]})],
- /* 3 */ [E('Icognito',201,{pos:[1,3]}),E('Woingenau',202,{pos:[1,4]}),E('Icognito',201,{pos:[1,5]})],
- /* 4 */ [E('Arktos',144,{pos:[1,4]}),E('Zapdos',145,{pos:[1,5]}),E('Lavados',146,{pos:[2,5]})],
- /* 5 */ [E('Mewtu',150,{pos:[3,4]}),E('Mew',151,{pos:[1,4]})],
- /* 6 */ [E('Raikou',243,{pos:[3,4]}),E('Entei',244,{pos:[3,5]}),E('Suicune',245,{pos:[2,5]})],
- /* 7 */ [E('Lugia',249,{pos:[2,4]}),E('Ho-Oh',250,{pos:[2,5]}),E('Celebi',251,{pos:[1,4]})],
- /* 8 */ [E('Regigigas',486,{pos:[2,4],big:true,hpX:2,atkX:1.5}),E('Regirock',377,{pos:[2,2]}),E('Regice',378,{pos:[2,3]}),E('Registeel',379,{pos:[2,5]}),E('Regidrago',895,{pos:[2,6]}),E('Regieleki',894,{pos:[2,7]})],
- /* 9 */ [E('Latias',380,{pos:[3,4]}),E('Latios',381,{pos:[3,5]}),E('Jirachi',385,{pos:[2,5]})],
- /* 10 */ [E('Kyogre',382,{pos:[2,4]}),E('Groudon',383,{pos:[2,5]})],
- /* 11 */ [E('Rayquaza',384,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Lepumentas',344,{pos:[2,5]}),E('Lepumentas',344,{pos:[2,3]}),E('Lepumentas',344,{pos:[1,4]}),E('Lepumentas',344,{pos:[1,3]}),E('Lepumentas',344,{pos:[3,4]}),E('Lepumentas',344,{pos:[3,3]})],
- /* 12 */ [E('Deoxys',386,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meteno',774,{pos:[1,3]}),E('Meteno',774,{pos:[2,5]}),E('Meteno',774,{pos:[3,4]}),E('Meteno',774,{pos:[2,3]})],
- /* 13: Selfe, Vesprit, Tobutz + Dialga, Palkia */
+ /* ================= KANTO (1–5) ================= */
+ /* 1: Karpador */
+ [E('Karpador',129,{pos:[2,4]})],
+ /* 2: Arbok, Smogmog, Mauzi (im Dreieck, Mauzi hinten) */
+ [E('Arbok',24,{pos:[2,3]}),E('Smogmog',110,{pos:[2,5]}),E('Mauzi',52,{pos:[1,4]})],
+ /* 3: Pikachu, Relaxo, Bisaflor, Glurak, Turtok, Mewtu (in einer Reihe ganz hinten) */
+ [E('Pikachu',25,{pos:[0,2]}),E('Relaxo',143,{pos:[0,3]}),E('Bisaflor',3,{pos:[0,4]}),E('Glurak',6,{pos:[0,5]}),E('Turtok',9,{pos:[0,6]}),E('Mewtu',150,{pos:[0,7]})],
+ /* 4: Arktos, Zapdos, Lavados (im Dreieck) */
+ [E('Arktos',144,{pos:[2,4]}),E('Zapdos',145,{pos:[1,3]}),E('Lavados',146,{pos:[1,5]})],
+ /* 5: Mewtu, Mew (Mew hinter Mewtu) */
+ [E('Mewtu',150,{pos:[2,4]}),E('Mew',151,{pos:[1,4]})],
+
+ /* ================= JOHTO (6–10) ================= */
+ /* 6: Woingenau, 2x Icognito (in Reihe, Woingenau in der Mitte) */
+ [E('Icognito',201,{pos:[2,3]}),E('Woingenau',202,{pos:[2,4]}),E('Icognito',201,{pos:[2,5]})],
+ /* 7: Tornupto, Scherox, Despotar (in einer Reihe, Despotar hinten) */
+ [E('Tornupto',157,{pos:[2,3]}),E('Scherox',212,{pos:[2,5]}),E('Despotar',248,{pos:[1,4]})],
+ /* 8: Shiny Garados, Glurak, Aerodactyl, 3x Dragoran (in einer Reihe ganz hinten) */
+ [E('Garados',130,{pos:[0,2],shiny:true}),E('Glurak',6,{pos:[0,3]}),E('Aerodactyl',142,{pos:[0,4]}),E('Dragoran',149,{pos:[0,5]}),E('Dragoran',149,{pos:[0,6]}),E('Dragoran',149,{pos:[0,7]})],
+ /* 9: Raikou, Entei, Suicune (im Dreieck, Suicune hinten) */
+ [E('Raikou',243,{pos:[2,3]}),E('Entei',244,{pos:[2,5]}),E('Suicune',245,{pos:[1,4]})],
+ /* 10: Lugia, Ho-Oh, Celebi (im Dreieck, Celebi hinten) */
+ [E('Lugia',249,{pos:[2,3]}),E('Ho-Oh',250,{pos:[2,5]}),E('Celebi',251,{pos:[1,4]})],
+
+ /* ================= HOENN (11–15) ================= */
+ /* 11: Camerupt, Tohaido, 2x Magnayen (in einem 4er-Block, Magnayens vorne) */
+ [E('Magnayen',262,{pos:[2,3]}),E('Magnayen',262,{pos:[2,5]}),E('Camerupt',323,{pos:[1,3]}),E('Tohaido',319,{pos:[1,5]})],
+ /* 12: Panzaeron, Wielie, Armaldo, Lepumentas, Stolloss, Shiny Metagross (in einer Reihe ganz hinten) */
+ [E('Panzaeron',227,{pos:[0,2]}),E('Wielie',346,{pos:[0,3]}),E('Armaldo',348,{pos:[0,4]}),E('Lepumentas',344,{pos:[0,5]}),E('Stolloss',306,{pos:[0,6]}),E('Metagross',376,{pos:[0,7],shiny:true})],
+ /* 13: Regigigas, Regirock, Regice, Registeel, Regidrago, Regieleki (5 in einer Reihe, Regigigas dahinter) */
+ [E('Regirock',377,{pos:[2,2]}),E('Regice',378,{pos:[2,3]}),E('Registeel',379,{pos:[2,4]}),E('Regidrago',895,{pos:[2,5]}),E('Regieleki',894,{pos:[2,6]}),E('Regigigas',486,{pos:[1,4],big:true,hpX:2,atkX:1.5})],
+ /* 14: Kyogre, Groudon, Latias, Latios, Jirachi (vorne Kyogre & Groudon, dahinter Latias & Latios, ganz dahinter Jirachi) */
+ [E('Kyogre',382,{pos:[3,3]}),E('Groudon',383,{pos:[3,5]}),E('Latias',380,{pos:[2,3]}),E('Latios',381,{pos:[2,5]}),E('Jirachi',385,{pos:[1,4]})],
+ /* 15: Deoxys, Sonnfel, Lunastein, 2x Meteno (Deoxys umgeben, ATK-Buff wenn 3 Gegner down) */
+ [E('Deoxys',386,{pos:[2,4],big:true,hpX:2.5,atkX:1.6}),E('Sonnfel',338,{pos:[2,3],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Lunastein',337,{pos:[2,5],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Meteno',774,{pos:[1,4],die:ON_3_DOWN('Deoxys','atk',1.5)}),E('Meteno',774,{pos:[3,4],die:ON_3_DOWN('Deoxys','atk',1.5)})],
+
+ /* ================= SINNOH (16–20) ================= */
+ /* 16: Shaymin, 8x Knospi, Manaphy, Phione (vorne Manaphy & Phione, dahinter Shaymin umgeben von 8 Knospi) */
+ [E('Manaphy',490,{pos:[3,3]}),E('Phione',489,{pos:[3,5]}),E('Shaymin',492,{pos:[1,4],big:true,hpX:2.5,atkX:1.6}),
+  E('Knospi',406,{pos:[2,3]}),E('Knospi',406,{pos:[2,4]}),E('Knospi',406,{pos:[2,5]}),E('Knospi',406,{pos:[1,3]}),
+  E('Knospi',406,{pos:[1,5]}),E('Knospi',406,{pos:[0,3]}),E('Knospi',406,{pos:[0,4]}),E('Knospi',406,{pos:[0,5]})],
+ /* 17: Darkrai, Cresselia, Heatran (Darkrai ganz links, Heatran mitte, Cresselia ganz rechts) */
+ [E('Darkrai',491,{pos:[2,0]}),E('Heatran',485,{pos:[2,4],big:true}),E('Cresselia',488,{pos:[2,9]})],
+ /* 18: Kryppuk, Lucario, Togekiss, Milotic, Roserade, Knakrack (in einer Reihe ganz hinten) */
+ [E('Kryppuk',442,{pos:[0,2]}),E('Lucario',448,{pos:[0,3]}),E('Togekiss',468,{pos:[0,4]}),E('Milotic',350,{pos:[0,5]}),E('Roserade',407,{pos:[0,6]}),E('Knakrack',445,{pos:[0,7]})],
+ /* 19: Selfe, Vesprit, Tobutz, Dialga, Palkia (vorne 3er-Reihe Seen-Trio, dahinter Dialga und Palkia) */
  [E('Selfe',480,{pos:[2,3]}),E('Vesprit',481,{pos:[2,4]}),E('Tobutz',482,{pos:[2,5]}),E('Dialga',483,{pos:[1,3],hpX:1.3,atkX:1.2}),E('Palkia',484,{pos:[1,5],hpX:1.3,atkX:1.2})],
- /* 14 */ [E('Giratina',487,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Zobiris',302,{pos:[2,5]}),E('Zobiris',302,{pos:[2,3]}),E('Zobiris',302,{pos:[1,4]}),E('Zobiris',302,{pos:[3,4]}),E('Zobiris',302,{pos:[3,3]}),E('Zobiris',302,{pos:[1,3]})],
- /* 15 */ [E('Darkrai',491,{pos:[2,3]}),E('Cresselia',488,{pos:[2,6]})],
- /* 16 */ [E('Rihornior',464,{pos:[2,3]}),E('Heatran',485,{pos:[2,4],big:true}),E('Rihornior',464,{pos:[2,5]})],
- /* 17 */ [E('Manaphy',490,{pos:[1,4]}),E('Phione',489,{pos:[2,4]}),E('Phione',489,{pos:[2,5]}),E('Phione',489,{pos:[3,4]})],
- /* 18 */ [E('Shaymin',492,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Flabebe',669,{pos:[2,5]}),E('Flabebe',669,{pos:[2,3]}),E('Flabebe',669,{pos:[1,4]}),E('Flabebe',669,{pos:[1,3]}),E('Flabebe',669,{pos:[3,4]}),E('Flabebe',669,{pos:[3,3]}),E('Flabebe',669,{pos:[2,2]}),E('Flabebe',669,{pos:[2,6]})],
- /* 19 */ [E('Kobalium',638,{pos:[3,4]}),E('Terrakium',639,{pos:[2,4]}),E('Viridium',640,{pos:[2,5]}),E('Keldeo',647,{pos:[1,4]})],
- /* 20 */ [E('Boreos',641,{pos:[3,3],revive:{hp:.4,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),E('Voltolos',642,{pos:[3,4],revive:{hp:.4,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),E('Demeteros',645,{pos:[3,5],revive:{hp:.4,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),E('Cupidos',905,{pos:[2,4],revive:{hp:.4,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})],
- /* 21: Victini + Reshiram + Zekrom */
- [E('Victini',494,{pos:[1,4],hpX:1.2,atkX:1.2}),E('Reshiram',643,{pos:[2,3],hpX:1.3,atkX:1.25}),E('Zekrom',644,{pos:[2,5],hpX:1.3,atkX:1.25})],
- /* 22 */ [E('Kyurem',646,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Frigometri',615,{pos:[2,5]}),E('Frigometri',615,{pos:[2,3]}),E('Frigometri',615,{pos:[1,4]}),E('Frigometri',615,{pos:[1,3]}),E('Frigometri',615,{pos:[3,4]}),E('Frigometri',615,{pos:[3,3]})],
- /* 23: Meloetta + Genesect unterstützt von Wie-Shu (620) & Klikdiklak (601) */
- [E('Meloetta',648,{pos:[1,3],hpX:1.3,atkX:1.25}),E('Genesect',649,{pos:[1,6],hpX:1.3,atkX:1.25}),E('Wie-Shu',620,{pos:[2,3]}),E('Klikdiklak',601,{pos:[2,6]})],
- /* 24: Xerneas + Yveltal + Zygarde (nur 100%-Form) */
- [E('Xerneas',716,{pos:[2,3],hpX:1.2,atkX:1.15}),E('Yveltal',717,{pos:[2,5],hpX:1.2,atkX:1.15}),E('Zygarde (Optimum)',10120,{pos:[1,4],fb:718,big:true,hpX:1.6,atkX:1.35})],
- /* 25: Diancie + Rocara + Volcanion */
- [E('Diancie',719,{pos:[2,4],big:true,hpX:2.4,atkX:1.7}),E('Volcanion',721,{pos:[1,4],big:true,hpX:1.8,atkX:1.5}),E('Rocara',703,{pos:[2,5]}),E('Rocara',703,{pos:[2,3]}),E('Rocara',703,{pos:[1,3]}),E('Rocara',703,{pos:[1,5]}),E('Rocara',703,{pos:[3,4]})],
- /* 26 */ [E('Hoopa',720,{pos:[1,4],hpx:0.8,revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true}})],
- /* 27 */ [E('Kapu-Riki',785,{pos:[2,3]}),E('Kapu-Fala',788,{pos:[2,4]}),E('Kapu-Toro',786,{pos:[2,5]}),E('Kapu-Kime',787,{pos:[2,6]})],
- /* 28 */ [E('Solgaleo',791,{pos:[2,4]}),E('Lunala',792,{pos:[2,5]})],
- /* 29 */ [E('Necrozma',800,{pos:[1,4],hpx:0.8,split:{at:.4,into:[{name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:1,atkX:1.1},{name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:1,atkX:1.1}]}})],
- /* 30 */ [E('Agoyon',804,{pos:[2,4],big:true}),E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlinkging',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),E('Kopplosio',806,{pos:[0,4]})],
- /* 31 */ [E('Magearna',801,{pos:[1,0]}),E('Marshadow',802,{pos:[1,4]}),E('Zeraora',807,{pos:[1,9]})],
- /* 32 */ [E('Melmetal',809,{pos:[2,4],big:true,hpX:3,atkX:2}),E('Meltan',808,{pos:[2,5]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[1,4]}),E('Meltan',808,{pos:[1,3]}),E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[3,3]}),E('Meltan',808,{pos:[2,2]}),E('Meltan',808,{pos:[2,6]}),E('Meltan',808,{pos:[0,3]}),E('Meltan',808,{pos:[0,5]})],
- /* 33: Zacian/Zamazenta + Endynalos kombiniert & abgeschwächt */
- [E('Zacian (Königsform)',10188,{pos:[2,3],fb:888,hpX:1.05,atkX:1.05}),E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889,hpX:1.15,atkX:0.95}),E('Endynalos',890,{pos:[1,4],hpX:1.15,atkX:1.0,revive:{hp:.5,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
- /* 34 */ [E('Wulaosu (Wasser)',10191,{pos:[3,4],fb:892}),E('Wulaosu (Unlicht)',892,{pos:[3,5]}),E('Zarude',893,{pos:[2,5]})],
- /* 35: Coronospa-Runde: beide übrigen Einheiten mergen zu einer zusammen */
- [E('Polaross',896,{pos:[3,3],die:CALY_MERGE}),E('Phantoross',897,{pos:[3,5],die:CALY_MERGE}),E('Coronospa',898,{pos:[2,4],die:CALY_MERGE})],
- /* 36 */ [E('Chongjian',1001,{pos:[2,3]}),E('Baojian',1002,{pos:[2,4]}),E('Dinglu',1003,{pos:[2,5]}),E('Yuyu',1004,{pos:[2,6]})],
- /* 37 */ [E('Koraidon',1007,{pos:[3,4]}),E('Miraidon',1008,{pos:[3,5]}),E('Mopex',967,{pos:[2,5]})],
- /* 38: Riesenzahn + Windewoge kombiniert & abgeschwächt */
- [E('Riesenzahn',984,{pos:[2,2],hpX:0.85,atkX:0.85}),E('Brüllschweif',985,{pos:[2,3],hpX:0.85,atkX:0.85}),E('Wutpilz',986,{pos:[2,4],hpX:0.85,atkX:0.85}),E('Flatterhaar',987,{pos:[2,5],hpX:0.85,atkX:0.85}),E('Kriechflügel',988,{pos:[2,6],hpX:0.85,atkX:0.85}),E('Sandfell',989,{pos:[1,2],hpX:0.85,atkX:0.85}),E('Donnersichel',1005,{pos:[1,3],hpX:0.9,atkX:0.9}),E('Windewoge',1009,{pos:[1,4],hpX:0.95,atkX:0.95}),E('Keilflamme',1020,{pos:[1,5],hpX:0.9,atkX:0.9}),E('Furienblitz',1021,{pos:[1,6],hpX:0.9,atkX:0.9})],
- /* 39: Eisenrad + Eisenblatt kombiniert & abgeschwächt */
- [E('Eisenrad',990,{pos:[2,2],hpX:0.85,atkX:0.85}),E('Eisenbündel',991,{pos:[2,3],hpX:0.85,atkX:0.85}),E('Eisenhand',992,{pos:[2,4],hpX:0.85,atkX:0.85}),E('Eisenhals',993,{pos:[2,5],hpX:0.85,atkX:0.85}),E('Eisenfalter',994,{pos:[2,6],hpX:0.85,atkX:0.85}),E('Eisendorn',995,{pos:[1,2],hpX:0.85,atkX:0.85}),E('Eisenkrieger',1006,{pos:[1,3],hpX:0.9,atkX:0.9}),E('Eisenblatt',1010,{pos:[1,4],hpX:0.95,atkX:0.95}),E('Eisenfels',1022,{pos:[1,5],hpX:0.9,atkX:0.9}),E('Eisenhaupt',1023,{pos:[1,6],hpX:0.9,atkX:0.9})],
- /* 40 */ [E('Ogerpon (Türkis)',1017,{pos:[3,4]}),E('Ogerpon (Brunnen)',10273,{pos:[2,4],fb:1017}),E('Ogerpon (Ofen)',10274,{pos:[2,5],fb:1017}),E('Ogerpon (Fels)',10275,{pos:[1,4],fb:1017})],
- /* 41 */ [E('Boninu',1014,{pos:[3,3],hpx:0.8}),E('Benesaur',1015,{pos:[3,4],hpx:0.8}),E('Beatori',1016,{pos:[3,5],hpx:0.8}),E('Infamomo',1025,{pos:[2,4],hpx:0.8})],
- /* 42 */ [E('Terapagos (Terakristall)',10276,{pos:[1,4],fb:1024,hpx:0.7,revive:{hp:.5,sprite:10277,fb:10276,name:'Terapagos (Stellar)',big:true}})],
- /* 43 */ [E('Arceus',493,{pos:[2,4],big:true,hpX:3.5,atkX:2.2}),E('Amigento',773,{pos:[2,5]}),E('Amigento',773,{pos:[2,3]}),E('Amigento',773,{pos:[1,4]}),E('Amigento',773,{pos:[1,3]}),E('Amigento',773,{pos:[3,4]}),E('Amigento',773,{pos:[3,3]}),E('Amigento',773,{pos:[2,2]}),E('Amigento',773,{pos:[2,6]}),E('Amigento',773,{pos:[0,3]}),E('Amigento',773,{pos:[0,5]})]
+ /* 20: Giratina, 6x Zobiris (Giratina umgeben, DEF-Buff wenn 3 Gegner down) */
+ [E('Giratina',487,{pos:[2,4],big:true,hpX:2.8,atkX:1.8}),
+  E('Zobiris',302,{pos:[2,3],die:ON_3_DOWN('Giratina','def',1.8)}),E('Zobiris',302,{pos:[2,5],die:ON_3_DOWN('Giratina','def',1.8)}),
+  E('Zobiris',302,{pos:[1,3],die:ON_3_DOWN('Giratina','def',1.8)}),E('Zobiris',302,{pos:[1,4],die:ON_3_DOWN('Giratina','def',1.8)}),
+  E('Zobiris',302,{pos:[3,3],die:ON_3_DOWN('Giratina','def',1.8)}),E('Zobiris',302,{pos:[3,4],die:ON_3_DOWN('Giratina','def',1.8)})],
+
+ /* ================= EINALL (21–25) ================= */
+ /* 21: Victini, Serpiroyal, Flambirex, Admurai (3er Reihe, dahinter Victini) */
+ [E('Serpiroyal',497,{pos:[2,3]}),E('Flambirex',500,{pos:[2,4]}),E('Admurai',503,{pos:[2,5]}),E('Victini',494,{pos:[1,4],hpX:1.3,atkX:1.25})],
+ /* 22: Kobalium, Terrakium, Viridium, Keldeo (in einer Raute, Keldeo hinten) */
+ [E('Terrakium',639,{pos:[3,4]}),E('Kobalium',638,{pos:[2,3]}),E('Viridium',640,{pos:[2,5]}),E('Keldeo',647,{pos:[1,4]})],
+ /* 23: Hydragil, Bisofank, Shardrago, Gelatwino, Cavalanzas, Ramoth (in einer Reihe ganz hinten) */
+ [E('Hydragil',617,{pos:[0,2]}),E('Bisofank',626,{pos:[0,3]}),E('Shardrago',621,{pos:[0,4]}),E('Gelatwino',584,{pos:[0,5]}),E('Cavalanzas',589,{pos:[0,6]}),E('Ramoth',637,{pos:[0,7]})],
+ /* 24: Boreos, Voltolos, Demeteros, Cupidos, Meloetta, Genesect (Meloetta hinten rechts, Genesect hinten links, Tiergeist-Revive 40%) */
+ [E('Genesect',649,{pos:[1,1]}),E('Meloetta',648,{pos:[1,8]}),
+  E('Boreos',641,{pos:[3,3],revive:{hp:.4,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),
+  E('Voltolos',642,{pos:[3,4],revive:{hp:.4,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),
+  E('Demeteros',645,{pos:[3,5],revive:{hp:.4,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),
+  E('Cupidos',905,{pos:[2,4],revive:{hp:.4,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})],
+ /* 25: Reshiram, Zekrom, Kyurem, 4x Frigometri (Reshiram & Zekrom vorne, Kyurem umgeben vom Rest dahinter) */
+ [E('Reshiram',643,{pos:[3,3],hpX:1.3,atkX:1.25}),E('Zekrom',644,{pos:[3,5],hpX:1.3,atkX:1.25}),
+  E('Kyurem',646,{pos:[1,4],big:true,hpX:2.4,atkX:1.7}),
+  E('Frigometri',615,{pos:[1,3]}),E('Frigometri',615,{pos:[1,5]}),E('Frigometri',615,{pos:[0,3]}),E('Frigometri',615,{pos:[0,5]})],
+
+ /* ================= KALOS (26–30) ================= */
+ /* 26: Ewigbl. Floette, 10x Flabebe (Floette umgeben von Flabebe) */
+ [E('Ewigbl. Floette',10061,{pos:[2,4],fb:670,big:true,hpX:2.8,atkX:1.9}),
+  E('Flabebe',669,{pos:[2,3]}),E('Flabebe',669,{pos:[2,5]}),E('Flabebe',669,{pos:[1,3]}),E('Flabebe',669,{pos:[1,4]}),
+  E('Flabebe',669,{pos:[3,3]}),E('Flabebe',669,{pos:[3,4]}),E('Flabebe',669,{pos:[2,2]}),E('Flabebe',669,{pos:[2,6]}),
+  E('Flabebe',669,{pos:[0,3]}),E('Flabebe',669,{pos:[0,5]})],
+ /* 27: Resladero, Monargoras, Amagarga, Pumpdjinn, Viscogon, Mega-Guardevoir (in einer Reihe ganz hinten) */
+ [E('Resladero',701,{pos:[0,2]}),E('Monargoras',697,{pos:[0,3]}),E('Amagarga',699,{pos:[0,4]}),E('Pumpdjinn',711,{pos:[0,5]}),E('Viscogon',706,{pos:[0,6]}),E('Mega-Guardevoir',10051,{pos:[0,7],fb:282})],
+ /* 28: Diancie, Volcanion, 6x Rocara (Diancie umgeben von Rocara, dahinter Volcanion) */
+ [E('Diancie',719,{pos:[2,4],big:true,hpX:2.3,atkX:1.6}),E('Volcanion',721,{pos:[0,4],big:true,hpX:1.8,atkX:1.5}),
+  E('Rocara',703,{pos:[2,3]}),E('Rocara',703,{pos:[2,5]}),E('Rocara',703,{pos:[1,3]}),E('Rocara',703,{pos:[1,4]}),E('Rocara',703,{pos:[3,3]}),E('Rocara',703,{pos:[3,4]})],
+ /* 29: Xerneas, Yveltal, Zygarde (im Dreieck, Zygarde dahinter; bei 50% HP -> Optimumform) */
+ [E('Xerneas',716,{pos:[2,3],hpX:1.2,atkX:1.15}),E('Yveltal',717,{pos:[2,5],hpX:1.2,atkX:1.15}),
+  E('Zygarde (50%)',718,{pos:[1,4],hpX:0.9,atkX:1.1,revive:{hp:.5,sprite:10120,fb:718,name:'Zygarde (Optimum)',big:true,atkX:1.35}})],
+ /* 30: Hoopa (revive mit 50% in Entfesselter Form und Power) */
+ [E('Hoopa',720,{pos:[1,4],hpX:0.85,revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true,atkX:1.4}})],
+
+ /* ================= ALOLA (31–35) ================= */
+ /* 31: Agoyon + 10 Ultrabestien (alle um Agoyon herum) */
+ [E('Agoyon',804,{pos:[2,4],big:true,hpX:2.4,atkX:1.6}),
+  E('Anego',793,{pos:[1,3]}),E('Masskito',794,{pos:[1,4]}),E('Schabelle',795,{pos:[2,5]}),E('Voltriant',796,{pos:[3,4]}),
+  E('Kaguron',797,{pos:[3,3]}),E('Katagami',798,{pos:[2,3]}),E('Schlingking',799,{pos:[2,2]}),E('Muramura',805,{pos:[2,6]}),
+  E('Kopplosio',806,{pos:[0,4]}),E('Agoyon',804,{pos:[3,5]})],
+ /* 32: Wolwerock, Alola-Vulnona, Washakwil, Magnezone, Relaxo, Fuegro (in einer Reihe ganz hinten) */
+ [E('Wolwerock',745,{pos:[0,2]}),E('Alola-Vulnona',10104,{pos:[0,3],fb:38}),E('Washakwil',628,{pos:[0,4]}),E('Magnezone',462,{pos:[0,5]}),E('Relaxo',143,{pos:[0,6]}),E('Fuegro',727,{pos:[0,7]})],
+ /* 33: Kapu-Riki, Kapu-Fala, Kapu-Toro, Kapu-Kime (in einer Reihe) */
+ [E('Kapu-Riki',785,{pos:[2,3]}),E('Kapu-Fala',788,{pos:[2,4]}),E('Kapu-Toro',786,{pos:[2,5]}),E('Kapu-Kime',787,{pos:[2,6]})],
+ /* 34: Magearna ganz links, Marshadow mitte, Zeraora ganz rechts */
+ [E('Magearna',801,{pos:[2,0]}),E('Marshadow',802,{pos:[2,4]}),E('Zeraora',807,{pos:[2,9]})],
+ /* 35: Solgaleo, Lunala, Necrozma (im Dreieck, Necrozma dahinter -> splittet bei 25% HP in Abendmähne & Morgenschwinge mit je 20% HP) */
+ [E('Solgaleo',791,{pos:[2,3]}),E('Lunala',792,{pos:[2,5]}),
+  E('Necrozma',800,{pos:[1,4],hpX:1.1,split:{at:.25,into:[
+   {name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:0.8,atkX:1.1,hp:.2},
+   {name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:0.8,atkX:1.1,hp:.2}
+  ]}})],
+
+ /* ================= GALAR (36–40) ================= */
+ /* 36: Gortrom, Zwollock, Duraludon (im Dreieck, Gortrom dahinter) */
+ [E('Zwollock',832,{pos:[2,3]}),E('Duraludon',884,{pos:[2,5]}),E('Gortrom',812,{pos:[1,4]})],
+ /* 37: Wulaosu (W), Wulaosu (U), Zarude (im Dreieck, Zarude dahinter) */
+ [E('Wulaosu (Wasser)',10191,{pos:[2,3],fb:892}),E('Wulaosu (Unlicht)',892,{pos:[2,5]}),E('Zarude',893,{pos:[1,4]})],
+ /* 38: Durengard, Katapuldra, Maxax, Pantifrost, Intelleon, Gigamax Glurak (in einer Reihe ganz hinten) */
+ [E('Durengard',681,{pos:[0,2]}),E('Katapuldra',887,{pos:[0,3]}),E('Maxax',612,{pos:[0,4]}),E('Pantifrost',866,{pos:[0,5]}),E('Intelleon',818,{pos:[0,6]}),E('Gigamax-Glurak',10196,{pos:[0,7],fb:6,big:true})],
+ /* 39: Zacian (König), Zamazenta (König), Endynalos (im Dreieck, Endynalos dahinter -> Unendynamax 50% HP) */
+ [E('Zacian (Königsform)',10188,{pos:[2,3],fb:888,hpX:1.05,atkX:1.05}),
+  E('Zamazenta (Königsform)',10189,{pos:[2,5],fb:889,hpX:1.15,atkX:0.95}),
+  E('Endynalos',890,{pos:[1,4],hpX:1.15,atkX:1.0,revive:{hp:.5,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true}})],
+ /* 40: Polaross, Phantoross, Coronospa (dynamische Fusion je nach erstem KO) */
+ [E('Polaross',896,{pos:[3,3],die:CALY_MERGE_V2}),E('Phantoross',897,{pos:[3,5],die:CALY_MERGE_V2}),E('Coronospa',898,{pos:[2,4],die:CALY_MERGE_V2})],
+
+ /* ================= PALDEA (41–45) ================= */
+ /* 41: Chongjian, Baojian, Dinglu, Yuyu (in einer Reihe) */
+ [E('Chongjian',1001,{pos:[2,3]}),E('Baojian',1002,{pos:[2,4]}),E('Dinglu',1003,{pos:[2,5]}),E('Yuyu',1004,{pos:[2,6]})],
+ /* 42: Lumiflora, Psiopatra, Chevrumm, Agiluza, Arktilas, Gladimperio (in einer Reihe ganz hinten) */
+ [E('Lumiflora',970,{pos:[0,2]}),E('Psiopatra',956,{pos:[0,3]}),E('Chevrumm',673,{pos:[0,4]}),E('Agiluza',976,{pos:[0,5]}),E('Arktilas',713,{pos:[0,6]}),E('Gladimperio',983,{pos:[0,7]})],
+ /* 43: Boninu, Benesaru, Beatori, Infamomo (Ogerpon spawnt erst, wenn alle 4 down sind) */
+ [E('Boninu',1014,{pos:[3,3],die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[2,4],die:SPAWN_OGERPON})],
+ /* 44: Koraidon, Miraidon, Riesenzahn, Eisenrad, Donnersichel, Eisenkrieger (in 2 Säulen) */
+ [E('Koraidon',1007,{pos:[3,3]}),E('Riesenzahn',984,{pos:[2,3]}),E('Donnersichel',1005,{pos:[1,3]}),
+  E('Miraidon',1008,{pos:[3,5]}),E('Eisenrad',990,{pos:[2,5]}),E('Eisenkrieger',1006,{pos:[1,5]})],
+ /* 45: Terapagos Stellar (revived mit 60% zu Terakristall-Terapagos) */
+ [E('Terapagos (Stellar)',10277,{pos:[1,4],fb:1024,hpX:0.85,revive:{hp:.6,sprite:10276,fb:1024,name:'Terakristall-Terapagos',big:true}})],
+
+ /* ================= FINALE: GO & HISUI (46–50) ================= */
+ /* 46: Melmetal, 10x Meltan (Melmetal umgeben von den anderen) */
+ [E('Melmetal',809,{pos:[2,4],big:true,hpX:3,atkX:2}),
+  E('Meltan',808,{pos:[2,5]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[1,4]}),E('Meltan',808,{pos:[1,3]}),
+  E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[3,3]}),E('Meltan',808,{pos:[2,2]}),E('Meltan',808,{pos:[2,6]}),
+  E('Meltan',808,{pos:[0,3]}),E('Meltan',808,{pos:[0,5]})],
+ /* 47: Quappo, Relaxo, Kappalores, Walraisa, Zirpeise, Hundemon (in einer Reihe ganz hinten) */
+ [E('Quappo',62,{pos:[0,2]}),E('Relaxo',143,{pos:[0,3]}),E('Kappalores',272,{pos:[0,4]}),E('Walraisa',365,{pos:[0,5]}),E('Zirpeise',402,{pos:[0,6]}),E('Hundemon',229,{pos:[0,7]})],
+ /* 48: Simsala, Scherox, Gewaldro, Skorgro, Ramoth, Wummer (in einer Reihe ganz hinten) */
+ [E('Simsala',65,{pos:[0,2]}),E('Scherox',212,{pos:[0,3]}),E('Gewaldro',254,{pos:[0,4]}),E('Skorgro',472,{pos:[0,5]}),E('Ramoth',637,{pos:[0,6]}),E('Wummer',693,{pos:[0,7]})],
+ /* 49: Snieboss, Salmagnis, Ursaluna, Axantor (in einer Raute, Salmagnis hinten) */
+ [E('Ursaluna',901,{pos:[3,4]}),E('Snieboss',903,{pos:[2,3]}),E('Axantor',900,{pos:[2,5]}),E('Salmagnis',902,{pos:[1,4]})],
+ /* 50: Arceus, 18x Amigento (Arceus umgeben von den Amigento) */
+ [E('Arceus',493,{pos:[2,4],big:true,hpX:4.5,atkX:2.5}),
+  E('Amigento',773,{pos:[2,3]}),E('Amigento',773,{pos:[2,5]}),E('Amigento',773,{pos:[1,3]}),E('Amigento',773,{pos:[1,4]}),
+  E('Amigento',773,{pos:[3,3]}),E('Amigento',773,{pos:[3,4]}),E('Amigento',773,{pos:[2,2]}),E('Amigento',773,{pos:[2,6]}),
+  E('Amigento',773,{pos:[1,2]}),E('Amigento',773,{pos:[1,5]}),E('Amigento',773,{pos:[3,2]}),E('Amigento',773,{pos:[3,5]}),
+  E('Amigento',773,{pos:[0,3]}),E('Amigento',773,{pos:[0,4]}),E('Amigento',773,{pos:[0,5]}),E('Amigento',773,{pos:[2,1]}),
+  E('Amigento',773,{pos:[2,7]}),E('Amigento',773,{pos:[0,2]})]
 ];
 const EN=ENEMIES;
 
@@ -685,7 +832,7 @@ function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!
  const splitCount = u.split.into.length;
  for(const k of u.split.into){const cell=cells.find(x=>!occ.has(x.r*100+x.c));if(!cell)break;occ.add(cell.r*100+cell.c);
   const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:(u.atk*(k.atkX||1))/splitCount,aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
-  n.hp=n.max*u.split.at;n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
+  n.hp=n.max*(k.hp!=null?k.hp:u.split.at);n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 
 const heal=(u,a)=>{if(u&&u.hp>0)u.hp=Math.min(u.max,u.hp+a)};
 

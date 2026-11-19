@@ -205,7 +205,7 @@ const TB={
  Rock:    {th:[2],    v:[30],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
  Ground:  {th:[2],    v:[200],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[2],    v:[1.5],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
+ Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
  Ghost:   {th:[2,3,5],v:[100,450,900],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
  Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},

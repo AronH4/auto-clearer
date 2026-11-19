@@ -325,6 +325,24 @@ const SPAWN_OGERPON=(u,A)=>{
  }
 };
 
+const SPAWN_ARCEUS_AFTER_SILVALLY=(u,A)=>{
+ if(B.flag.arceusSpawned)return;
+ const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
+ if(liveE.length===0){
+  B.flag.arceusSpawned=1;
+  const ref=B.units.find(x=>x.team=='e')||{max:2500,atk:220};
+  const arc=mk('e',2,4,'Arceus',493,false,{
+   hp:ref.max*2.2,
+   atk:ref.atk*1.6,
+   aspd:1.15,def:55,crit:0.25,range:3,mg:18,skill:2.2,big:true
+  });
+  arc.t=[];
+  B.units.push(arc);
+  B.waves.push({x:arc.x,y:arc.y,r:12,maxR:85,col:'#ffd700',t:.65,maxT:.65,fill:true});
+  say(arc,'✨ Arceus!','#ffd700');
+ }
+}; 
+
 const ENEMIES=[
  /* ================= KANTO (1–5) ================= */
  /* 1: Karpador */
@@ -472,14 +490,27 @@ const ENEMIES=[
  [E('Simsala',65,{pos:[0,2]}),E('Scherox',212,{pos:[0,3]}),E('Gewaldro',254,{pos:[0,4]}),E('Skorgro',472,{pos:[0,5]}),E('Ramoth',637,{pos:[0,6]}),E('Wummer',693,{pos:[0,7]})],
  /* 49: Snieboss, Salmagnis, Ursaluna, Axantor (in einer Raute, Salmagnis hinten) */
  [E('Ursaluna',901,{pos:[3,4]}),E('Snieboss',903,{pos:[2,3]}),E('Axantor',900,{pos:[2,5]}),E('Salmagnis',902,{pos:[1,4]})],
- /* 50: Arceus, 18x Amigento (Arceus umgeben von den Amigento) */
- [E('Arceus',493,{pos:[2,4],big:true,hpX:4.5,atkX:2.5}),
-  E('Amigento',773,{pos:[2,3]}),E('Amigento',773,{pos:[2,5]}),E('Amigento',773,{pos:[1,3]}),E('Amigento',773,{pos:[1,4]}),
-  E('Amigento',773,{pos:[3,3]}),E('Amigento',773,{pos:[3,4]}),E('Amigento',773,{pos:[2,2]}),E('Amigento',773,{pos:[2,6]}),
-  E('Amigento',773,{pos:[1,2]}),E('Amigento',773,{pos:[1,5]}),E('Amigento',773,{pos:[3,2]}),E('Amigento',773,{pos:[3,5]}),
-  E('Amigento',773,{pos:[0,3]}),E('Amigento',773,{pos:[0,4]}),E('Amigento',773,{pos:[0,5]}),E('Amigento',773,{pos:[2,1]}),
-  E('Amigento',773,{pos:[2,7]}),E('Amigento',773,{pos:[0,2]})]
-];
+ /* 50: 18x Amigento (alle 18 Typen), danach spawnt Arceus als Raid Boss */
+ [
+  E('Amigento (Normal)',773,{pos:[2,3],die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Kampf)',10095,{pos:[2,5],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Flug)',10096,{pos:[1,3],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Gift)',10097,{pos:[1,4],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Boden)',10098,{pos:[3,3],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Gestein)',10099,{pos:[3,4],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Käfer)',10100,{pos:[2,2],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Geist)',10101,{pos:[2,6],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Stahl)',10102,{pos:[1,2],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Feuer)',10103,{pos:[1,5],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Wasser)',10104,{pos:[3,2],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Pflanze)',10105,{pos:[3,5],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Elektro)',10106,{pos:[0,3],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Psycho)',10107,{pos:[0,4],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Eis)',10108,{pos:[0,5],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Drache)',10109,{pos:[2,1],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Unlicht)',10110,{pos:[2,7],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY}),
+  E('Amigento (Fee)',10111,{pos:[0,2],fb:773,die:SPAWN_ARCEUS_AFTER_SILVALLY})
+ ];
 const EN=ENEMIES;
 
 /* ================= HEX-GEOMETRIE ================= */
@@ -1380,6 +1411,14 @@ function draw(t){ctx.clearRect(0,0,720,500);
   ctx.fillStyle=u.team=='p'?'#4d4':'#d44';ctx.fillRect(u.x-bw/2,by,bw*Math.max(0,u.hp/u.max),6);
   if(u.shield>0){ctx.fillStyle='#9df';ctx.fillRect(u.x-bw/2,by-3,bw*Math.min(1,u.shield/u.max),3)}
   if(!u.decoy){ctx.fillStyle='#38f';ctx.fillRect(u.x-bw/2,by+7,bw*Math.min(1,u.mana/u.mmax),3)}
+  if(u.cls&&CLASSES[u.cls]){
+   ctx.save();
+   ctx.fillStyle='rgba(14,16,22,0.85)';
+   ctx.beginPath();ctx.arc(u.x,by+17,6.5,0,Math.PI*2);ctx.fill();
+   ctx.font='9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+   ctx.fillStyle='#fff';ctx.fillText(CLASSES[u.cls].icon,u.x,by+17.5);
+   ctx.restore();
+  }
   if(u.star){ctx.fillStyle=STAR_COL[u.star-1];ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.font='bold 12px sans-serif';ctx.textAlign='center';
    const s='★'.repeat(u.star);ctx.strokeText(s,u.x,by-6);ctx.fillText(s,u.x,by-6)}
   if(u.crowned){ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('👑',u.x,by-20)}

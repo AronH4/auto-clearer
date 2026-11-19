@@ -418,50 +418,50 @@ const ENEMIES=[
  /* 1: Karpador eins nach rechts */
  [E('Karpador',129,{pos:[2,5]})],
  /* 2: Smogmog eins nach rechts, Arbok eins nach rechts, Mauzi eins nach rechtshinten */
- [E('Arbok',24,{pos:[2,4]}),E('Smogmog',110,{pos:[2,6]}),E('Mauzi',52,{pos:[1,5]})],
+ [E('Arbok',24,{pos:[2,4]}),E('Smogmog',110,{pos:[2,6]}),E('Mauzi',52,{pos:[0,5]})],
  /* 3: - keine Änderung - */
  [E('Pikachu',25,{pos:[0,2]}),E('Relaxo',143,{pos:[0,3]}),E('Bisaflor',3,{pos:[0,4]}),E('Glurak',6,{pos:[0,5]}),E('Turtok',9,{pos:[0,6]}),E('Gengar',94,{pos:[0,7]})],
  /* 4: Lavados eins nach rechtsvorne, Zapdos nach rechtshinten + eins nach rechts */
- [E('Arktos',144,{pos:[2,4]}),E('Zapdos',145,{pos:[1,4]}),E('Lavados',146,{pos:[2,6]})],
+ [E('Arktos',144,{pos:[2,4]}),E('Zapdos',145,{pos:[0,5]}),E('Lavados',146,{pos:[2,6]})],
  /* 5: Mewtu eins nach rechts, Mew eins nach rechtshinten | Mew: DMG Buff wenn Mewtu down */
- [E('Mewtu',150,{pos:[2,5],die:ON_MEWTU_DOWN}),E('Mew',151,{pos:[1,5]})],
+ [E('Mewtu',150,{pos:[2,5],die:ON_MEWTU_DOWN}),E('Mew',151,{pos:[0,5]})],
 
  /* ================= JOHTO (6–10) ================= */
  /* 6: alle Gegner eins nach rechts hinten */
- [E('Icognito',201,{pos:[1,4]}),E('Woingenau',202,{pos:[1,5]}),E('Icognito',201,{pos:[1,6]})],
+ [E('Icognito',201,{pos:[2,4]}),E('Woingenau',202,{pos:[2,5]}),E('Icognito',201,{pos:[2,6]})],
  /* 7: Tornupto eins nach rechts */
  [E('Tornupto',157,{pos:[2,4]}),E('Scherox',212,{pos:[2,5]}),E('Despotar',248,{pos:[1,4]})],
  /* 8: - keine Änderung - */
  [E('Garados',130,{pos:[0,2],shiny:true}),E('Glurak',6,{pos:[0,3]}),E('Aerodactyl',142,{pos:[0,4]}),E('Dragoran',149,{pos:[0,5]}),E('Dragoran',149,{pos:[0,6]}),E('Dragoran',149,{pos:[0,7]})],
  /* 9: Entei eins nach rechts, Raikou eins nach rechts, Suicune eins nach rechts hinten */
- [E('Raikou',243,{pos:[2,4]}),E('Entei',244,{pos:[2,6]}),E('Suicune',245,{pos:[1,5]})],
+ [E('Raikou',243,{pos:[2,4]}),E('Entei',244,{pos:[2,6]}),E('Suicune',245,{pos:[0,5]})],
  /* 10: Ho-Oh eins nach rechts, Lugia eins nach rechts, Celebi eins nach rechts hinten | Celebi: DEF Buff wenn die anderen down */
- [E('Lugia',249,{pos:[2,4],die:ON_CELEBI_ALLIES_DOWN}),E('Ho-Oh',250,{pos:[2,6],die:ON_CELEBI_ALLIES_DOWN}),E('Celebi',251,{pos:[1,5]})],
+ [E('Lugia',249,{pos:[2,4],die:ON_CELEBI_ALLIES_DOWN}),E('Ho-Oh',250,{pos:[2,6],die:ON_CELEBI_ALLIES_DOWN}),E('Celebi',251,{pos:[0,5]})],
 
  /* ================= HOENN (11–15) ================= */
  /* 11: Camerupt ganz nach links hinten und ein Magnayen davor, Tohaido ganz nach rechts hinten und das andere Magnayen davor */
  [E('Magnayen',262,{pos:[2,0]}),E('Magnayen',262,{pos:[2,9]}),E('Camerupt',323,{pos:[0,0]}),E('Tohaido',319,{pos:[0,9]})],
  /* 12: Runde 12 mit Runde 13 tauschen -> hier Regi-Gruppe (ursprünglich 13, mit Anpassungen) */
- [E('Regirock',377,{pos:[2,3]}),E('Regice',378,{pos:[2,4]}),E('Registeel',379,{pos:[2,5]}),E('Regidrago',895,{pos:[2,6]}),E('Regieleki',894,{pos:[2,7]}),E('Regigigas',486,{pos:[1,5],big:true,hpX:2,atkX:1.5})],
+ [E('Regirock',377,{pos:[2,3]}),E('Regice',378,{pos:[2,4]}),E('Registeel',379,{pos:[2,5]}),E('Regidrago',895,{pos:[2,6]}),E('Regieleki',894,{pos:[2,7]}),E('Regigigas',486,{pos:[0,5],big:true,hpX:2,atkX:1.5,range:5})],
  /* 13: Runde 12 mit Runde 13 tauschen -> hier ursprüngliche Runde 12 */
  [E('Panzaeron',227,{pos:[0,2]}),E('Wielie',346,{pos:[0,3]}),E('Armaldo',348,{pos:[0,4]}),E('Lepumentas',344,{pos:[0,5]}),E('Stolloss',306,{pos:[0,6]}),E('Metagross',376,{pos:[0,7],shiny:true})],
  /* 14: Latias ganz nahc links vorne, Latios ganz nach links hinten, Rayquaza eins nach rechtsvorne, Jirachi komplett raus */
- [E('Rayquaza',384,{pos:[1,5]}),E('Latias',380,{pos:[3,0]}),E('Latios',381,{pos:[0,0]})],
+ [E('Rayquaza',384,{pos:[1,4]}),[E('Kyogre',383,{pos:[1,5]}),[E('Groudon',382,{pos:[1,3]}),E('Latias',380,{pos:[3,0]}),E('Latios',381,{pos:[3,9]})],
  /* 15: beide Metenos eins nach rechts, Lunastein 1 nach rechts, Sonnfel, 1 nach rechts, Jirachi zwischen Lunastien & Sonnfel, Deoxys zwei nach rechtshinten | Deoxys: Attack Speed Buff wenn die Metenos down sind */
- [E('Deoxys',386,{pos:[0,6],big:true,hpX:2.5,atkX:1.6}),E('Sonnfel',338,{pos:[2,4]}),E('Lunastein',337,{pos:[2,6]}),E('Jirachi',385,{pos:[2,5]}),E('Meteno',774,{pos:[3,4],die:ON_METENO_DOWN_ASPD}),E('Meteno',774,{pos:[3,5],die:ON_METENO_DOWN_ASPD})],
+ [E('Deoxys',386,{pos:[0,5],big:true,hpX:2.5,atkX:1.6,range:5}),E('Sonnfel',338,{pos:[2,4]}),E('Lunastein',337,{pos:[2,6]}),E('Jirachi',385,{pos:[2,5]}),E('Meteno',774,{pos:[3,4],die:ON_METENO_DOWN_ASPD}),E('Meteno',774,{pos:[3,5],die:ON_METENO_DOWN_ASPD})],
 
  /* ================= SINNOH (16–20) ================= */
  /* 16: Manaphy ganz nach links vorne, Phione ganz nach rechts vorne, insgesamt 10 statt 8 Knospis verwenden */
  [E('Manaphy',490,{pos:[3,0]}),E('Phione',489,{pos:[3,9]}),E('Shaymin',492,{pos:[1,4],big:true,hpX:2.5,atkX:1.6}),
-  E('Knospi',406,{pos:[2,3]}),E('Knospi',406,{pos:[2,4]}),E('Knospi',406,{pos:[2,5]}),E('Knospi',406,{pos:[1,3]}),
-  E('Knospi',406,{pos:[1,5]}),E('Knospi',406,{pos:[0,3]}),E('Knospi',406,{pos:[0,4]}),E('Knospi',406,{pos:[0,5]}),
-  E('Knospi',406,{pos:[1,2]}),E('Knospi',406,{pos:[1,6]})],
+  E('Knospi',406,{pos:[2,3]}),E('Knospi',406,{pos:[2,4]}),E('Knospi',406,{pos:[2,5]}),E('Knospi',406,{pos:[2,6]}),
+  E('Knospi',406,{pos:[1,5]}),E('Knospi',406,{pos:[1,3]}),E('Knospi',406,{pos:[0,4]}),E('Knospi',406,{pos:[0,5]}),
+  E('Knospi',406,{pos:[0,3]}),E('Knospi',406,{pos:[0,6]})],
  /* 17: Heatran zwei nach rechtshinten */
- [E('Darkrai',491,{pos:[2,0]}),E('Heatran',485,{pos:[0,6],big:true}),E('Cresselia',488,{pos:[2,9]})],
+ [E('Darkrai',491,{pos:[2,0]}),E('Heatran',485,{pos:[1,4],big:true}),E('Cresselia',488,{pos:[2,9]})],
  /* 18: - keine Änderung - */
  [E('Kryppuk',442,{pos:[0,2]}),E('Lucario',448,{pos:[0,3]}),E('Togekiss',468,{pos:[0,4]}),E('Milotic',350,{pos:[0,5]}),E('Roserade',407,{pos:[0,6]}),E('Knakrack',445,{pos:[0,7]})],
  /* 19: Tobutz eins nach rechts, Vesprit eins nach rechtsvorne */
- [E('Selfe',480,{pos:[2,3]}),E('Vesprit',481,{pos:[3,5]}),E('Tobutz',482,{pos:[2,6]}),E('Dialga',483,{pos:[1,3],hpX:1.3,atkX:1.2}),E('Palkia',484,{pos:[1,5],hpX:1.3,atkX:1.2})],
+ [E('Selfe',480,{pos:[2,3]}),E('Vesprit',481,{pos:[3,4]}),E('Tobutz',482,{pos:[2,6]}),E('Dialga',483,{pos:[1,3],hpX:1.3,atkX:1.2}),E('Palkia',484,{pos:[1,5],hpX:1.3,atkX:1.2})],
  /* 20: alle Gegner eins nach rechts | Giratina: DEF Buff wenn zwei Zobiris down */
  [E('Giratina',487,{pos:[2,5],big:true,hpX:2.8,atkX:1.8}),
   E('Zobiris',302,{pos:[2,4],die:ON_TWO_ZOBIRIS_DOWN}),E('Zobiris',302,{pos:[2,6],die:ON_TWO_ZOBIRIS_DOWN}),
@@ -477,15 +477,15 @@ const ENEMIES=[
  [E('Hydragil',617,{pos:[0,2]}),E('Bisofank',626,{pos:[0,3]}),E('Shardrago',621,{pos:[0,4]}),E('Gelatwino',584,{pos:[0,5]}),E('Cavalanzas',589,{pos:[0,6]}),E('Ramoth',637,{pos:[0,7]})],
  /* 24: Meloette ganz nach links hinten, Genesect ganz nach rechts hinten, Cupidos rechts neben Demeteros | Boreos, Voltolos, Demeteros, Cupidos: reviven mit 50% in jeweiliger Tiergeistform */
  [E('Genesect',649,{pos:[0,9]}),E('Meloetta',648,{pos:[0,0]}),
-  E('Boreos',641,{pos:[3,3],revive:{hp:.5,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),
-  E('Voltolos',642,{pos:[3,4],revive:{hp:.5,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),
-  E('Demeteros',645,{pos:[3,5],revive:{hp:.5,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),
-  E('Cupidos',905,{pos:[3,6],revive:{hp:.5,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})],
+  E('Boreos',641,{pos:[3,3],revive:{hp:.7,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),
+  E('Voltolos',642,{pos:[3,4],revive:{hp:.7,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),
+  E('Demeteros',645,{pos:[3,5],revive:{hp:.7,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),
+  E('Cupidos',905,{pos:[3,6],revive:{hp:.7,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})],
  /* 25: Reshiram ganz nach links hinten, Zekrom ganz nach rechts vorne, die zwei Frigometri hinter Kyurem sollen direkt vor Kyurem | Kyurem: DMG Buff wenn zwei Frigometri down */
- [E('Reshiram',643,{pos:[0,0],hpX:1.3,atkX:1.25}),E('Zekrom',644,{pos:[3,9],hpX:1.3,atkX:1.25}),
-  E('Kyurem',646,{pos:[1,4],big:true,hpX:2.4,atkX:1.7}),
-  E('Frigometri',615,{pos:[2,3],die:ON_TWO_FRIGOMETRI_DOWN}),E('Frigometri',615,{pos:[2,5],die:ON_TWO_FRIGOMETRI_DOWN}),
-  E('Frigometri',615,{pos:[0,3],die:ON_TWO_FRIGOMETRI_DOWN}),E('Frigometri',615,{pos:[0,5],die:ON_TWO_FRIGOMETRI_DOWN})],
+ [E('Reshiram',643,{pos:[3,0],hpX:1.3,atkX:1.25}),E('Zekrom',644,{pos:[3,9],hpX:1.3,atkX:1.25}),
+  E('Kyurem',646,{pos:[0,5],big:true,hpX:2.4,atkX:1.7}),
+  E('Frigometri',615,{pos:[0,4],die:ON_TWO_FRIGOMETRI_DOWN}),E('Frigometri',615,{pos:[0,6],die:ON_TWO_FRIGOMETRI_DOWN}),
+  E('Frigometri',615,{pos:[1,4],die:ON_TWO_FRIGOMETRI_DOWN}),E('Frigometri',615,{pos:[1,5],die:ON_TWO_FRIGOMETRI_DOWN})],
 
  /* ================= KALOS (26–30) ================= */
  /* 26: alle Pokemon eins nach rechts */
@@ -499,8 +499,8 @@ const ENEMIES=[
  /* 28: Runde 27 mit Runde 28 tauschen -> hier ursprüngliche Runde 27 */
  [E('Resladero',701,{pos:[0,2]}),E('Monargoras',697,{pos:[0,3]}),E('Amagarga',699,{pos:[0,4]}),E('Pumpdjinn',711,{pos:[0,5]}),E('Viscogon',706,{pos:[0,6]}),E('Mega-Guardevoir',10051,{pos:[0,7],fb:282})],
  /* 29: Zygarde eins nach linkshinten | Zygarde: bei 50% HP verwandlung in Optimumform mit 100% HP mit mehr Power */
- [E('Xerneas',716,{pos:[2,3],hpX:1.2,atkX:1.15}),E('Yveltal',717,{pos:[2,5],hpX:1.2,atkX:1.15}),
-  E('Zygarde (50%)',718,{pos:[0,3],hpX:0.9,atkX:1.1,revive:{hp:1.0,sprite:10120,fb:718,name:'Zygarde (Optimum)',big:true,atkX:1.55}})],
+ [E('Xerneas',716,{pos:[2,4],hpX:1.2,atkX:1.15}),E('Yveltal',717,{pos:[2,6],hpX:1.2,atkX:1.15}),
+  E('Zygarde (50%)',718,{pos:[0,5],hpX:0.9,atkX:1.1,revive:{hp:1.0,sprite:10120,fb:718,name:'Zygarde (Optimum)',big:true,atkX:1.55}})],
  /* 30: - keine Änderung - */
  [E('Hoopa',720,{pos:[1,4],hpX:0.85,revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true,atkX:1.4}})],
 
@@ -515,7 +515,7 @@ const ENEMIES=[
  /* 33: nur mit Runde 32 tauschen -> hier ursprüngliche Runde 32 */
  [E('Wolwerock',745,{pos:[0,2]}),E('Alola-Vulnona',10104,{pos:[0,3],fb:38}),E('Washakwil',628,{pos:[0,4]}),E('Magnezone',462,{pos:[0,5]}),E('Relaxo',143,{pos:[0,6]}),E('Fuegro',727,{pos:[0,7]})],
  /* 34: Marshadow 2 nach rechtshinten */
- [E('Magearna',801,{pos:[2,0]}),E('Marshadow',802,{pos:[0,6]}),E('Zeraora',807,{pos:[2,9]})],
+ [E('Magearna',801,{pos:[2,0]}),E('Marshadow',802,{pos:[1,4]}),E('Zeraora',807,{pos:[2,9]})],
  /* 35: Solgaleo eins nach rechts, Lunala eins nach rechts, Necrozma eins nach rechtshinten | Necrozma: teilt sich bei 50% HP in Morgenschwinge und Abendmähne mit jeweils 50% HP auf */
  [E('Solgaleo',791,{pos:[2,4]}),E('Lunala',792,{pos:[2,6]}),
   E('Necrozma',800,{pos:[0,5],hpX:1.1,split:{at:.5,into:[
@@ -535,18 +535,18 @@ const ENEMIES=[
   E('Zamazenta (Königsform)',10189,{pos:[2,6],fb:889,hpX:1.15,atkX:0.95}),
   E('Endynalos',890,{pos:[0,5],hpX:1.15,atkX:1.0,revive:{hp:.5,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true,atkX:1.55}})],
  /* 40: Coronospa eins nach rechtshinten mit Attack Range 4 Felder | Logik mit Merge zu Schimmelreiter oder Rappenreiter je nachdem was zuerst stirbt bleibt unverändert */
- [E('Polaross',896,{pos:[3,3],die:CALY_MERGE_V2}),E('Phantoross',897,{pos:[3,5],die:CALY_MERGE_V2}),E('Coronospa',898,{pos:[1,5],range:4,die:CALY_MERGE_V2})],
+ [E('Polaross',896,{pos:[3,3],die:CALY_MERGE_V2}),E('Phantoross',897,{pos:[3,5],die:CALY_MERGE_V2}),E('Coronospa',898,{pos:[1,4],range:4,die:CALY_MERGE_V2})],
 
  /* ================= PALDEA (41–45) ================= */
  /* 41: - keine Änderung - */
  [E('Chongjian',1001,{pos:[2,3]}),E('Baojian',1002,{pos:[2,4]}),E('Dinglu',1003,{pos:[2,5]}),E('Yuyu',1004,{pos:[2,6]})],
- /* 42: Runde 42 wird zu Runde 43 -> hier ursprüngliche Runde 43 (Infamomo eins nach rechtshinten mit 4 Attack Range Felder | wenn alle down: Ogerpon spawnt) */
- [E('Boninu',1014,{pos:[3,3],hpX:0.9,die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],hpX:0.9,die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],hpX:0.9,die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[1,5],range:4,die:SPAWN_OGERPON})],
- /* 43: Runde 43 wird zu Runde 44 -> hier ursprüngliche Runde 44 (Koraidon eins nach links, Miraidon eins nach rechts, Eisenkrieger eins nach rechts) */
+ /* 42:  */
  [E('Koraidon',1007,{pos:[1,2]}),E('Riesenzahn',984,{pos:[3,3]}),E('Donnersichel',1005,{pos:[2,3]}),
   E('Miraidon',1008,{pos:[1,6]}),E('Eisenrad',990,{pos:[3,5]}),E('Eisenkrieger',1006,{pos:[2,6]})],
- /* 44: Runde 44 wird zu Runde 42 -> hier ursprüngliche Runde 42 */
+ /* 43:  */
  [E('Lumiflora',970,{pos:[0,2]}),E('Psiopatra',956,{pos:[0,3]}),E('Chevrumm',673,{pos:[0,4]}),E('Agiluza',976,{pos:[0,5]}),E('Arktilas',713,{pos:[0,6]}),E('Gladimperio',983,{pos:[0,7]})],
+ /* 44:  */
+ [E('Boninu',1014,{pos:[3,3],hpX:0.9,die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],hpX:0.9,die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],hpX:0.9,die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[1,4],range:4,die:SPAWN_OGERPON})],                                
  /* 45: Terapagos revived mit 75% HP in der Terakristallform wie bisher auch aber mit etwas weniger DMG dafür viel mehr HP */
  [E('Terapagos (Stellar)',10276,{pos:[1,4],fb:1024,hpX:1.6,atkX:0.85,revive:{hp:.75,sprite:10277,fb:1024,name:'Terakristall-Terapagos',big:true,atkX:0.85}})],
 
@@ -557,22 +557,22 @@ const ENEMIES=[
   E('Meltan',808,{pos:[3,5]}),E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[2,7]}),
   E('Meltan',808,{pos:[0,4]}),E('Meltan',808,{pos:[0,6]})],
  /* 47: Mega-Gewaldor auf 0,4 | Mega-Heatran auf 0,5 | Mega-Metagross auf 1,3 | Mega-Brutalanda auf 1,5 | Mega-Skaraborn auf 2,4 | Mega-Despotar auf 2,5 --- alle mit 6 Felder Attack-Range */
- [E('Mega-Gewaldro',10071,{pos:[0,2],fb:254,range:6,hpX:0.4}),
-  E('Mega-Heatran',10200,{pos:[0,3],fb:485,range:6,hpX:0.5}),
-  E('Mega-Metagross',10076,{pos:[0,4],fb:376,range:6,hpX:1.3}),
-  E('Mega-Brutalanda',10089,{pos:[0,5],fb:373,range:6,hpX:1.5}),
-  E('Mega-Skaraborn',10047,{pos:[0,6],fb:214,range:6,hpX:2.4}),
-  E('Mega-Despotar',10049,{pos:[0,7],fb:248,range:6,hpX:2.5})],
+ [E('Mega-Gewaldro',10065,{pos:[0,4],fb:254,range:6}),
+  E('Mega-Heatran',10311,{pos:[0,5],fb:485,range:6}),
+  E('Mega-Metagross',10076,{pos:[1,3],fb:376,range:6}),
+  E('Mega-Brutalanda',10089,{pos:[1,5],fb:373,range:6}),
+  E('Mega-Skaraborn',10047,{pos:[2,4],fb:214,range:6}),
+  E('Mega-Despotar',10049,{pos:[2,5],fb:248,range:6})],
  /* 48: ganz hinten in der Reihe: Pikachu, Gengar, Pescragon, Lauchzelot, Lucario, Dragoran und davor 12 Tauros */
  [E('Pikachu',25,{pos:[0,2]}),E('Gengar',94,{pos:[0,3]}),E('Pescragon',882,{pos:[0,4]}),E('Lauchzelot',865,{pos:[0,5]}),E('Lucario',448,{pos:[0,6]}),E('Dragoran',149,{pos:[0,7]}),
-  E('Tauros',128,{pos:[1,0]}),E('Tauros',128,{pos:[1,1]}),E('Tauros',128,{pos:[1,2]}),E('Tauros',128,{pos:[1,3]}),
-  E('Tauros',128,{pos:[1,4]}),E('Tauros',128,{pos:[1,5]}),E('Tauros',128,{pos:[1,6]}),E('Tauros',128,{pos:[1,7]}),
-  E('Tauros',128,{pos:[1,8]}),E('Tauros',128,{pos:[1,9]}),E('Tauros',128,{pos:[2,0]}),E('Tauros',128,{pos:[2,1]})],
+  E('Tauros',128,{pos:[1,2]}),E('Tauros',128,{pos:[1,3]}),E('Tauros',128,{pos:[1,4]}),E('Tauros',128,{pos:[1,5]}),
+  E('Tauros',128,{pos:[1,6]}),E('Tauros',128,{pos:[2,3]}),E('Tauros',128,{pos:[2,4]}),E('Tauros',128,{pos:[2,5]}),
+  E('Tauros',128,{pos:[2,6]}),E('Tauros',128,{pos:[3,3]}),E('Tauros',128,{pos:[3,4]}),E('Tauros',128,{pos:[3,5]})],
  /* 49: wahllos verteilt: Snieboss, Salmagnis, Ursaluna, Axantor, Myriador, Damythir, Hisui-Arkani, Hisui-Lektrobal, Hisui-Tornupto, Hisui-Admurai, Hisui-Dressella, Hisui-Zoroark, Hisui-Washakwil, Hisui-Viscogon, Hisui-Arktilas, Hisui-Silvarro */
- [E('Snieboss',903,{pos:[0,1]}),E('Salmagnis',902,{pos:[0,4]}),E('Ursaluna',901,{pos:[0,7]}),E('Axantor',900,{pos:[1,2]}),
-  E('Myriador',899,{pos:[1,5]}),E('Damythir',904,{pos:[1,8]}),E('Hisui-Arkani',10230,{pos:[2,0],fb:59}),E('Hisui-Lektrobal',10231,{pos:[2,3],fb:101}),
-  E('Hisui-Tornupto',10226,{pos:[2,6],fb:157}),E('Hisui-Admurai',10227,{pos:[2,9],fb:503}),E('Hisui-Dressella',10234,{pos:[3,1],fb:549}),E('Hisui-Zoroark',10232,{pos:[3,3],fb:571}),
-  E('Hisui-Washakwil',10233,{pos:[3,5],fb:628}),E('Hisui-Viscogon',10229,{pos:[3,7],fb:706}),E('Hisui-Arktilas',10235,{pos:[3,8],fb:713}),E('Hisui-Silvarro',10225,{pos:[3,9],fb:724})],
+ [E('Snieboss',903,{pos:[0,0]}),E('Salmagnis',902,{pos:[0,3]}),E('Ursaluna',901,{pos:[0,6]}),E('Axantor',900,{pos:[0,9]}),
+  E('Myriador',899,{pos:[1,1]}),E('Damythir',904,{pos:[1,3]}),E('Hisui-Arkani',10230,{pos:[1,5],fb:59}),E('Hisui-Lektrobal',10232,{pos:[1,7],fb:101}),
+  E('Hisui-Tornupto',10233,{pos:[2,0],fb:157}),E('Hisui-Admurai',10236,{pos:[2,3],fb:503}),E('Hisui-Dressella',10237,{pos:[2,6],fb:549}),E('Hisui-Zoroark',10239,{pos:[2,9],fb:571}),
+  E('Hisui-Washakwil',10240,{pos:[3,1],fb:628}),E('Hisui-Viscogon',10242,{pos:[3,3],fb:706}),E('Hisui-Arktilas',10243,{pos:[3,5],fb:713}),E('Hisui-Silvarro',10244,{pos:[3,7],fb:724})],
  /* 50: alle Sprites (ausgenommen Arceus) zu Standard Amigento ändern | Arceus: deutlich mehr HP */
  [
   E('Amigento (Normal)',773,{pos:[2,3],die:SPAWN_ARCEUS_AFTER_SILVALLY}),

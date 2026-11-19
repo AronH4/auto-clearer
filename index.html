@@ -136,10 +136,10 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
   [4,[75,20,5,0,0]],
   [8,[65,25,10,0,0]],
   [14,[50,30,15,5,0]],
-  [22,[35,30,20,10,5]],
-  [30,[25,25,25,15,10]],
-  [40,[25,20,20,20,15]],
-  [999,[20,20,20,20,20]]
+  [22,[37,30,20,9,4]],
+  [30,[33,25,25,11,6]],
+  [40,[31,24,23,14,8]],
+  [999,[28,23,22,17,10]]
  ],
  /* Angepasste Gegner-Skalierung für 43 Runden und max. 8 eigene Plätze */
  enemy:{
@@ -165,7 +165,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
 
 /* ================= KLASSEN (laut Tabelle) ================= */
 const CLASSES={
- Tank:   {hp:400,atk:40,abDmg:120,def:30,aspd:0.8,crit:0.15,range:1,mg:13,icon:'🛡️'},
+ Tank:   {hp:450,atk:40,abDmg:120,def:35,aspd:0.8,crit:0.15,range:1,mg:13,icon:'🛡️'},
  Fighter:{hp:350,atk:45,abDmg:110,def:25,aspd:0.9,crit:0.20,range:2,mg:10,icon:'⚔️'},
  Caster: {hp:300,atk:30,abDmg:150,def:15,aspd:1.0,crit:0.10,range:3,mg:18,icon:'🔮'},
  Sniper: {hp:250,atk:35,abDmg:130,def:20,aspd:1.5,crit:0.08,range:5,mg:15,icon:'🎯'}
@@ -206,7 +206,7 @@ const TB={
  Ground:  {th:[1],    v:[150],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[1],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
- Ghost:   {th:[2,3,5],v:[150,300,600],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
+ Ghost:   {th:[2,3,5],v:[100,450,900],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
  Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
  Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},

@@ -194,23 +194,23 @@ const p=v=>Math.round(v*100)+'%';
 /* ================= TYP-BONI ================= */
 const DECOY_HP=[250,350,600];
 const TB={
- Normal:  {th:[3],    v:[2],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
+ Normal:  {th:[2,4],   v:[1.3,2],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
  Grass:   {th:[2,4],  v:[.20,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
  Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
  Electric:{th:[2,4],  v:[.25,.75],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
- Bug:     {th:[1],    v:[.10],        d:v=>`Käfer-Krone erscheint! Träger erhält +10% ATK, Attack Speed und Mana pro ATK`},
+ Bug:     {th:[2],    v:[.20],        d:v=>`Käfer-Krone erscheint! Träger erhält +20% ATK, Attack Speed und Mana pro ATK`},
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2,5 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
  Rock:    {th:[2],    v:[30],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
- Ground:  {th:[1],    v:[150],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
+ Ground:  {th:[2],    v:[200],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[1],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
+ Psychic: {th:[2],    v:[1.5],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
  Ghost:   {th:[2,3,5],v:[100,450,900],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
- Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
+ Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
  Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
- Dragon:  {th:[1],    v:[.50],        d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} Leben wiederbelebt`},
+ Dragon:  {th:[2],    v:[.60],        d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} Leben wiederbelebt`},
  Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability alle umliegenden Allies (1 Feld) um 60% max HP`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
@@ -231,6 +231,8 @@ const RAW=[
 [1,'Meikro ✨,Kranoviz ✨,Krarmor ✨','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
 [1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
 [1,'Geosali,Sedisal,Saltigant','932,933,934','Rock','Tank','Weather Ball'],
+ //can delete
+[1,'Sensect,Keradar,Maritellit','824,825,826','Bug,Psychic','Caster','Weather Ball'],
 [2,'Shnebedeck,Rexblisar,Rexblisar','459,460,460','Grass,Ice','Tank','Weather Ball'],
 [2,'Fukano,Arkani,Arkani','58,59,59','Fire','Caster','Weather Ball'],
 [2,'Mampfaxo,Relaxo,Relaxo','446,143,143','Normal','Tank','Bulldoze'],
@@ -249,7 +251,11 @@ const RAW=[
 [4,'Fermicula,Fermicula,Fermicula','632,632,632','Bug,Steel','Fighter','Close Combat'],
 [4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Weather Ball'],
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
+ // can delete
+[4,'Teddiursa,Ursaring,Ursaluna','216,217,901','Normal,Ground','Tank','Bulldoze'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Bulldoze'],
+  // can delete
+[5,'Venicro,Agoyon,Agoyon','803,804,804','Poison,Dragon','Sniper','Snipe Shot'],
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water','Caster','Snipe Shot']
 ];
 

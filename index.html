@@ -1410,7 +1410,46 @@ function tipPoke(spIdx,star,e){
  const el=$('tip');el.innerHTML=h;el.style.display='block';tipMove(e);
 }
 function tipMove(e){const el=$('tip');el.style.left=Math.max(4,Math.min(e.clientX+16,innerWidth-el.offsetWidth-8))+'px';el.style.top=Math.max(4,Math.min(e.clientY+8,innerHeight-el.offsetHeight-8))+'px'}
-function tipHide(){$('tip').style.display='none'}
+let tipU=null;
+function tipHide(){tipU=null;$('tip').style.display='none'}
+
+/* Einheit unter der Maus finden (Canvas-Koordinaten wie in draw()) */
+function unitAtPoint(cx,cy){
+ if(!S||!B.units)return null;
+ const cv=$('cv'),b=cv.getBoundingClientRect(),
+  mx=(cx-b.left)*cv.width/b.width,my=(cy-b.top)*cv.height/b.height;
+ let best=null,bd=Infinity;
+ for(const u of B.units){
+  if(u.hp<=0)continue;
+  const d=Math.hypot(u.x+u.lx-mx,u.y+u.ly-8-my),rad=u.big?44:36;
+  if(d<rad&&d<bd){bd=d;best=u}
+ }
+ return best;
+}
+
+/* Tooltip mit Live-Werten (für Gegner, Beschwörungen, Delegator) */
+function tipLive(u,e){
+ const cl=u.cls&&CLASSES[u.cls];
+ const h=`<div><b>${u.name}</b>${cl?` (${cl.icon} ${u.cls})`:''}</div>
+  ${u.t&&u.t.length?`<div style="margin:3px 0">${u.t.map(typeBadge).join(' ')}</div>`:''}
+  <div style="color:#cde">HP: <b>${Math.round(u.hp)}/${Math.round(u.max)}</b> · ATK: <b>${Math.round(u.atk)}</b></div>
+  <div style="color:#cde">DEF: <b>${Math.round(u.def)}</b> · ASPD: <b>${(+u.aspd).toFixed(2)}</b> · Crit: <b>${p(u.crit)}</b> · Range: <b>${u.range}</b></div>`;
+ const el=$('tip');el.innerHTML=h;el.style.display='block';tipMove(e);
+}
+
+$('cv').addEventListener('mousemove',e=>{
+ if(typeof D!=='undefined'&&D&&D.moved)return;
+ const u=unitAtPoint(e.clientX,e.clientY);
+ if(!u){if(tipU)tipHide();return}
+ if(u!==tipU){
+  tipU=u;
+  const o=(u.team=='p'&&u.uid!=null)?unitById(u.uid):null;
+  if(o)tipPoke(o.sp,o.star,e);
+  else tipLive(u,e);
+ }
+ tipMove(e);
+});
+$('cv').addEventListener('mouseleave',tipHide);
 
 /* ================= ANZEIGE ================= */
 function slotInfo(){const T=CFG.slotAfter.find(t=>t>=S.round);

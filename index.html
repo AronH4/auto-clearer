@@ -6,11 +6,15 @@ body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;pad
 button{background:#3b4a8a;color:#fff;border:0;border-radius:6px;padding:8px 12px;margin:2px;cursor:pointer;font-size:14px}
 button:disabled{opacity:.4}button.red{background:#a33}
 #bBattle{font-size:22px;font-weight:bold;padding:16px 34px}
-#bRestart,#bRoll{font-size:22px;padding:12px 16px}
+#bRoll{font-size:22px;padding:12px 16px}
+#bRestart{font-size:11px;padding:1px 6px;margin:0 -8px 0 0;line-height:1.4}
+#bLeft{font-size:12px;padding:3px 8px;margin:0}
+#main.noleft{grid-template-columns:1fr 225px}
+#main.noleft #left{display:none}
 #top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:15px}
 #top .ttl{font-size:18px;color:#fc6}
 #main{display:grid;grid-template-columns:225px 1fr 225px;gap:10px;margin-top:8px}
-@media(max-width:980px){#main{grid-template-columns:1fr}}
+@media(max-width:980px){#main,#main.noleft{grid-template-columns:1fr}}
 #left,#right{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 64px);overflow:auto;font-size:12px;background:#181c28;border:1px solid #2c3350;border-radius:8px;padding:8px}
 #mid{min-width:0}
 canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display:block}
@@ -97,7 +101,7 @@ h4{margin:8px 0 2px;color:#9ab}
 .dps-bar-bg{height:6px;background:#252b3d;border-radius:3px;overflow:hidden}
 .dps-bar{height:100%;background:linear-gradient(90deg,#4a9eff,#6ce5ff);border-radius:3px;transition:width .12s}
 </style></head><body>
-<div id="top"><b class="ttl">Auto-Clearer</b><span id="tr"></span><span id="tl"></span><span id="tn"></span></div>
+<div id="top"><b class="ttl">Auto-Clearer</b><button class="red" id="bRestart" onclick="restart()" title="Match neu starten">🔄</button><span id="tr"></span><span id="tl"></span><span id="tn"></span><button id="bLeft" onclick="toggleLeft()" title="Typ-Boni-Anzeige ein-/ausblenden" style="margin-left:auto">📋 Typ-Boni</button></div>
 <div id="main">
  <div id="left"><h4 style="margin-top:0">Typ-Boni</h4><div id="buffs"></div><small style="color:#889">Maus über Typ/Pokémon = Details</small></div>
  <div id="mid">
@@ -105,7 +109,6 @@ h4{margin:8px 0 2px;color:#9ab}
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
-   <button class="red" id="bRestart" onclick="restart()" title="Match neu starten">🔄</button>
    <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+10% ATK, ASPD & Mana/ATK)">👑</span></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
@@ -121,7 +124,7 @@ h4{margin:8px 0 2px;color:#9ab}
 
 <script>
 /* ================= KONFIGURATION ================= */
-const CFG={startGold:10,income:5,reroll:2,lives:10,
+const CFG={startGold:10,income:6,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
  maxUnits:8,slotAfter:[2,4,8,14,22,30,40],benchMax:12,
  speedUpAfter:20,speedUpTo:3,
@@ -165,19 +168,19 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
 
 /* ================= KLASSEN (laut Tabelle) ================= */
 const CLASSES={
- Tank:   {hp:450,atk:40,abDmg:120,def:35,aspd:0.8,crit:0.15,range:1,mg:13,icon:'🛡️'},
- Fighter:{hp:350,atk:45,abDmg:110,def:25,aspd:0.9,crit:0.20,range:2,mg:10,icon:'⚔️'},
+ Tank:   {hp:450,atk:40,abDmg:120,def:35,aspd:0.8,crit:0.15,range:1,mg:14,icon:'🛡️'},
+ Fighter:{hp:350,atk:45,abDmg:110,def:25,aspd:0.9,crit:0.20,range:2,mg:12,icon:'⚔️'},
  Caster: {hp:300,atk:30,abDmg:150,def:15,aspd:1.0,crit:0.10,range:3,mg:18,icon:'🔮'},
- Sniper: {hp:250,atk:35,abDmg:130,def:20,aspd:1.5,crit:0.08,range:5,mg:15,icon:'🎯'}
+ Sniper: {hp:250,atk:35,abDmg:130,def:20,aspd:1.5,crit:0.08,range:5,mg:16,icon:'🎯'}
 };
 
 /* ================= FÄHIGKEITEN-BESCHREIBUNGEN ================= */
 const SKILLS={
- 'Close Combat':{col:'#ff3b3b',desc:'Rote Explosion: Verursacht insgesamt 2x Ability DMG aufgeteilt auf alle Gegner auf dem Feld.'},
+ 'Close Combat':{col:'#ff3b3b',desc:'Rote Explosion: Verursacht insgesamt 1,75x Ability DMG aufgeteilt auf alle Gegner auf dem Feld.'},
  'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 2,5x Ability DMG.'},
  'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 2s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
- 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den wenigsten HP und verursacht 1,5x Ability DMG.'},
- 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 2s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain und erleiden Ability DMG.'}
+ 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den wenigsten HP und verursacht 1,75x Ability DMG.'},
+ 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 2s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain. Nur das Ziel erleidet Ability DMG.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -192,26 +195,26 @@ const TYPES={Normal:[1,'Normal','#a8a77a'],Fighting:[2,'Kampf','#c22e28'],Flying
 const p=v=>Math.round(v*100)+'%';
 
 /* ================= TYP-BONI ================= */
-const DECOY_HP=[250,350,600];
+const DECOY_HP=[150,450,1000];
 const TB={
- Normal:  {th:[2,4],   v:[1.3,2],     d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
- Grass:   {th:[2,4],  v:[.20,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
+ Normal:  {th:[2,4],   v:[1.2,1.8],   d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
+ Grass:   {th:[2,4],  v:[.25,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
  Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
- Electric:{th:[2,4],  v:[.25,.75],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
+ Electric:{th:[2,4],  v:[.25,.60],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
  Bug:     {th:[2],    v:[.20],        d:v=>`Käfer-Krone erscheint! Träger erhält +20% ATK, Attack Speed und Mana pro ATK`},
- Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2,5 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
+ Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
- Rock:    {th:[2],    v:[30],         d:v=>`Alle Gestein-Pokémon erhalten +${v} DEF`},
- Ground:  {th:[2],    v:[200],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff)`},
+ Rock:    {th:[2],    v:[.9],         d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
+ Ground:  {th:[2],    v:[200],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff) und sind danach 2 Sekunden lang nicht einsatzfähig`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
- Ghost:   {th:[2,3,5],v:[100,450,900],d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
+ Ghost:   {th:[2,3,5],v:DECOY_HP,d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
  Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
  Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
  Dragon:  {th:[2],    v:[.60],        d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} Leben wiederbelebt`},
- Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability alle umliegenden Allies (1 Feld) um 60% max HP`}
+ Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability alle umliegenden Allies (1 Feld) um ${p(v)} ihrer max. HP`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
 const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};
@@ -724,9 +727,9 @@ function applyBonus(u,t,v,tier){
   case'Normal':u.dm*=v;break;
   case'Fire':u.fire=v;break;
   case'Water':u.mg*=1+v;break;
-  case'Flying':u.range+=1;if(tier===1)u.flyBonus=2.5;break;
+  case'Flying':u.range+=1;if(tier===1)u.flyBonus=2;break;
   case'Ice':u.ice=v;break;
-  case'Rock':u.def+=v;break;
+  case'Rock':u.def+=v*S.round;break;
   case'Fairy':u.fairy=v;break;
   case'Ground':u.ground=v;break;
   case'Poison':u.pois=v;break;
@@ -863,6 +866,8 @@ function renderDpsChart(){
 }
 
 /* ================= KAMPF & ANIMATIONEN ================= */
+function toggleLeft(force){const m=$('main'),hide=force!==undefined?force:!m.classList.contains('noleft');m.classList.toggle('noleft',hide);$('bLeft').style.opacity=hide?.55:1;try{localStorage.setItem('pab7_hideLeft',hide?'1':'0')}catch(e){}}
+try{if(localStorage.getItem('pab7_hideLeft')==='1')window.addEventListener('DOMContentLoaded',()=>toggleLeft(true))}catch(e){}
 function restart(){if(!confirm('Match wirklich neu starten? Der aktuelle Fortschritt geht verloren.'))return;clearSave();newGame()}
 
 function startBattle(){
@@ -892,6 +897,8 @@ const occ = new Set(B.units.filter(u => u.hp > 0).map(u => u.r + ',' + u.c));
 for (const u of B.units) {
  if (u.team == 'p' && u.ground > 0) {
   occ.delete(u.r + ',' + u.c);
+  u.stun = Math.max(u.stun || 0, 2); // Boden-Bonus: 2s unverwendbar bei Rundenstart
+  say(u, '💫 2s', '#c9a24a');
   let best = null;
   const midC = Math.floor(COLS / 2); // Die Mitte des Spielfelds (Spalte 4 oder 5)
 
@@ -1016,9 +1023,9 @@ function castPlayerSkill(u,t,A){
 
  switch(u.abName){
   case 'Close Combat':{
-   /* Rote Explosion: 2x Ability DMG aufgeteilt auf alle Gegner auf dem Feld */
+   /* Rote Explosion: 1,75x Ability DMG aufgeteilt auf alle Gegner auf dem Feld */
    if(!foes.length)break;
-   const splitDmg=(rawAb*2)/foes.length;
+   const splitDmg=(rawAb*1.75)/foes.length;
    B.waves.push({x:u.x,y:u.y,r:12,maxR:W*3.2,col:'#ff3b3b',t:.45,maxT:.45,fill:true});
    for(const f of foes){
     const effDef=isInWeatherField(f)?f.def*0.5:f.def;
@@ -1061,7 +1068,7 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Bulldoze':{
-   /* Braune Animation: dasht zum Ziel mit meisten HP und verursacht 1,5x Ability DMG */
+   /* Braune Animation: dasht zum Ziel mit den wenigsten HP und verursacht 1,75x Ability DMG */
    let boss=foes[0];
    for(const f of foes)if(f.hp<boss.hp)boss=f;
    if(!boss)break;
@@ -1077,12 +1084,12 @@ function castPlayerSkill(u,t,A){
    B.fx.push({x1:ox,y1:oy,x2:u.x,y2:u.y,t:.35,maxT:.35,col:'#c87d32',w:10,glow:'#8a4b14'});
    B.waves.push({x:boss.x,y:boss.y,r:8,maxR:W*1.1,col:'#c87d32',t:.4,maxT:.4,fill:true});
    const effDef=isInWeatherField(boss)?boss.def*0.5:boss.def;
-   const d=(rawAb*1.5)*100/(100+effDef);
+   const d=(rawAb*1.75)*100/(100+effDef);
    dealDmg(boss,d,'#e09a48','🪨',u);
    break;
   }
   case 'Weather Ball':{
-   /* Weiße Animation: greift Gegner mit meisten HP an, erzeugt für 3s weißes Feld (Ziel + umliegende Waben): -50% DEF, -50% Mana Gain, Ability DMG */
+   /* Weiße Animation: greift Gegner mit meisten HP an, erzeugt für 2s weißes Feld (Ziel + umliegende Waben): -50% DEF, -50% Mana Gain; Ability DMG nur auf das Ziel */
    let boss=foes[0];
    for(const f of foes)if(f.hp>boss.hp)boss=f;
    if(!boss)break;
@@ -1094,14 +1101,9 @@ function castPlayerSkill(u,t,A){
      const centerC=boss.hp>0?boss.c:Math.round((bx-OX)/W);
      B.fields.push({r:centerR,c:centerC,rad:1.3,t:2,maxT:2,type:'weather'});
      B.waves.push({x:bx,y:by,r:10,maxR:W*1.5,col:'#ffffff',t:.42,maxT:.42,fill:true});
-     const live=B.units.filter(x=>x.team!=u.team&&x.hp>0);
-     for(const f of live){
-      if(f===boss||dist(f,{r:centerR,c:centerC})<=1){
-       const effDef=f.def*0.5;
-       const d=rawAb*100/(100+effDef);
-       dealDmg(f,d,'#ffffff','❄️',u);
-      }
-     }
+     /* Schaden nur auf das Hauptziel; Debuff-Feld (AoE) bleibt bestehen */
+     const effDef=boss.def*0.5;
+     dealDmg(boss,rawAb*100/(100+effDef),'#ffffff','❄️',u);
     }
    });
    break;

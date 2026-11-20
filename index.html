@@ -5,8 +5,8 @@
 body{margin:0;background:#14161c;color:#eee;font-family:system-ui,sans-serif;padding:0 8px 20px;max-width:1320px;margin:auto}
 button{background:#3b4a8a;color:#fff;border:0;border-radius:6px;padding:8px 12px;margin:2px;cursor:pointer;font-size:14px}
 button:disabled{opacity:.4}button.red{background:#a33}
-#bBattle{font-size:22px;font-weight:bold;padding:16px 34px}
-#bRoll{font-size:22px;padding:12px 16px}
+#bBattle{font-size:16px;font-weight:bold;padding:7px 20px}
+#bRoll{font-size:16px;padding:7px 11px}
 #bRestart{font-size:11px;padding:1px 6px;margin:0;line-height:1.4}
 #bTut{font-size:12px;padding:3px 9px;margin:0;background:#2f5d50;border:1px solid #4e9a85}
 #bTut:hover{background:#3b7565}
@@ -20,9 +20,9 @@ button:disabled{opacity:.4}button.red{background:#a33}
 #left,#right{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 64px);overflow:auto;font-size:12px;background:#181c28;border:1px solid #2c3350;border-radius:8px;padding:8px}
 #mid{min-width:0}
 canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display:block}
-#ctrl{display:flex;flex-direction:column;gap:6px;padding:6px 2px}
+#ctrl{display:flex;flex-direction:column;gap:2px;padding:3px 2px}
 #btns{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
-#stat{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:15px}#plc{cursor:help;border-bottom:1px dotted #889}
+#stat{display:flex;flex-wrap:wrap;gap:2px 20px;font-size:14px}#plc{cursor:help;border-bottom:1px dotted #889}
 #under{text-align:center}#under h4{text-align:center;margin:12px 0 2px}
 #shop,#bench{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}#shop{justify-content:center}
 .card{width:100px;height:132px;box-sizing:border-box;border:2px solid #888;border-radius:8px;padding:4px;background:#222736;font-size:12px;
@@ -203,23 +203,23 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
   [999,[25,23,22,20,10]]
  ],
  enemy:{
-  strength:1.08,
+  strength:1.07,
   T:15,
-  fStart:1.0,
-  fEnd:1.30,
+  fStart:0.95,
+  fEnd:1.20,
   fRounds:50,
   early:1.05,
   from6:1.05,
-  from15:1.06,
-  from30:1.07,
-  from42:1.08,
+  from15:1.05,
+  from30:1.05,
+  from42:1.05,
   aspd:1.0,
   skill:2,
   def:10,
   defPerRound:1.0,
   mg:12.5,
   dmg:1.00,
-  dmgGrow:1.0
+  dmgGrow:1.05
  }
 };
 

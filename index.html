@@ -194,7 +194,7 @@ const p=v=>Math.round(v*100)+'%';
 /* ================= TYP-BONI ================= */
 const DECOY_HP=[250,350,600];
 const TB={
- Normal:  {th:[2,4],   v:[1.3,2],          d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
+ Normal:  {th:[2,4],   v:[1.3,2],     d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
  Grass:   {th:[2,4],  v:[.20,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
  Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
@@ -252,7 +252,7 @@ const RAW=[
 [4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Weather Ball'],
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
  // can delete
-[4,'Teddiursa,Ursaring,Ursaluna','216,217,901','Normal,Ground','Tank','Bulldoze'],
+[3,'Teddiursa,Ursaring,Ursaluna','216,217,901','Normal,Ground','Tank','Bulldoze'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Bulldoze'],
   // can delete
 [5,'Venicro,Agoyon,Agoyon','803,804,804','Poison,Dragon','Sniper','Snipe Shot'],
@@ -759,11 +759,11 @@ function buildPlayer(bat){
    uid:o.id
   });
   u.t=s.t;
-  if(S.crownOn===o.id&&(cnt.Bug||0)>=1){
+  if(S.crownOn===o.id&&(cnt.Bug||0)>=2){
    u.crowned=true;
-   u.atk*=1.10;
-   u.aspd*=1.10;
-   u.mg*=1.10;
+   u.atk*=1.20;
+   u.aspd*=1.20;
+   u.mg*=1.20;
   }
   return u;
  });
@@ -1036,7 +1036,7 @@ function castPlayerSkill(u,t,A){
    for(const f of foes){
     if(segDist(f.x,f.y,u.x,u.y,ex,ey)<=W*0.58){
      const effDef=isInWeatherField(f)?f.def*0.5:f.def;
-     const d=(rawAb*2,5)*100/(100+effDef);
+     const d=(rawAb*2.5)*100/(100+effDef);
      dealDmg(f,d,'#ffe63b','⚡',u);
     }
    }

@@ -92,6 +92,17 @@ h4{margin:8px 0 2px;color:#9ab}
 #tip .pc img{width:28px;height:28px;image-rendering:pixelated}
 #crownBox{display:inline-flex;align-items:center;justify-content:center;background:#2a2414;border:2px solid #ffd700;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1}
 #crownBox.hidden{display:none}
+#tokenBox{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#1f1a30;border:2px solid #b07cff;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1;touch-action:none;box-shadow:0 0 8px #b07cff88}
+#tokenBox b{font-size:14px;color:#d9c2ff}#tokenBox.hidden{display:none}
+.ti.xt{outline:2px solid #ffd700;outline-offset:1px}
+#tmenu{position:fixed;inset:0;z-index:70;background:rgba(8,10,16,.55)}
+#tmenu .tm-c{position:absolute;width:150px;transform:translate(-50%,-50%);text-align:center;font-size:12px;pointer-events:none;color:#ddd}
+#tmenu .tm-c img{width:64px;height:64px;image-rendering:pixelated}
+#tmenu .tm-c b{display:block;color:#fd6;font-size:14px;min-height:18px}
+#tmenu .tm-o{position:absolute;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;border:2px solid #fff8;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-weight:bold;cursor:pointer;transition:transform .08s}
+#tmenu .tm-o:hover{transform:scale(1.25);border-color:#fff;z-index:2}
+#tmenu .tm-o img{width:28px;height:28px}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#3a1c1c;border:1px solid #c55;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;z-index:80;display:none}
 .dps-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;background:#131620;border:1px solid #282f48;border-radius:6px;padding:4px 6px}
 .dps-row img{width:34px;height:34px;image-rendering:pixelated;flex-shrink:0}
 .dps-info{flex:1;min-width:0}
@@ -109,7 +120,8 @@ h4{margin:8px 0 2px;color:#9ab}
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
-   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+10% ATK, ASPD & Mana/ATK)">👑</span></div>
+   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+10% ATK, ASPD & Mana/ATK)">👑</span>
+   <span id="tokenBox" class="hidden" title="Typ-Token: Auf ein Pokémon mit nur einem Typ ziehen, um einen Zusatztyp zu wählen (einmalig, dauerhaft)">🪙<b id="tokenN"></b></span></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
   <div id="under">
@@ -120,7 +132,7 @@ h4{margin:8px 0 2px;color:#9ab}
  </div>
  <div id="right"><h4 style="margin-top:0">📊 DMG / DPS (Runde)</h4><div id="dpsChart"><small style="color:#889">Starte einen Kampf, um den Schaden zu sehen.</small></div></div>
 </div>
-<div id="tip"></div>
+<div id="tip"></div><div id="toast"></div>
 
 <script>
 /* ================= KONFIGURATION ================= */
@@ -625,6 +637,7 @@ const benchCount=()=>S.units.filter(u=>!u.pos).length;
 const limitFor=r=>Math.min(CFG.maxUnits,1+CFG.slotAfter.filter(t=>r>t).length);
 const limit=()=>limitFor(S.round);
 const income=()=>CFG.income;
+const TOKEN_ROUND=25;
 const act=()=>!!S&&(S.phase=='prep'||S.phase=='battle');
 function freeSlot(){for(let k=0;k<CFG.benchMax;k++)if(!S.units.some(u=>!u.pos&&u.slot===k))return k;return null}
 function fixSlots(){const used=new Set();S.units.forEach(u=>{if(u.pos){u.slot=null;return}
@@ -634,7 +647,7 @@ const msg=()=>{};
 const unitById=id=>S.units.find(u=>u.id==id);
 
 function newGame(){
- S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null};
+ S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0};
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
@@ -661,9 +674,10 @@ function tryMerge(){let again=true;const bat=S.phase=='battle';
    const L=S.units.filter(u=>u.sp==sp&&u.star==st&&(!bat||!u.pos)).sort((a,b)=>(b.pos?1:0)-(a.pos?1:0));
    if(L.length>=CFG.mergeNeeded){const t=L.slice(0,CFG.mergeNeeded),pos=t[0].pos,keep=t.find(x=>!x.pos&&x.slot!=null);
     const hadCrown=t.some(x=>S.crownOn===x.id);
+    const xt=(t.find(x=>x.xt)||{}).xt;
     const nid=S.nextId++;
     S.units=S.units.filter(u=>!t.includes(u));
-    S.units.push({id:nid,sp,star:st+1,pos,slot:pos?null:(keep?keep.slot:freeSlot())});
+    S.units.push({id:nid,sp,star:st+1,pos,slot:pos?null:(keep?keep.slot:freeSlot()),...(xt?{xt}:{})});
     if(hadCrown)S.crownOn=nid;
     again=true}}}}
 
@@ -695,7 +709,7 @@ function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
   fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,
   stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyDmg:0,crowned:false}}
 
-function typeCounts(){const c={},seen=new Set();placed().forEach(u=>{if(seen.has(u.sp))return;seen.add(u.sp);SP[u.sp].t.forEach(t=>c[t]=(c[t]||0)+1)});return c}
+function typeCounts(){const c={},seen=new Map();placed().forEach(u=>{const ts=seen.get(u.sp)||new Set();SP[u.sp].t.forEach(t=>ts.add(t));if(u.xt)ts.add(u.xt);seen.set(u.sp,ts)});seen.forEach(ts=>ts.forEach(t=>c[t]=(c[t]||0)+1));return c}
 
 function ensureSpecials(){
  const cnt=typeCounts();
@@ -761,7 +775,7 @@ function buildPlayer(bat){
    star:st,
    uid:o.id
   });
-  u.t=s.t;
+  u.t=o.xt?s.t.concat(o.xt):s.t;u.xt=o.xt||null;
   if(S.crownOn===o.id&&(cnt.Bug||0)>=2){
    u.crowned=true;
    u.atk*=1.20;
@@ -1299,6 +1313,7 @@ function step(dt){
 function finish(win){if(S.phase!='battle')return;renderDpsChart();S.phase='prep';const last=S.round>=EN.length;
  if(win&&last){S.phase='done';clearSave();B.units=[];render();return}
  S.gold+=income();tryMerge();
+ if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1; /* Typ-Token nach Abschluss von Runde 25 */
  if(win)S.round++;
  else{S.lives--;if(S.lives<=0){S.phase='done';clearSave();render();return}}
  roll();save();render()}
@@ -1349,6 +1364,38 @@ $('crownBox').addEventListener('pointerdown',e=>{
  const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.textContent='👑';document.body.appendChild(g);D.g=g;
 });
 
+$('tokenBox').addEventListener('pointerdown',e=>{
+ if(S.phase!='prep'||!(S.tokens>0)||$('tmenu'))return;e.preventDefault();
+ D={type:'token',x:e.clientX,y:e.clientY,moved:false};
+ const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.textContent='🪙';document.body.appendChild(g);D.g=g;
+});
+
+/* ===== Typ-Token: Ziel prüfen, Kreis-Menü, Anwenden ===== */
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2600)}
+function closeTypeMenu(){const m=$('tmenu');if(m)m.remove()}
+function useToken(o,x,y){
+ if(!o||S.phase!='prep'||!(S.tokens>0))return;
+ const s=SP[o.sp];
+ if(o.xt){toast('Dieses Pokémon hat bereits einen Zusatztyp.');return}
+ if(s.t.length!==1){toast('Nur Pokémon mit genau einem Typ können einen Zusatztyp erhalten.');return}
+ closeTypeMenu();
+ const opts=Object.keys(TYPES).filter(t=>!s.t.includes(t)),n=opts.length;
+ const R=Math.round(n*47/(2*Math.PI)),m=document.createElement('div');m.id='tmenu';
+ const cx=Math.max(R+34,Math.min(x,innerWidth-R-34)),cy=Math.max(R+34,Math.min(y,innerHeight-R-34));
+ let h=`<div class="tm-c" style="left:${cx}px;top:${cy}px"><img src="${url(s.id[o.star-1],s.sh)}"><div>Zusatztyp für<br><b id="tmName">${s.n[o.star-1]}</b></div></div>`;
+ opts.forEach((t,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;
+  h+=`<button class="tm-o" data-t="${t}" title="${TYPES[t][1]}" style="left:${cx+R*Math.cos(a)}px;top:${cy+R*Math.sin(a)}px;background:${TYPES[t][2]}"><img src="${TYPE_URL[t]}" onerror="this.parentNode.textContent='${TYPES[t][1][0]}'"></button>`});
+ m.innerHTML=h;
+ m.addEventListener('pointerdown',e=>{if(e.target===m)closeTypeMenu()});
+ m.addEventListener('mouseover',e=>{const b=e.target.closest('.tm-o');$('tmName').textContent=b?TYPES[b.dataset.t][1]:s.n[o.star-1]});
+ m.addEventListener('click',e=>{const b=e.target.closest('.tm-o');if(!b)return;const t=b.dataset.t;
+  if(!confirm(`${TYPES[t][1]} dauerhaft als Zusatztyp für ${s.n[o.star-1]} festlegen? Das ist endgültig.`))return;
+  if(S.phase!='prep'||!(S.tokens>0)||o.xt)return;
+  o.xt=t;S.tokens--;closeTypeMenu();save();render()});
+ document.body.appendChild(m);
+}
+window.addEventListener('keydown',e=>{if(e.key==='Escape')closeTypeMenu()});
+
 $('cv').addEventListener('pointerdown',e=>{
  if(S.phase!='prep')return;e.preventDefault();
  const c=cellAt(e.clientX,e.clientY);
@@ -1362,7 +1409,7 @@ $('cv').addEventListener('pointerdown',e=>{
 });
 
 window.addEventListener('pointermove',e=>{if(!D)return;
- if(D.type==='crown'||D.type==='decoy'){
+ if(D.type==='crown'||D.type==='decoy'||D.type==='token'){
   D.moved=true;
   if(D.g){D.g.style.left=e.clientX-18+'px';D.g.style.top=e.clientY-18+'px'}
   return;
@@ -1377,6 +1424,13 @@ window.addEventListener('pointerup',e=>{if(!D)return;const d=D;D=null;if(d.g)d.g
   const el=document.elementFromPoint(e.clientX,e.clientY);
   if(el===$('cv')){const c=cellAt(e.clientX,e.clientY);const o=c?occAt(c):null;if(o)S.crownOn=o.id}
   render();return;
+ }
+ if(d.type==='token'){
+  const el=document.elementFromPoint(e.clientX,e.clientY);let o=null;
+  if(el===$('cv')){const c=cellAt(e.clientX,e.clientY);o=c?occAt(c):null}
+  else if(el&&el.closest('[data-slot]')){const k=+el.closest('[data-slot]').dataset.slot;o=S.units.find(u=>!u.pos&&u.slot===k)}
+  if(o)useToken(o,e.clientX,e.clientY);
+  return;
  }
  if(d.type==='decoy'){
   const el=document.elementFromPoint(e.clientX,e.clientY);
@@ -1399,12 +1453,12 @@ function tip(t,e){const cnt=typeCounts()[t]||0,k=tierIdx(t,cnt),tb=TB[t];
   SP.map((s,i)=>s.t.includes(t)?`<div class="pc ${onB.has(i)?'on':own.has(i)?'own':''}"><img src="${url(s.id[0],s.sh)}">${s.n[0]}</div>`:'').join('')+'</div>';
  const el=$('tip');el.innerHTML=h;el.style.display='block';tipMove(e)}
 
-function tipPoke(spIdx,star,e){
+function tipPoke(spIdx,star,e,xt){
  const s=SP[spIdx],cl=CLASSES[s.cls],sk=SKILLS[s.ab];
  const cMul=CFG.costMul[s.c]||1,sMul=CFG.hpMul[star-1]||1;
  const hp=Math.round(cl.hp*cMul*sMul),atk=Math.round(cl.atk*cMul*sMul),ab=Math.round(cl.abDmg*cMul*sMul);
  const h=`<div><b>${s.n[star-1]}</b> (${s.c}-Cost · ${cl.icon} ${s.cls})</div>
-  <div style="margin:3px 0">${s.t.map(typeBadge).join(' ')}</div>
+  <div style="margin:3px 0">${s.t.map(typeBadge).join(' ')}${xt?` + ${typeBadge(xt)} <small style="color:#fd6">(Zusatztyp)</small>`:''}</div>
   <div style="color:#cde">HP: <b>${hp}</b> · ATK: <b>${atk}</b> · Ability DMG: <b>${ab}</b></div>
   <div style="color:#cde">DEF: <b>${cl.def}</b> · ASPD: <b>${cl.aspd}</b> · Crit: <b>${p(cl.crit)}</b> · Range: <b>${cl.range}</b></div>
   <div style="margin-top:5px;color:#fd6"><b>Fähigkeit – ${s.ab}:</b></div>
@@ -1446,7 +1500,7 @@ $('cv').addEventListener('mousemove',e=>{
  if(u!==tipU){
   tipU=u;
   const o=(u.team=='p'&&u.uid!=null)?unitById(u.uid):null;
-  if(o)tipPoke(o.sp,o.star,e);
+  if(o)tipPoke(o.sp,o.star,e,o.xt);
   else tipLive(u,e);
  }
  tipMove(e);
@@ -1468,6 +1522,7 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
 
  const cnt=typeCounts();
  $('crownBox').classList.toggle('hidden',!(S.phase=='prep'&&(cnt.Bug||0)>=1));
+ $('tokenBox').classList.toggle('hidden',!(S.phase=='prep'&&(S.tokens||0)>0));$('tokenN').textContent=(S.tokens||0)>1?'×'+S.tokens:'';
 
  $('shop').innerHTML=S.shop.map((i,k)=>{if(i==null)return`<div class="card sold">–</div>`;const s=SP[i],cl=CLASSES[s.cls];
   return`<div class="card c${s.c}" onclick="buy(${k})" onmouseenter="tipPoke(${i},1,event)" onmousemove="tipMove(event)" onmouseleave="tipHide()">
@@ -1481,9 +1536,9 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
  for(let k=0;k<CFG.benchMax;k++){const u=bn.find(x=>x.slot===k);
   if(!u){bh+=`<div class="card empty" data-slot="${k}" onclick="slotClick(${k})"></div>`;continue}
   const s=SP[u.sp];
-  bh+=`<div class="card c${s.c} ${S.sel==u.id?'sel':''}" data-slot="${k}" onmouseenter="tipPoke(${u.sp},${u.star},event)" onmousemove="tipMove(event)" onmouseleave="tipHide()" onpointerdown="bdown(event,${u.id})">
+  bh+=`<div class="card c${s.c} ${S.sel==u.id?'sel':''}" data-slot="${k}" onmouseenter="tipPoke(${u.sp},${u.star},event,'${u.xt||''}')" onmousemove="tipMove(event)" onmouseleave="tipHide()" onpointerdown="bdown(event,${u.id})">
    <img class="sp" src="${url(s.id[u.star-1],s.sh)}" onerror="this.style.opacity=.2" draggable="false">
-   <div class="tys">${s.t.map(typeIcon).join('')}</div>${starsHtml(u.star)}</div>`}
+   <div class="tys">${s.t.map(typeIcon).join('')}${u.xt?typeIcon(u.xt).replace('class="ti"','class="ti xt"'):''}</div>${starsHtml(u.star)}</div>`}
  $('bench').innerHTML=bh;
 
  $('buffs').innerHTML=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).map(t=>{const tb=TB[t],c=cnt[t],k=tierIdx(t,c);
@@ -1550,6 +1605,7 @@ function draw(t){ctx.clearRect(0,0,720,500);
    ctx.fillStyle='#fff';ctx.fillText(CLASSES[u.cls].icon,u.x-bw/2-9,by+5.5);
    ctx.restore();
   }
+  if(u.xt&&TYPES[u.xt]){ctx.save();ctx.fillStyle=TYPES[u.xt][2];ctx.strokeStyle='#ffd700';ctx.lineWidth=2;ctx.beginPath();ctx.arc(u.x+bw/2+9,by+5,6,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore()}
   if(u.star){ctx.fillStyle=STAR_COL[u.star-1];ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.font='bold 12px sans-serif';ctx.textAlign='center';
    const s='★'.repeat(u.star);ctx.strokeText(s,u.x,by-6);ctx.fillText(s,u.x,by-6)}
   if(u.crowned){ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('👑',u.x,by-20)}

@@ -15,7 +15,7 @@ button:disabled{opacity:.4}button.red{background:#a33}
 #main.noside #left,#main.noside #right{display:none}
 #top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:15px}
 #top .ttl{font-size:18px;color:#fc6}
-#main{display:grid;grid-template-columns:225px 1fr 225px;gap:10px;margin-top:8px}
+#main{display:grid;grid-template-columns:225px 1fr 225px;gap:10px;margin-top:16px}
 @media(max-width:980px){#main,#main.noside{grid-template-columns:1fr}}
 #left,#right{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 64px);overflow:auto;font-size:12px;background:#181c28;border:1px solid #2c3350;border-radius:8px;padding:8px}
 #mid{min-width:0}
@@ -147,7 +147,7 @@ h4{margin:8px 0 2px;color:#9ab}
 <div id="main">
  <div id="left"><h4 style="margin-top:0">Typ-Boni</h4><div id="buffs"></div><small style="color:#889">Maus über Typ/Pokémon = Details</small></div>
  <div id="mid">
-  <canvas id="cv" width="720" height="500"></canvas>
+  <canvas id="cv" width="720" height="514"></canvas>
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
@@ -184,7 +184,7 @@ h4{margin:8px 0 2px;color:#9ab}
 
 <script>
 /* ================= KONFIGURATION ================= */
-const CFG={startGold:10,income:6,reroll:2,lives:10,
+const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
  maxUnits:8,slotAfter:[2,4,8,14,22,30,40],benchMax:12,
  speedUpAfter:20,speedUpTo:3,
@@ -203,23 +203,23 @@ const CFG={startGold:10,income:6,reroll:2,lives:10,
   [999,[25,23,22,20,10]]
  ],
  enemy:{
-  strength:1.07,
+  strength:1.08,
   T:15,
-  fStart:0.95,
-  fEnd:1.20,
+  fStart:1.0,
+  fEnd:1.30,
   fRounds:50,
   early:1.05,
   from6:1.05,
-  from15:1.05,
-  from30:1.05,
-  from42:1.05,
+  from15:1.06,
+  from30:1.07,
+  from42:1.08,
   aspd:1.0,
   skill:2,
   def:10,
   defPerRound:1.0,
   mg:12.5,
   dmg:1.00,
-  dmgGrow:1.05
+  dmgGrow:1.0
  }
 };
 
@@ -334,7 +334,7 @@ const TUT_PAGES=[
    <div class="tut-card"><b class="t-ttl">Nur unterschiedliche Arten zählen!</b>Zwei gleiche Pokémon (z. B. 2× Nebulak) zählen für den Typ-Bonus nur als <b>1 Geist-Pokémon</b>. Kombiniere verschiedene Spezies!</div>
    <div class="tut-card"><b class="t-ttl">Spezial-Items durch Typen</b>
     • <b>Käfer (ab 2):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+20% ATK, ASPD & Mana/ATK</b>.<br>
-    • <b>Geist (ab 2):</b> Ein <b>🎎 Delegator</b> erscheint auf dem Feld, den du frei als Blocker platzieren kannst.
+    • <b>Geist (ab 2):</b> Ein <b>Delegator</b> erscheint auf dem Feld, den du frei als Blocker platzieren kannst.
    </div>
   </div>
   <div class="tut-note">📋 Fahre mit der Maus über einen Typ in der linken Leiste, um alle Stufen (z. B. 2 / 3 / 5 Pokémon) sowie alle verfügbaren Pokémon dieses Typs zu sehen.</div>`
@@ -344,7 +344,7 @@ const TUT_PAGES=[
   title:'💰 Wie funktionieren Geld, Reroll & Verkaufen?',
   html:`<p>Kluges Gold-Management entscheidet darüber, wie schnell du dein Team auf 2★ und 3★ ausbaust:</p>
   <div class="tut-grid">
-   <div class="tut-card"><b class="t-ttl">💰 Einkommen</b>Du startest mit <b>10 Gold</b> und erhältst nach jeder Runde (egal ob Sieg oder Niederlage) pauschal <b>+6 Gold</b> Einkommen.</div>
+   <div class="tut-card"><b class="t-ttl">💰 Einkommen</b>Du startest mit <b>10 Gold</b> und erhältst nach jeder Runde (egal ob Sieg oder Niederlage) pauschal <b>+5 Gold</b> Einkommen.</div>
    <div class="tut-card"><b class="t-ttl">🎲 Reroll (2 Gold)</b>Gefällt dir das Shop-Angebot nicht, würfle mit <b>🎲</b> für <b>2 Gold</b> 5 neue Pokémon aus.</div>
    <div class="tut-card"><b class="t-ttl">🗑️ Verkaufen (100% Rückerstattung!)</b>Ziehe ein Pokémon auf den <b>🗑️ Mülleimer</b> (oder klicke es an und klicke auf den Mülleimer). Du erhältst den <b>vollen Goldwert</b> aller investierten Kopien zurück (z. B. 2★ 3-Cost = 9 Gold)!</div>
   </div>
@@ -729,13 +729,14 @@ const EN=ENEMIES;
 
 /* ================= HEX-GEOMETRIE ================= */
 const $=id=>document.getElementById(id);
-const R=38,W=Math.sqrt(3)*R,RH=1.5*R,OX=W/2+8,OY=R+8,COLS=10,ROWS=8;
+const R=38,W=Math.sqrt(3)*R,RH=1.5*R,OX=W/2+8,OY=R+22,COLS=10,ROWS=8;
 const px=(r,c)=>[OX+c*W+(r&1?W/2:0),OY+r*RH];
 const cube=(r,c)=>{const x=c-((r-(r&1))>>1);return[x,r,-x-r]};
 const dist=(a,b)=>{const p=cube(a.r,a.c),q=cube(b.r,b.c);return Math.max(Math.abs(p[0]-q[0]),Math.abs(p[1]-q[1]),Math.abs(p[2]-q[2]))};
 const DIRS=[[[0,1],[0,-1],[-1,0],[-1,-1],[1,0],[1,-1]],[[0,1],[0,-1],[-1,0],[-1,1],[1,0],[1,1]]];
 const IMG={};
 function imgOf(id,sh){const k=id+(sh?'s':'');if(!IMG[k]){const i=new Image();i.src=url(id,sh);i.onerror=()=>i.bad=1;IMG[k]=i}return IMG[k]}
+const SUB_URL='https://play.pokemonshowdown.com/sprites/substitutes/gen4-back/substitute.png';
 const url=(id,sh)=>(typeof id=='string'&&/[\/.]/.test(id))?id:(SPRITE_OVERRIDE[id+(sh?'s':'')]||BASE+(sh?'shiny/':'')+id+'.png');
 
 /* ================= SPIELZUSTAND ================= */
@@ -1414,7 +1415,7 @@ function step(dt){
  if(!pl||!en){B.end+=dt;if(B.end>1.2)finish(pl)}
 }
 
-function finish(win){if(S.phase!='battle')return;renderDpsChart();S.phase='prep';const last=S.round>=EN.length;
+function finish(win){if(S.phase!='battle')return;renderDpsChart();S.phase='prep';B.barriers=[];B.fields=[];B.proj=[];B.waves=[];B.fx=[];B.txt=[];const last=S.round>=EN.length;
  if(win&&last){S.phase='done';clearSave();B.units=[];render();return}
  S.gold+=income();tryMerge();
  if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1;
@@ -1507,7 +1508,7 @@ $('cv').addEventListener('pointerdown',e=>{
  const c=cellAt(e.clientX,e.clientY);
  if(c&&S.decoyPos&&S.decoyPos.r==c.r&&S.decoyPos.c==c.c&&(typeCounts().Ghost||0)>=2){
   D={type:'decoy',x:e.clientX,y:e.clientY,moved:false};
-  const g=document.createElement('div');g.id='ghost';g.style.fontSize='34px';g.textContent='🎎';document.body.appendChild(g);D.g=g;
+  const g=document.createElement('div');g.id='ghost';g.style.background=`url(${SUB_URL}) center/contain no-repeat`;document.body.appendChild(g);D.g=g;
   return;
  }
  const o=c?occAt(c):null;
@@ -1653,7 +1654,7 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
 const ctx=$('cv').getContext('2d');ctx.imageSmoothingEnabled=false;
 function hexPath(x,y,r){ctx.beginPath();for(let k=0;k<6;k++){const a=Math.PI/180*(60*k-30);ctx[k?'lineTo':'moveTo'](x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
 
-function draw(t){ctx.clearRect(0,0,720,500);
+function draw(t){ctx.clearRect(0,0,720,514);
  const su=S&&S.sel!=null?unitById(S.sel):null,selPos=su?su.pos:null;
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const[x,y]=px(r,c);hexPath(x,y,R-1.5);
   ctx.fillStyle=r<4?'#2a2233':'#22302f';ctx.fill();const sl=selPos&&selPos.r==r&&selPos.c==c;ctx.strokeStyle=sl?'#ff0':'#3d4660';ctx.lineWidth=sl?3:1;ctx.stroke()}
@@ -1689,9 +1690,13 @@ function draw(t){ctx.clearRect(0,0,720,500);
   const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=u.big?96:80;
   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(u.x,u.y+22,22,8,0,0,7);ctx.fill();
   if(u.decoy){
-   ctx.fillStyle='#e8d36a';ctx.beginPath();ctx.arc(x,y,20,0,7);ctx.fill();
-   ctx.strokeStyle='#a88b28';ctx.lineWidth=2;ctx.stroke();
-   ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x-7,y-3,3,0,7);ctx.arc(x+7,y-3,3,0,7);ctx.fill();ctx.fillRect(x-6,y+7,12,2);
+   const sim=imgOf(SUB_URL,false);
+   if(sim.complete&&sim.naturalWidth&&!sim.bad){const sw=sim.naturalWidth*1.3,sh2=sim.naturalHeight*1.3;ctx.drawImage(sim,x-sw/2,u.y+20-sh2+bob,sw,sh2)}
+   else{
+    ctx.fillStyle='#e8d36a';ctx.beginPath();ctx.arc(x,y,20,0,7);ctx.fill();
+    ctx.strokeStyle='#a88b28';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x-7,y-3,3,0,7);ctx.arc(x+7,y-3,3,0,7);ctx.fill();ctx.fillRect(x-6,y+7,12,2);
+   }
   }else{
    let im=imgOf(u.id,u.sh);if(im.bad&&u.fb!=null)im=imgOf(u.fb,u.sh);
    if(im.complete&&im.naturalWidth&&!im.bad)ctx.drawImage(im,x-sz/2,y-sz/2,sz,sz);

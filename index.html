@@ -7,14 +7,16 @@ button{background:#3b4a8a;color:#fff;border:0;border-radius:6px;padding:8px 12px
 button:disabled{opacity:.4}button.red{background:#a33}
 #bBattle{font-size:22px;font-weight:bold;padding:16px 34px}
 #bRoll{font-size:22px;padding:12px 16px}
-#bRestart{font-size:11px;padding:1px 6px;margin:0 -8px 0 0;line-height:1.4}
-#bLeft{font-size:12px;padding:3px 8px;margin:0}
-#main.noleft{grid-template-columns:1fr 225px}
-#main.noleft #left{display:none}
-#top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:15px}
+#bRestart{font-size:11px;padding:1px 6px;margin:0;line-height:1.4}
+#bTut{font-size:12px;padding:3px 9px;margin:0;background:#2f5d50;border:1px solid #4e9a85}
+#bTut:hover{background:#3b7565}
+#bToggle{font-size:12px;padding:3px 10px;margin:0 0 0 auto}
+#main.noside{grid-template-columns:1fr}
+#main.noside #left,#main.noside #right{display:none}
+#top{position:sticky;top:0;z-index:20;background:#0e1016;border-bottom:2px solid #2c3350;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:15px}
 #top .ttl{font-size:18px;color:#fc6}
 #main{display:grid;grid-template-columns:225px 1fr 225px;gap:10px;margin-top:8px}
-@media(max-width:980px){#main,#main.noleft{grid-template-columns:1fr}}
+@media(max-width:980px){#main,#main.noside{grid-template-columns:1fr}}
 #left,#right{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 64px);overflow:auto;font-size:12px;background:#181c28;border:1px solid #2c3350;border-radius:8px;padding:8px}
 #mid{min-width:0}
 canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display:block}
@@ -45,38 +47,34 @@ h4{margin:8px 0 2px;color:#9ab}
 #benchRow{display:flex;gap:8px;align-items:stretch;justify-content:center}
 #bench {
   display: flex;
-  flex-wrap: nowrap;          /* Zwingt alles in eine Zeile */
-  gap: 3px;                   /* Sehr kompakter Abstand zwischen den Karten */
-  overflow-x: visible;        /* Kein Scrollbalken mehr nötig */
+  flex-wrap: nowrap;
+  gap: 3px;
+  overflow-x: visible;
   white-space: nowrap;
   padding-bottom: 2px;
   width: 100%;
   box-sizing: border-box;
 }
-
 #bench .card {
-  flex: 1 1 0;                /* Passt sich automatisch dynamisch an den verfügbaren Platz an */
-  min-width: 0;               /* Verhindert, dass Flexbox die minimale Inhaltsbreite erzwingt */
+  flex: 1 1 0;
+  min-width: 0;
   width: auto;
-  height: 100px;              /* Etwas kompakter in der Höhe */
+  height: 100px;
   min-height: 100px;
   box-sizing: border-box;
   padding: 2px;
   gap: 1px;
 }
-
 #bench .card img.sp {
-  width: 38px;                /* Kleinere Sprites, damit alles perfekt reinpasst */
+  width: 38px;
   height: 38px;
 }
-
 #bench .card b {
-  font-size: 9px;             /* Kompaktere Schriftgrößen für Namen */
+  font-size: 9px;
   line-height: 1;
 }
-
 #trash {
-  flex: 0 0 55px;             /* Mülleimer ebenfalls etwas schmaler machen */
+  flex: 0 0 55px;
   width: 55px;
   font-size: 22px;
 }
@@ -111,8 +109,41 @@ h4{margin:8px 0 2px;color:#9ab}
 .dps-top span{color:#fd6;font-weight:bold;white-space:nowrap}
 .dps-bar-bg{height:6px;background:#252b3d;border-radius:3px;overflow:hidden}
 .dps-bar{height:100%;background:linear-gradient(90deg,#4a9eff,#6ce5ff);border-radius:3px;transition:width .12s}
+
+/* ================= TUTORIAL MODAL ================= */
+#tutModal{position:fixed;inset:0;z-index:100;background:rgba(6,8,14,.82);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:12px}
+#tutModal.open{display:flex}
+.tut-box{background:#151924;border:2px solid #4c5b96;border-radius:14px;max-width:820px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.75);overflow:hidden}
+.tut-head{background:#0e1119;padding:14px 18px;border-bottom:1px solid #2c3556;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tut-head h3{margin:0;font-size:18px;color:#fc6;display:flex;align-items:center;gap:8px}
+.tut-close{background:#2a3147;color:#ccc;border-radius:6px;padding:4px 10px;font-size:15px;margin:0}
+.tut-close:hover{background:#a33;color:#fff}
+.tut-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:10px 14px;background:#11141e;border-bottom:1px solid #252d48}
+.tut-tab{background:#1e2436;color:#aab;border:1px solid #2f3959;border-radius:20px;padding:4px 10px;font-size:12px;margin:0;transition:.12s}
+.tut-tab:hover{background:#2a334d;color:#fff}
+.tut-tab.active{background:#3b4a8a;color:#fff;border-color:#7a90e8;font-weight:bold}
+.tut-body{padding:18px 20px;overflow-y:auto;line-height:1.55;font-size:14px;color:#dce2f2;flex:1}
+.tut-body h4{margin:0 0 10px;font-size:17px;color:#ffd56b;display:flex;align-items:center;gap:8px}
+.tut-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.tut-card{background:#1b2030;border:1px solid #2e3856;border-radius:10px;padding:11px 13px}
+.tut-card b.t-ttl{display:block;color:#8bb4ff;margin-bottom:4px;font-size:13px}
+.tut-pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:bold;background:#252d44;border:1px solid #42507a;margin:2px}
+.tut-rarity{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.tut-rarity span{padding:4px 10px;border-radius:8px;background:#1e2332;border:2px solid #888;font-size:12px;font-weight:bold}
+.tut-note{background:#1d2738;border-left:4px solid #4a9eff;padding:9px 12px;border-radius:6px;margin-top:12px;font-size:13px;color:#cde0ff}
+.tut-warn{background:#2b1f33;border-left:4px solid #b07cff;padding:9px 12px;border-radius:6px;margin-top:12px;font-size:13px;color:#eadbff}
+.tut-foot{background:#0e1119;padding:11px 18px;border-top:1px solid #2c3556;display:flex;align-items:center;justify-content:space-between}
+.tut-step{font-size:12px;color:#889}
 </style></head><body>
-<div id="top"><b class="ttl">Auto-Clearer</b><button class="red" id="bRestart" onclick="restart()" title="Match neu starten">🔄</button><span id="tr"></span><span id="tl"></span><span id="tn"></span><button id="bLeft" onclick="toggleLeft()" title="Typ-Boni-Anzeige ein-/ausblenden" style="margin-left:auto">📋 Typ-Boni</button></div>
+<div id="top">
+ <b class="ttl">Auto-Clearer</b>
+ <button id="bTut" onclick="openTutorial(0)" title="Spielanleitung öffnen">📖 Tutorial</button>
+ <button class="red" id="bRestart" onclick="restart()" title="Match neu starten">🔄</button>
+ <span id="tr"></span>
+ <span id="tl"></span>
+ <span id="tn"></span>
+ <button id="bToggle" onclick="toggleSidebars()" title="Typ-Boni & DPS-Anzeige ein-/ausblenden">👁️ Toggle</button>
+</div>
 <div id="main">
  <div id="left"><h4 style="margin-top:0">Typ-Boni</h4><div id="buffs"></div><small style="color:#889">Maus über Typ/Pokémon = Details</small></div>
  <div id="mid">
@@ -120,7 +151,7 @@ h4{margin:8px 0 2px;color:#9ab}
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
-   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+10% ATK, ASPD & Mana/ATK)">👑</span>
+   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+20% ATK, ASPD & Mana/ATK)">👑</span>
    <span id="tokenBox" class="hidden" title="Typ-Token: Auf ein Pokémon mit nur einem Typ ziehen, um einen Zusatztyp zu wählen (einmalig, dauerhaft)">🪙<b id="tokenN"></b></span></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
@@ -134,15 +165,30 @@ h4{margin:8px 0 2px;color:#9ab}
 </div>
 <div id="tip"></div><div id="toast"></div>
 
+<!-- TUTORIAL MODAL -->
+<div id="tutModal" onclick="if(event.target===this)closeTutorial()">
+ <div class="tut-box">
+  <div class="tut-head">
+   <h3>📖 Auto-Clearer – Spielanleitung</h3>
+   <button class="tut-close" onclick="closeTutorial()">✕</button>
+  </div>
+  <div class="tut-tabs" id="tutTabs"></div>
+  <div class="tut-body" id="tutBody"></div>
+  <div class="tut-foot">
+   <button id="tutPrev" onclick="stepTutorial(-1)">◀ Zurück</button>
+   <span class="tut-step" id="tutStep"></span>
+   <button id="tutNext" onclick="stepTutorial(1)">Weiter ▶</button>
+  </div>
+ </div>
+</div>
+
 <script>
 /* ================= KONFIGURATION ================= */
 const CFG={startGold:10,income:6,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
  maxUnits:8,slotAfter:[2,4,8,14,22,30,40],benchMax:12,
  speedUpAfter:20,speedUpTo:3,
- /* Sterne-Faktoren für HP & ATK: 1★ = 1.0, 2★ = 1.75, 3★ = 3.0 */
  hpMul:[1,1.75,3],atkMul:[1,1.75,3],
- /* Cost-Unit-Faktoren für HP & ATK */
  costMul:{1:1,2:1.1,3:1.15,4:1.2,5:1.25},
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
  copies:{1:25,2:20,3:18,4:15,5:12},
@@ -156,7 +202,6 @@ const CFG={startGold:10,income:6,reroll:2,lives:10,
   [40,[30,23,22,17,8]],
   [999,[25,23,22,20,10]]
  ],
- /* Angepasste Gegner-Skalierung für 43 Runden und max. 8 eigene Plätze */
  enemy:{
   strength:1.06,
   T:15,
@@ -178,7 +223,7 @@ const CFG={startGold:10,income:6,reroll:2,lives:10,
  }
 };
 
-/* ================= KLASSEN (laut Tabelle) ================= */
+/* ================= KLASSEN ================= */
 const CLASSES={
  Tank:   {hp:450,atk:40,abDmg:120,def:35,aspd:0.8,crit:0.15,range:1,mg:14,icon:'🛡️'},
  Fighter:{hp:350,atk:45,abDmg:110,def:25,aspd:0.9,crit:0.20,range:2,mg:12,icon:'⚔️'},
@@ -234,6 +279,141 @@ const typeIcon=t=>{const T=TYPES[t];return`<span class="ti" style="background:${
 const typeBadge=t=>{const T=TYPES[t];return`<span class="tb" style="background:${T[2]}"><img src="${TYPE_URL[t]}" onerror="this.remove()">${T[1]}</span>`};
 const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000">${'★'.repeat(n)}</span>`;
 
+/* ================= TUTORIAL DATEN ================= */
+const TUT_PAGES=[
+ {
+  tab:'1. Spielprinzip & Anzeige',
+  title:'🎮 Wie funktioniert Auto-Clearer?',
+  html:`<p><b>Auto-Clearer</b> ist ein taktisches Pokémon-Autobattler-Spiel über <b>50 Runden</b> (von Kanto bis Hisui & Arceus). Jede Runde besteht aus zwei Phasen:</p>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">1. Vorbereitungsphase</b>Kaufe Pokémon im Shop, entwickle sie durch Kombinieren, platziere dein Team auf den unteren vier Reihen des Hex-Feldes und optimiere deine Typ-Synergien.</div>
+   <div class="tut-card"><b class="t-ttl">2. Kampfphase (⚔️ Kampf!)</b>Sobald du auf <b>⚔️ Kampf!</b> klickst, kämpfen deine Pokémon vollautomatisch gegen die Gegnerwelle der aktuellen Runde. Dauert ein Kampf länger als 20s, wird automatisch auf <b>⏩ x3</b> beschleunigt.</div>
+  </div>
+  <h4 style="margin-top:14px;font-size:15px">🧭 Wo finde ich was in der oberen Leiste?</h4>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">Runde 1/50</b>Zeigt deinen aktuellen Fortschritt bis zum Endboss in Runde 50.</div>
+   <div class="tut-card"><b class="t-ttl">❤️ 10 (Lebensanzeige)</b>Du startest mit <b>10 Leben</b>. Verlierst du einen Kampf, büßt du 1 Leben ein. Bei 0 Leben ist das Match vorbei.</div>
+   <div class="tut-card"><b class="t-ttl">Nächster Gegner</b>Zeigt dir vorab genau an, welche Gegner dich in der kommenden Runde erwarten – perfekt zum Kontern!</div>
+   <div class="tut-card"><b class="t-ttl">👁️ Toggle (rechts oben)</b>Blendet die beiden Seitenleisten (<b>Typ-Boni</b> links und <b>DMG/DPS-Chart</b> rechts) gemeinsam ein oder aus.</div>
+  </div>`
+ },
+ {
+  tab:'2. Einheiten',
+  title:'🐾 Was sind Einheiten?',
+  html:`<p>Einheiten sind deine Pokémon-Kämpfer. Du kannst sie im <b>Shop</b> kaufen, auf deiner <b>Bank</b> (12 Plätze) lagern oder auf deinem <b>Spielfeld</b> aufstellen.</p>
+  <p>Jedes Pokémon gehört einer von <b>5 Kosten-Stufen (Seltenheiten)</b> an – erkennbar an der Rahmenfarbe der Karte:</p>
+  <div class="tut-rarity">
+   <span style="border-color:#ddd;color:#eee">1 💰 Gewöhnlich</span>
+   <span style="border-color:#4c4;color:#8f8">2 💰 Ungewöhnlich</span>
+   <span style="border-color:#48f;color:#8bf">3 💰 Selten</span>
+   <span style="border-color:#a5f;color:#d9f">4 💰 Episch</span>
+   <span style="border-color:#f93;color:#fc8">5 💰 Legendär</span>
+  </div>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">Stärkere Basiswerte</b>Höhere Cost-Einheiten besitzen bessere Multiplikatoren auf HP, ATK & Ability-Schaden (von <b>1,0x</b> bei 1-Cost bis <b>1,25x</b> bei 5-Cost), erscheinen aber erst in späteren Runden häufiger im Shop.</div>
+   <div class="tut-card"><b class="t-ttl">Geteilter Karten-Pool</b>Jedes Pokémon existiert nur begrenzt oft im Pool (z. B. 25x bei 1-Cost, 12x bei 5-Cost). Verkaufst du eine Einheit, kehren ihre Kopien in den Pool zurück.</div>
+  </div>
+  <div class="tut-note">💡 <b>Tipp:</b> Fahre mit der Maus über eine beliebige Einheit im Shop, auf der Bank oder auf dem Feld, um alle Live-Werte, Typen und Fähigkeiten einzusehen.</div>`
+ },
+ {
+  tab:'3. Entwickeln',
+  title:'⭐ Wie funktioniert das Entwickeln von Einheiten?',
+  html:`<p>Sammelst du <b>3 gleiche Pokémon</b> derselben Sternestufe, verschmelzen (mergen) sie <b>vollautomatisch</b> zu einer stärkeren Entwicklung!</p>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl" style="color:#cd7f32">★ 1-Stern (Basis)</b>1 Kopie<br>Basiswerte: <b>100%</b> HP & DMG</div>
+   <div class="tut-card"><b class="t-ttl" style="color:#c0c0c0">★★ 2-Sterne (1. Entwicklung)</b>3 × 1-Stern<br>Werte: <b>175% (1,75x)</b> HP & DMG</div>
+   <div class="tut-card"><b class="t-ttl" style="color:#ffd700">★★★ 3-Sterne (Finale Form)</b>3 × 2-Sterne (= 9 Basiskarten)<br>Werte: <b>300% (3,0x)</b> HP & DMG</div>
+  </div>
+  <div class="tut-note">✨ <b>Wichtig:</b> Während eines laufenden Kampfes verschmelzen nur Einheiten auf der <b>Bank</b>. Befindet sich eine Kopie auf dem Feld, findet der Merge direkt nach Kampfende statt. Eine 3-Sterne-Einheit taucht danach nicht mehr im Shop auf.</div>`
+ },
+ {
+  tab:'4. Typen & Typ-Boni',
+  title:'🔥 Was sind Typen & Typ-Boni?',
+  html:`<p>Jedes Pokémon hat 1 oder 2 Element-Typen (z. B. Feuer, Wasser, Stahl, Geist). Stellst du mehrere <b>verschiedene Pokémon-Arten</b> desselben Typs gleichzeitig aufs Feld, schaltest du mächtige <b>Typ-Boni</b> frei (sichtbar in der linken Leiste).</p>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">Nur unterschiedliche Arten zählen!</b>Zwei gleiche Pokémon (z. B. 2× Nebulak) zählen für den Typ-Bonus nur als <b>1 Geist-Pokémon</b>. Kombiniere verschiedene Spezies!</div>
+   <div class="tut-card"><b class="t-ttl">Spezial-Items durch Typen</b>
+    • <b>Käfer (ab 2):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+20% ATK, ASPD & Mana/ATK</b>.<br>
+    • <b>Geist (ab 2):</b> Ein <b>🎎 Delegator</b> erscheint auf dem Feld, den du frei als Blocker platzieren kannst.
+   </div>
+  </div>
+  <div class="tut-note">📋 Fahre mit der Maus über einen Typ in der linken Leiste, um alle Stufen (z. B. 2 / 3 / 5 Pokémon) sowie alle verfügbaren Pokémon dieses Typs zu sehen.</div>`
+ },
+ {
+  tab:'5. Geld, Reroll & Verkaufen',
+  title:'💰 Wie funktionieren Geld, Reroll & Verkaufen?',
+  html:`<p>Kluges Gold-Management entscheidet darüber, wie schnell du dein Team auf 2★ und 3★ ausbaust:</p>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">💰 Einkommen</b>Du startest mit <b>10 Gold</b> und erhältst nach jeder Runde (egal ob Sieg oder Niederlage) pauschal <b>+6 Gold</b> Einkommen.</div>
+   <div class="tut-card"><b class="t-ttl">🎲 Reroll (2 Gold)</b>Gefällt dir das Shop-Angebot nicht, würfle mit <b>🎲</b> für <b>2 Gold</b> 5 neue Pokémon aus.</div>
+   <div class="tut-card"><b class="t-ttl">🗑️ Verkaufen (100% Rückerstattung!)</b>Ziehe ein Pokémon auf den <b>🗑️ Mülleimer</b> (oder klicke es an und klicke auf den Mülleimer). Du erhältst den <b>vollen Goldwert</b> aller investierten Kopien zurück (z. B. 2★ 3-Cost = 9 Gold)!</div>
+  </div>
+  <div class="tut-note">💡 Da es beim Verkaufen keinen Goldverlust gibt, kannst du im frühen Spiel problemlos Übergangs-Einheiten kaufen und später verlustfrei wieder verkaufen.</div>`
+ },
+ {
+  tab:'6. Klassen & Abilities',
+  title:'🔮 Was sind Klassen & Abilities?',
+  html:`<p>Jedes Pokémon gehört einer von <b>4 Kampfklassen</b> an und besitzt eine aktive <b>Ability (Fähigkeit)</b>, die ausgelöst wird, sobald der blaue Mana-Balken (100 Mana) voll ist:</p>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">🛡️ Tank (Reichweite 1)</b>Sehr hohe HP & DEF. Hält die Frontlinie und fängt gegnerischen Schaden ab.</div>
+   <div class="tut-card"><b class="t-ttl">⚔️ Fighter (Reichweite 2)</b>Ausgewogene Mischung aus Schaden, Krit-Chance und Robustheit.</div>
+   <div class="tut-card"><b class="t-ttl">🔮 Caster (Reichweite 3)</b>Hoher Ability-Schaden & schneller Mana-Aufbau pro Angriff.</div>
+   <div class="tut-card"><b class="t-ttl">🎯 Sniper (Reichweite 5)</b>Sehr hohe Angriffsgeschwindigkeit & maximale Reichweite aus der hinteren Reihe.</div>
+  </div>
+  <h4 style="margin-top:12px;font-size:14px">✨ Die 5 Spezial-Abilities:</h4>
+  <div style="font-size:13px;display:grid;gap:5px">
+   <div><span class="tut-pill" style="color:#ff6b6b">🥊 Close Combat</span> Rote Explosion: 1,75× Ability-DMG aufgeteilt auf alle Gegner.</div>
+   <div><span class="tut-pill" style="color:#ffe63b">⚡ Snipe Shot</span> Gelber Laser: Durchschlägt alle Gegner in einer Linie für 2,5× Ability-DMG.</div>
+   <div><span class="tut-pill" style="color:#ff85d8">🛡️ Reflect</span> Pinke Barriere (2s) für 3 Felder: -50% erlittener Schaden & +50% Attack Speed.</div>
+   <div><span class="tut-pill" style="color:#e09a48">🪨 Bulldoze</span> Brauner Ansturm: Springt zum Gegner mit den wenigsten HP (1,75× Ability-DMG).</div>
+   <div><span class="tut-pill" style="color:#ffffff">❄️ Weather Ball</span> Greift Gegner mit meisten HP an & erzeugt ein Feld (-50% DEF & Mana-Gain für Gegner).</div>
+  </div>`
+ },
+ {
+  tab:'7. Positionierung',
+  title:'📐 Wie positioniere ich richtig?',
+  html:`<p>Dein Team steht auf den <b>unteren 4 Reihen</b> (grünlich), die Gegner starten oben (violett). Du kannst Einheiten per <b>Drag & Drop</b> oder <b>Klick-auf-Einheit → Klick-auf-Feld</b> verschieben.</p>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">🛡️ Frontlinie (Reihe 4–5)</b>Stelle <b>Tanks</b> und robuste <b>Fighter</b> nach vorne, damit sie zuerst angegriffen werden und deine Fernkämpfer schützen.</div>
+   <div class="tut-card"><b class="t-ttl">🎯 Backline (Reihe 6–7)</b>Stelle <b>Sniper</b> und <b>Caster</b> ganz nach hinten. Dank ihrer hohen Reichweite (3–5 Felder) greifen sie sicher aus der Distanz an.</div>
+   <div class="tut-card"><b class="t-ttl">📈 Team-Plätze (bis zu 8)</b>Du startest mit <b>1 Platz</b>. Nach den Runden <b>2, 4, 8, 14, 22, 30 und 40</b> wird jeweils ein weiterer Platz freigeschaltet (max. 8 Einheiten gleichzeitig).</div>
+   <div class="tut-card"><b class="t-ttl">📊 DPS-Chart nutzen</b>Prüfe rechts im <b>DMG / DPS-Chart</b>, welche Einheiten am meisten Schaden machen, und schütze deinen Haupt-Carry besonders gut!</div>
+  </div>`
+ },
+ {
+  tab:'8. Typ-Token (Runde 25)',
+  title:'🪙 Was ist der Typ-Token ab Runde 25?',
+  html:`<p>Wenn du <b>Runde 25 erfolgreich meisterst</b>, erhältst du als besondere Belohnung einen <b>🪙 Typ-Token</b> (erscheint oben neben dem Kampf-Button).</p>
+  <div class="tut-grid">
+   <div class="tut-card"><b class="t-ttl">Wie benutze ich ihn?</b>Ziehe den <b>🪙 Typ-Token</b> in der Vorbereitungsphase per Drag & Drop auf eines deiner Pokémon (auf dem Feld oder auf der Bank).</div>
+   <div class="tut-card"><b class="t-ttl">Was bewirkt er?</b>Es öffnet sich ein Auswahlrad mit allen 18 Typen. Du kannst deinem Pokémon <b>dauerhaft einen zweiten Zusatztyp</b> verleihen!</div>
+  </div>
+  <div class="tut-warn">⚠️ <b>Regeln für den Typ-Token:</b><br>
+  • Funktioniert <b>nur bei Pokémon, die bisher genau 1 Typ besitzen</b> (z. B. Arceus, Pikachu, Relaxo, Nachtara, Monozyto).<br>
+  • Die Wahl ist <b>endgültig</b> – der Zusatztyp bleibt auch beim Entwickeln erhalten und zählt voll für alle Typ-Boni mit!</div>`
+ }
+];
+
+let tutIdx=0;
+function renderTutorial(){
+ $('tutTabs').innerHTML=TUT_PAGES.map((p,i)=>`<button class="tut-tab ${i===tutIdx?'active':''}" onclick="openTutorial(${i})">${p.tab}</button>`).join('');
+ const pg=TUT_PAGES[tutIdx];
+ $('tutBody').innerHTML=`<h4>${pg.title}</h4>${pg.html}`;
+ $('tutStep').textContent=`Seite ${tutIdx+1} von ${TUT_PAGES.length}`;
+ $('tutPrev').disabled=tutIdx===0;
+ $('tutNext').textContent=tutIdx===TUT_PAGES.length-1?'Fertig ✓':'Weiter ▶';
+}
+function openTutorial(idx=0){
+ tutIdx=Math.max(0,Math.min(TUT_PAGES.length-1,idx));
+ renderTutorial();
+ $('tutModal').classList.add('open');
+}
+function closeTutorial(){$('tutModal').classList.remove('open')}
+function stepTutorial(dir){
+ if(dir>0&&tutIdx===TUT_PAGES.length-1){closeTutorial();return}
+ openTutorial(tutIdx+dir);
+}
+
 /* ================= POKÉMON-POOL ================= */
 const RAW=[
 [1,'Nebulak,Alpollo,Gengar','92,93,94','Ghost,Poison','Caster','Close Combat'],
@@ -246,7 +426,6 @@ const RAW=[
 [1,'Meikro ✨,Kranoviz ✨,Krarmor ✨','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
 [1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
 [1,'Geosali,Sedisal,Saltigant','932,933,934','Rock','Tank','Weather Ball'],
- //can delete
 [1,'Sensect,Keradar,Maritellit','824,825,826','Bug,Psychic','Caster','Weather Ball'],
 [2,'Shnebedeck,Rexblisar,Rexblisar','459,460,460','Grass,Ice','Tank','Weather Ball'],
 [2,'Fukano,Arkani,Arkani','58,59,59','Fire','Caster','Weather Ball'],
@@ -266,10 +445,8 @@ const RAW=[
 [4,'Fermicula,Fermicula,Fermicula','632,632,632','Bug,Steel','Fighter','Close Combat'],
 [4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Weather Ball'],
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
- // can delete
 [3,'Teddiursa,Ursaring,Ursaluna','216,217,901','Normal,Ground','Tank','Bulldoze'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Bulldoze'],
-  // can delete
 [5,'Venicro,Agoyon,Agoyon','803,804,804','Poison,Dragon','Sniper','Snipe Shot'],
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water','Caster','Snipe Shot']
 ];
@@ -288,7 +465,6 @@ const SP=RAW.map(r=>({
 /* ================= GEGNER ================= */
 const E=(name,sprite,o={})=>({name,sprite,...o});
 
-/* Hilfsfunktionen für Spezialmechaniken der Runden */
 const ON_3_DOWN=(bossName,stat,mult)=> (u,A)=>{
  if(B.flag[bossName+'Buff'])return;
  const deadCount=B.units.filter(x=>x.team=='e'&&x.hp<=0).length;
@@ -303,7 +479,6 @@ const ON_3_DOWN=(bossName,stat,mult)=> (u,A)=>{
  }
 };
 
-/* Runde 5: Mew erhält DMG-Buff, wenn Mewtu down ist */
 const ON_MEWTU_DOWN=(u,A)=>{
  if(B.flag.mewtuDownBuff)return;
  const mew=A.find(x=>x.team=='e'&&x.name==='Mew'&&x.hp>0);
@@ -315,7 +490,6 @@ const ON_MEWTU_DOWN=(u,A)=>{
  }
 };
 
-/* Runde 10: Celebi erhält DEF-Buff, wenn die anderen down sind */
 const ON_CELEBI_ALLIES_DOWN=(u,A)=>{
  if(B.flag.celebiDefBuff)return;
  const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
@@ -328,7 +502,6 @@ const ON_CELEBI_ALLIES_DOWN=(u,A)=>{
  }
 };
 
-/* Runde 15: Deoxys erhält Attack Speed Buff, wenn die Metenos down sind */
 const ON_METENO_DOWN_ASPD=(u,A)=>{
  if(B.flag.deoxysAspdBuff)return;
  const metenosAlive=B.units.filter(x=>x.team=='e'&&x.name==='Meteno'&&x.hp>0&&x!==u).length;
@@ -343,7 +516,6 @@ const ON_METENO_DOWN_ASPD=(u,A)=>{
  }
 };
 
-/* Runde 20: Giratina erhält DEF-Buff, wenn zwei Zobiris down sind */
 const ON_TWO_ZOBIRIS_DOWN=(u,A)=>{
  if(B.flag.giratinaDefBuff)return;
  const deadZobiris=B.units.filter(x=>x.team=='e'&&x.name==='Zobiris'&&x.hp<=0).length;
@@ -358,7 +530,6 @@ const ON_TWO_ZOBIRIS_DOWN=(u,A)=>{
  }
 };
 
-/* Runde 25: Kyurem erhält DMG-Buff, wenn zwei Frigometri down sind */
 const ON_TWO_FRIGOMETRI_DOWN=(u,A)=>{
  if(B.flag.kyuremDmgBuff)return;
  const deadFrigo=B.units.filter(x=>x.team=='e'&&x.name==='Frigometri'&&x.hp<=0).length;
@@ -373,7 +544,6 @@ const ON_TWO_FRIGOMETRI_DOWN=(u,A)=>{
  }
 };
 
-/* Runde 40: Polaross down -> Rappenreiter (10194), Phantoross down -> Schimmelreiter (10193) */
 const CALY_MERGE_V2=(u,A)=>{
  if(B.flag.calyMerged)return;
  const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
@@ -397,7 +567,6 @@ const CALY_MERGE_V2=(u,A)=>{
  }
 };
 
-/* Runde 43: Ogerpon spawnt erst, wenn die anderen 4 down sind */
 const SPAWN_OGERPON=(u,A)=>{
  if(B.flag.ogerponSpawned)return;
  const liveE=A.filter(a=>a.team=='e'&&a.hp>0&&a!==u);
@@ -435,166 +604,106 @@ const SPAWN_ARCEUS_AFTER_SILVALLY=(u,A)=>{
 };
 
 const ENEMIES=[
- /* ================= KANTO (1–5) ================= */
- /* 1: Karpador eins nach rechts */
  [E('Karpador',129,{pos:[2,5]})],
- /* 2: Smogmog eins nach rechts, Arbok eins nach rechts, Mauzi eins nach rechtshinten */
  [E('Arbok',24,{pos:[2,4]}),E('Smogmog',110,{pos:[2,6]}),E('Mauzi',52,{pos:[0,5]})],
- /* 3: - keine Änderung - */
  [E('Pikachu',25,{pos:[0,2]}),E('Relaxo',143,{pos:[0,3]}),E('Bisaflor',3,{pos:[0,4]}),E('Glurak',6,{pos:[0,5]}),E('Turtok',9,{pos:[0,6]}),E('Gengar',94,{pos:[0,7]})],
- /* 4: Lavados eins nach rechtsvorne, Zapdos nach rechtshinten + eins nach rechts */
  [E('Arktos',144,{pos:[2,4]}),E('Zapdos',145,{pos:[0,5]}),E('Lavados',146,{pos:[2,6]})],
- /* 5: Mewtu eins nach rechts, Mew eins nach rechtshinten | Mew: DMG Buff wenn Mewtu down */
  [E('Mewtu',150,{pos:[2,5],die:ON_MEWTU_DOWN}),E('Mew',151,{pos:[0,5]})],
 
- /* ================= JOHTO (6–10) ================= */
- /* 6: alle Gegner eins nach rechts hinten */
  [E('Icognito',201,{pos:[2,4]}),E('Woingenau',202,{pos:[2,5]}),E('Icognito',201,{pos:[2,6]})],
- /* 7: Tornupto eins nach rechts */
  [E('Tornupto',157,{pos:[2,4]}),E('Scherox',212,{pos:[2,5]}),E('Despotar',248,{pos:[1,4]})],
- /* 8: - keine Änderung - */
  [E('Garados',130,{pos:[0,2],shiny:true}),E('Glurak',6,{pos:[0,3]}),E('Aerodactyl',142,{pos:[0,4]}),E('Dragoran',149,{pos:[0,5]}),E('Dragoran',149,{pos:[0,6]}),E('Dragoran',149,{pos:[0,7]})],
- /* 9: Entei eins nach rechts, Raikou eins nach rechts, Suicune eins nach rechts hinten */
  [E('Raikou',243,{pos:[2,4]}),E('Entei',244,{pos:[2,6]}),E('Suicune',245,{pos:[0,5]})],
- /* 10: Ho-Oh eins nach rechts, Lugia eins nach rechts, Celebi eins nach rechts hinten | Celebi: DEF Buff wenn die anderen down */
  [E('Lugia',249,{pos:[2,4],die:ON_CELEBI_ALLIES_DOWN}),E('Ho-Oh',250,{pos:[2,6],die:ON_CELEBI_ALLIES_DOWN}),E('Celebi',251,{pos:[0,5]})],
 
- /* ================= HOENN (11–15) ================= */
- /* 11: Camerupt ganz nach links hinten und ein Magnayen davor, Tohaido ganz nach rechts hinten und das andere Magnayen davor */
  [E('Magnayen',262,{pos:[2,0]}),E('Magnayen',262,{pos:[2,9]}),E('Camerupt',323,{pos:[0,0]}),E('Tohaido',319,{pos:[0,9]})],
- /* 12: Runde 12 mit Runde 13 tauschen -> hier Regi-Gruppe (ursprünglich 13, mit Anpassungen) */
  [E('Regirock',377,{pos:[2,3]}),E('Regice',378,{pos:[2,4]}),E('Registeel',379,{pos:[2,5]}),E('Regidrago',895,{pos:[2,6]}),E('Regieleki',894,{pos:[2,7]}),E('Regigigas',486,{pos:[0,5],big:true,hpX:2,atkX:1.5,range:5})],
- /* 13: Runde 12 mit Runde 13 tauschen -> hier ursprüngliche Runde 12 */
  [E('Panzaeron',227,{pos:[0,2]}),E('Wielie',346,{pos:[0,3]}),E('Armaldo',348,{pos:[0,4]}),E('Lepumentas',344,{pos:[0,5]}),E('Stolloss',306,{pos:[0,6]}),E('Metagross',376,{pos:[0,7],shiny:true})],
- /* 14: Latias ganz nahc links vorne, Latios ganz nach links hinten, Rayquaza eins nach rechtsvorne, Jirachi komplett raus */
  [E('Rayquaza',384,{pos:[1,4]}),E('Kyogre',383,{pos:[1,5]}),E('Groudon',382,{pos:[1,3]}),E('Latias',380,{pos:[3,0]}),E('Latios',381,{pos:[3,9]})],
- /* 15: beide Metenos eins nach rechts, Lunastein 1 nach rechts, Sonnfel, 1 nach rechts, Jirachi zwischen Lunastien & Sonnfel, Deoxys zwei nach rechtshinten | Deoxys: Attack Speed Buff wenn die Metenos down sind */
  [E('Deoxys',386,{pos:[0,5],big:true,hpX:2.5,atkX:1.6,range:5}),E('Sonnfel',338,{pos:[2,4]}),E('Lunastein',337,{pos:[2,6]}),E('Jirachi',385,{pos:[2,5]}),E('Meteno',774,{pos:[3,4],die:ON_METENO_DOWN_ASPD}),E('Meteno',774,{pos:[3,5],die:ON_METENO_DOWN_ASPD})],
 
- /* ================= SINNOH (16–20) ================= */
- /* 16: Manaphy ganz nach links vorne, Phione ganz nach rechts vorne, insgesamt 10 statt 8 Knospis verwenden */
  [E('Manaphy',490,{pos:[3,0]}),E('Phione',489,{pos:[3,9]}),E('Shaymin',492,{pos:[1,4],big:true,hpX:2.5,atkX:1.6}),
   E('Knospi',406,{pos:[2,3]}),E('Knospi',406,{pos:[2,4]}),E('Knospi',406,{pos:[2,5]}),E('Knospi',406,{pos:[2,6]}),
   E('Knospi',406,{pos:[1,5]}),E('Knospi',406,{pos:[1,3]}),E('Knospi',406,{pos:[0,4]}),E('Knospi',406,{pos:[0,5]}),
   E('Knospi',406,{pos:[0,3]}),E('Knospi',406,{pos:[0,6]})],
- /* 17: Heatran zwei nach rechtshinten */
  [E('Darkrai',491,{pos:[2,0]}),E('Heatran',485,{pos:[1,4],big:true}),E('Cresselia',488,{pos:[2,9]})],
- /* 18: - keine Änderung - */
  [E('Kryppuk',442,{pos:[0,2]}),E('Lucario',448,{pos:[0,3]}),E('Togekiss',468,{pos:[0,4]}),E('Milotic',350,{pos:[0,5]}),E('Roserade',407,{pos:[0,6]}),E('Knakrack',445,{pos:[0,7]})],
- /* 19: Tobutz eins nach rechts, Vesprit eins nach rechtsvorne */
  [E('Selfe',480,{pos:[2,3]}),E('Vesprit',481,{pos:[3,4]}),E('Tobutz',482,{pos:[2,6]}),E('Dialga',483,{pos:[1,3],hpX:1.3,atkX:1.2}),E('Palkia',484,{pos:[1,5],hpX:1.3,atkX:1.2})],
- /* 20: alle Gegner eins nach rechts | Giratina: DEF Buff wenn zwei Zobiris down */
  [E('Giratina',487,{pos:[2,5],big:true,hpX:2.8,atkX:1.8}),
   E('Zobiris',302,{pos:[2,4],die:ON_TWO_ZOBIRIS_DOWN}),E('Zobiris',302,{pos:[2,6],die:ON_TWO_ZOBIRIS_DOWN}),
   E('Zobiris',302,{pos:[1,4],die:ON_TWO_ZOBIRIS_DOWN}),E('Zobiris',302,{pos:[1,5],die:ON_TWO_ZOBIRIS_DOWN}),
   E('Zobiris',302,{pos:[3,4],die:ON_TWO_ZOBIRIS_DOWN}),E('Zobiris',302,{pos:[3,5],die:ON_TWO_ZOBIRIS_DOWN})],
 
- /* ================= EINALL (21–25) ================= */
- /* 21: Victini eins nach rechtshinten, Admurai eins nach rechts, Flambirex eins nach rechts, Serpiroyal eins nach rechts */
  [E('Serpiroyal',497,{pos:[2,4]}),E('Flambirex',500,{pos:[2,5]}),E('Admurai',503,{pos:[2,6]}),E('Victini',494,{pos:[0,5],hpX:1.3,atkX:1.25})],
- /* 22: Viridium eins nach rechts, Terrakium eins nach rechtshinten, Kobalium eins nach rechts, Keldeo eins nach rechtshinten */
  [E('Terrakium',639,{pos:[2,5]}),E('Kobalium',638,{pos:[2,4]}),E('Viridium',640,{pos:[2,6]}),E('Keldeo',647,{pos:[0,5]})],
- /* 23: - keine Änderung - */
  [E('Hydragil',617,{pos:[0,2]}),E('Bisofank',626,{pos:[0,3]}),E('Shardrago',621,{pos:[0,4]}),E('Gelatwino',584,{pos:[0,5]}),E('Cavalanzas',589,{pos:[0,6]}),E('Ramoth',637,{pos:[0,7]})],
- /* 24: Meloette ganz nach links hinten, Genesect ganz nach rechts hinten, Cupidos rechts neben Demeteros | Boreos, Voltolos, Demeteros, Cupidos: reviven mit 50% in jeweiliger Tiergeistform */
  [E('Genesect',649,{pos:[0,9]}),E('Meloetta',648,{pos:[0,0]}),
   E('Boreos',641,{pos:[3,3],revive:{hp:.7,sprite:10019,fb:641,name:'Boreos (Tiergeist)'}}),
   E('Voltolos',642,{pos:[3,4],revive:{hp:.7,sprite:10020,fb:642,name:'Voltolos (Tiergeist)'}}),
   E('Demeteros',645,{pos:[3,5],revive:{hp:.7,sprite:10021,fb:645,name:'Demeteros (Tiergeist)'}}),
   E('Cupidos',905,{pos:[3,6],revive:{hp:.7,sprite:10249,fb:905,name:'Cupidos (Tiergeist)'}})],
- /* 25: Reshiram ganz nach links hinten, Zekrom ganz nach rechts vorne, die zwei Frigometri hinter Kyurem sollen direkt vor Kyurem | Kyurem: DMG Buff wenn zwei Frigometri down */
  [E('Reshiram',643,{pos:[3,0],hpX:1.3,atkX:1.25}),E('Zekrom',644,{pos:[3,9],hpX:1.3,atkX:1.25}),
   E('Kyurem',646,{pos:[0,5],big:true,hpX:2.4,atkX:1.7}),
   E('Frigometri',615,{pos:[0,4],die:ON_TWO_FRIGOMETRI_DOWN}),E('Frigometri',615,{pos:[0,6],die:ON_TWO_FRIGOMETRI_DOWN}),
   E('Frigometri',615,{pos:[1,4],die:ON_TWO_FRIGOMETRI_DOWN}),E('Frigometri',615,{pos:[1,5],die:ON_TWO_FRIGOMETRI_DOWN})],
 
- /* ================= KALOS (26–30) ================= */
- /* 26: alle Pokemon eins nach rechts */
  [E('Ewigbl. Floette',10061,{pos:[2,5],fb:670,big:true,hpX:2.8,atkX:1.9}),
   E('Flabebe',669,{pos:[2,4]}),E('Flabebe',669,{pos:[2,6]}),E('Flabebe',669,{pos:[1,4]}),E('Flabebe',669,{pos:[1,5]}),
   E('Flabebe',669,{pos:[3,4]}),E('Flabebe',669,{pos:[3,5]}),E('Flabebe',669,{pos:[2,3]}),E('Flabebe',669,{pos:[2,7]}),
   E('Flabebe',669,{pos:[0,4]}),E('Flabebe',669,{pos:[0,6]})],
- /* 27: Runde 27 mit Runde 28 tauschen -> hier ursprüngliche Runde 28 (alle eins nach rechts, Volcanion: 5 Felder Attack Range) */
  [E('Diancie',719,{pos:[2,5],big:true,hpX:2.3,atkX:1.6}),E('Volcanion',721,{pos:[0,5],big:true,hpX:1.8,atkX:1.5,range:5}),
   E('Rocara',703,{pos:[2,4]}),E('Rocara',703,{pos:[2,6]}),E('Rocara',703,{pos:[1,4]}),E('Rocara',703,{pos:[1,5]}),E('Rocara',703,{pos:[3,4]}),E('Rocara',703,{pos:[3,5]})],
- /* 28: Runde 27 mit Runde 28 tauschen -> hier ursprüngliche Runde 27 */
  [E('Resladero',701,{pos:[0,2]}),E('Monargoras',697,{pos:[0,3]}),E('Amagarga',699,{pos:[0,4]}),E('Pumpdjinn',711,{pos:[0,5]}),E('Viscogon',706,{pos:[0,6]}),E('Mega-Guardevoir',10051,{pos:[0,7],fb:282})],
- /* 29: Zygarde eins nach linkshinten | Zygarde: bei 50% HP verwandlung in Optimumform mit 100% HP mit mehr Power */
  [E('Xerneas',716,{pos:[2,4],hpX:1.2,atkX:1.15}),E('Yveltal',717,{pos:[2,6],hpX:1.2,atkX:1.15}),
   E('Zygarde (50%)',718,{pos:[0,5],hpX:0.9,atkX:1.1,revive:{hp:1.0,sprite:10120,fb:718,name:'Zygarde (Optimum)',big:true,atkX:1.55}})],
- /* 30: - keine Änderung - */
  [E('Hoopa',720,{pos:[1,4],hpX:0.85,revive:{hp:.5,sprite:10086,fb:720,name:'Hoopa (Entfesselt)',big:true,atkX:1.4}})],
 
- /* ================= ALOLA (31–35) ================= */
- /* 31: alle Pokemon eins nach rechts, Agoyon mit Kopplosio tauschen, Agoyon mit 5 Felder Attack Range */
  [E('Kopplosio',806,{pos:[2,5],big:true,hpX:2.4,atkX:1.6}),
   E('Anego',793,{pos:[1,4]}),E('Masskito',794,{pos:[1,5]}),E('Schabelle',795,{pos:[2,6]}),E('Voltriant',796,{pos:[3,5]}),
   E('Kaguron',797,{pos:[3,4]}),E('Katagami',798,{pos:[2,4]}),E('Schlingking',799,{pos:[2,3]}),E('Muramura',805,{pos:[2,7]}),
   E('Agoyon',804,{pos:[0,5],range:5})],
- /* 32: Runde 32 mit Runde 33 tauschen -> hier ursprüngliche Runde 33 */
  [E('Kapu-Riki',785,{pos:[2,3]}),E('Kapu-Fala',788,{pos:[2,4]}),E('Kapu-Toro',786,{pos:[2,5]}),E('Kapu-Kime',787,{pos:[2,6]})],
- /* 33: nur mit Runde 32 tauschen -> hier ursprüngliche Runde 32 */
  [E('Wolwerock',745,{pos:[0,2]}),E('Alola-Vulnona',10104,{pos:[0,3],fb:38}),E('Washakwil',628,{pos:[0,4]}),E('Magnezone',462,{pos:[0,5]}),E('Relaxo',143,{pos:[0,6]}),E('Fuegro',727,{pos:[0,7]})],
- /* 34: Marshadow 2 nach rechtshinten */
  [E('Magearna',801,{pos:[2,0]}),E('Marshadow',802,{pos:[1,4]}),E('Zeraora',807,{pos:[2,9]})],
- /* 35: Solgaleo eins nach rechts, Lunala eins nach rechts, Necrozma eins nach rechtshinten | Necrozma: teilt sich bei 50% HP in Morgenschwinge und Abendmähne mit jeweils 50% HP auf */
  [E('Solgaleo',791,{pos:[2,4]}),E('Lunala',792,{pos:[2,6]}),
   E('Necrozma',800,{pos:[0,5],hpX:1.1,split:{at:.5,into:[
    {name:'Abendmähnen-Necrozma',sprite:10155,fb:800,hpX:0.8,atkX:1.1,hp:.5},
    {name:'Morgenschwingen-Necrozma',sprite:10156,fb:800,hpX:0.8,atkX:1.1,hp:.5}
   ]}})],
 
- /* ================= GALAR (36–40) ================= */
- /* 36: Zwollock eins nach rechts, Duraludon und Gortrom tauschen */
  [E('Zwollock',832,{pos:[2,4]}),E('Gortrom',812,{pos:[2,5]}),E('Duraludon',884,{pos:[1,4]})],
- /* 37: Wulaosu (Wasser) eins nach rechts, Zarude Attack Range 4 Felder */
  [E('Wulaosu (Wasser)',10191,{pos:[2,4],fb:892}),E('Wulaosu (Unlicht)',892,{pos:[2,5]}),E('Zarude',893,{pos:[1,4],range:4})],
- /* 38: - keine Änderung - */
  [E('Durengard',681,{pos:[0,2]}),E('Katapuldra',887,{pos:[0,3]}),E('Maxax',612,{pos:[0,4]}),E('Pantifrost',866,{pos:[0,5]}),E('Intelleon',818,{pos:[0,6]}),E('Gigamax-Glurak',10196,{pos:[0,7],fb:6,big:true})],
- /* 39: Zamazenta eins nach rechts, Zacian eins nach rechts, Endynalos ein nach rechtshinten | Endynalso revived zu Unendynamox Endynalos mit 50% HP und viel Power */
  [E('Zacian (Königsform)',10188,{pos:[2,4],fb:888,hpX:1.05,atkX:1.05}),
   E('Zamazenta (Königsform)',10189,{pos:[2,6],fb:889,hpX:1.15,atkX:0.95}),
   E('Endynalos',890,{pos:[0,5],hpX:1.15,atkX:1.0,revive:{hp:.5,sprite:10190,fb:890,name:'Unendynamax-Endynalos',big:true,atkX:1.55}})],
- /* 40: Coronospa eins nach rechtshinten mit Attack Range 4 Felder | Logik mit Merge zu Schimmelreiter oder Rappenreiter je nachdem was zuerst stirbt bleibt unverändert */
  [E('Polaross',896,{pos:[3,3],die:CALY_MERGE_V2}),E('Phantoross',897,{pos:[3,5],die:CALY_MERGE_V2}),E('Coronospa',898,{pos:[1,4],range:4,die:CALY_MERGE_V2})],
 
- /* ================= PALDEA (41–45) ================= */
- /* 41: - keine Änderung - */
  [E('Chongjian',1001,{pos:[2,3]}),E('Baojian',1002,{pos:[2,4]}),E('Dinglu',1003,{pos:[2,5]}),E('Yuyu',1004,{pos:[2,6]})],
- /* 42:  */
  [E('Koraidon',1007,{pos:[1,2]}),E('Riesenzahn',984,{pos:[3,3]}),E('Donnersichel',1005,{pos:[2,3]}),
   E('Miraidon',1008,{pos:[1,6]}),E('Eisenrad',990,{pos:[3,5]}),E('Eisenkrieger',1006,{pos:[2,6]})],
- /* 43:  */
  [E('Lumiflora',970,{pos:[0,2]}),E('Psiopatra',956,{pos:[0,3]}),E('Chevrumm',673,{pos:[0,4]}),E('Agiluza',976,{pos:[0,5]}),E('Arktilas',713,{pos:[0,6]}),E('Gladimperio',983,{pos:[0,7]})],
- /* 44:  */
- [E('Boninu',1014,{pos:[3,3],hpX:0.9,die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],hpX:0.9,die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],hpX:0.9,die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[1,4],range:4,die:SPAWN_OGERPON})],                                
- /* 45: Terapagos revived mit 75% HP in der Terakristallform wie bisher auch aber mit etwas weniger DMG dafür viel mehr HP */
+ [E('Boninu',1014,{pos:[3,3],hpX:0.9,die:SPAWN_OGERPON}),E('Benesaru',1015,{pos:[3,4],hpX:0.9,die:SPAWN_OGERPON}),E('Beatori',1016,{pos:[3,5],hpX:0.9,die:SPAWN_OGERPON}),E('Infamomo',1025,{pos:[1,4],range:4,die:SPAWN_OGERPON})],
  [E('Terapagos (Stellar)',10276,{pos:[1,4],fb:1024,hpX:1.6,atkX:0.85,revive:{hp:.75,sprite:10277,fb:1024,name:'Terakristall-Terapagos',big:true,atkX:0.85}})],
 
- /* ================= FINALE: GO & HISUI (46–50) ================= */
- /* 46: alle Pokemon eins nach rechts */
  [E('Melmetal',809,{pos:[2,5],big:true,hpX:3,atkX:2}),
   E('Meltan',808,{pos:[2,6]}),E('Meltan',808,{pos:[2,4]}),E('Meltan',808,{pos:[1,5]}),E('Meltan',808,{pos:[1,4]}),
   E('Meltan',808,{pos:[3,5]}),E('Meltan',808,{pos:[3,4]}),E('Meltan',808,{pos:[2,3]}),E('Meltan',808,{pos:[2,7]}),
   E('Meltan',808,{pos:[0,4]}),E('Meltan',808,{pos:[0,6]})],
- /* 47: Mega-Gewaldro auf 0,4 | Mega-Heatran auf 0,5 | Mega-Metagross auf 1,3 | Mega-Brutalanda auf 1,5 | Mega-Skaraborn auf 2,4 | Mega-Despotar auf 2,5 --- alle mit 6 Felder Attack-Range */
  [E('Mega-Gewaldro',10065,{pos:[0,4],fb:254,range:6}),
   E('Mega-Heatran',10311,{pos:[0,5],fb:485,range:6}),
   E('Mega-Metagross',10076,{pos:[1,3],fb:376,range:6}),
   E('Mega-Brutalanda',10089,{pos:[1,5],fb:373,range:6}),
   E('Mega-Skaraborn',10047,{pos:[2,4],fb:214,range:6}),
   E('Mega-Despotar',10049,{pos:[2,5],fb:248,range:6})],
- /* 48: ganz hinten in der Reihe: Pikachu, Gengar, Pescragon, Lauchzelot, Lucario, Dragoran und davor 12 Tauros */
  [E('Pikachu',25,{pos:[0,2]}),E('Gengar',94,{pos:[0,3]}),E('Pescragon',882,{pos:[0,4]}),E('Lauchzelot',865,{pos:[0,5]}),E('Lucario',448,{pos:[0,6]}),E('Dragoran',149,{pos:[0,7]}),
   E('Tauros',128,{pos:[1,2]}),E('Tauros',128,{pos:[1,3]}),E('Tauros',128,{pos:[1,4]}),E('Tauros',128,{pos:[1,5]}),
   E('Tauros',128,{pos:[1,6]}),E('Tauros',128,{pos:[2,3]}),E('Tauros',128,{pos:[2,4]}),E('Tauros',128,{pos:[2,5]}),
   E('Tauros',128,{pos:[2,6]}),E('Tauros',128,{pos:[3,3]}),E('Tauros',128,{pos:[3,4]}),E('Tauros',128,{pos:[3,5]})],
- /* 49: wahllos verteilt: Snieboss, Salmagnis, Ursaluna, Axantor, Myriador, Damythir, Hisui-Arkani, Hisui-Lektrobal, Hisui-Tornupto, Hisui-Admurai, Hisui-Dressella, Hisui-Zoroark, Hisui-Washakwil, Hisui-Viscogon, Hisui-Arktilas, Hisui-Silvarro */
  [E('Snieboss',903,{pos:[0,0]}),E('Salmagnis',902,{pos:[0,3]}),E('Ursaluna',901,{pos:[0,6]}),E('Axantor',900,{pos:[0,9]}),
   E('Myriador',899,{pos:[1,1]}),E('Damythir',904,{pos:[1,3]}),E('Hisui-Arkani',10230,{pos:[1,5],fb:59}),E('Hisui-Lektrobal',10232,{pos:[1,7],fb:101}),
   E('Hisui-Tornupto',10233,{pos:[2,0],fb:157}),E('Hisui-Admurai',10236,{pos:[2,3],fb:503}),E('Hisui-Dressella',10237,{pos:[2,6],fb:549}),E('Hisui-Zoroark',10239,{pos:[2,9],fb:571}),
   E('Hisui-Washakwil',10240,{pos:[3,1],fb:628}),E('Hisui-Viscogon',10242,{pos:[3,3],fb:706}),E('Hisui-Arktilas',10243,{pos:[3,5],fb:713}),E('Hisui-Silvarro',10244,{pos:[3,7],fb:724})],
- /* 50: alle Sprites (ausgenommen Arceus) zu Standard Amigento ändern | Arceus: deutlich mehr HP */
  [
   E('Amigento (Normal)',773,{pos:[2,3],die:SPAWN_ARCEUS_AFTER_SILVALLY}),
   E('Amigento (Kampf)',773,{pos:[2,5],die:SPAWN_ARCEUS_AFTER_SILVALLY}),
@@ -643,7 +752,6 @@ function freeSlot(){for(let k=0;k<CFG.benchMax;k++)if(!S.units.some(u=>!u.pos&&u
 function fixSlots(){const used=new Set();S.units.forEach(u=>{if(u.pos){u.slot=null;return}
   if(u.slot==null||u.slot>=CFG.benchMax||used.has(u.slot))u.slot=null;else used.add(u.slot)});
  S.units.filter(u=>!u.pos&&u.slot==null).forEach(u=>{u.slot=freeSlot()})}
-const msg=()=>{};
 const unitById=id=>S.units.find(u=>u.id==id);
 
 function newGame(){
@@ -880,8 +988,15 @@ function renderDpsChart(){
 }
 
 /* ================= KAMPF & ANIMATIONEN ================= */
-function toggleLeft(force){const m=$('main'),hide=force!==undefined?force:!m.classList.contains('noleft');m.classList.toggle('noleft',hide);$('bLeft').style.opacity=hide?.55:1;try{localStorage.setItem('pab7_hideLeft',hide?'1':'0')}catch(e){}}
-try{if(localStorage.getItem('pab7_hideLeft')==='1')window.addEventListener('DOMContentLoaded',()=>toggleLeft(true))}catch(e){}
+function toggleSidebars(force){
+ const m=$('main');
+ const hide=force!==undefined?force:!m.classList.contains('noside');
+ m.classList.toggle('noside',hide);
+ $('bToggle').style.opacity=hide?.55:1;
+ try{localStorage.setItem('pab7_hideSidebars',hide?'1':'0')}catch(e){}
+}
+try{if(localStorage.getItem('pab7_hideSidebars')==='1')window.addEventListener('DOMContentLoaded',()=>toggleSidebars(true))}catch(e){}
+
 function restart(){if(!confirm('Match wirklich neu starten? Der aktuelle Fortschritt geht verloren.'))return;clearSave();newGame()}
 
 function startBattle(){
@@ -906,56 +1021,53 @@ function startBattle(){
   B.units.push(d);
  }
 
- /* Boden-Bonus: Bei Rundenbeginn ans hintere Ende der Gegner in die Mitte springen */
-const occ = new Set(B.units.filter(u => u.hp > 0).map(u => u.r + ',' + u.c));
-for (const u of B.units) {
- if (u.team == 'p' && u.ground > 0) {
-  occ.delete(u.r + ',' + u.c);
-  u.stun = Math.max(u.stun || 0, 2); // Boden-Bonus: 2s unverwendbar bei Rundenstart
-  say(u, '💫 2s', '#c9a24a');
-  let best = null;
-  const midC = Math.floor(COLS / 2); // Die Mitte des Spielfelds (Spalte 4 oder 5)
+ const occ = new Set(B.units.filter(u => u.hp > 0).map(u => u.r + ',' + u.c));
+ for (const u of B.units) {
+  if (u.team == 'p' && u.ground > 0) {
+   occ.delete(u.r + ',' + u.c);
+   u.stun = Math.max(u.stun || 0, 2);
+   say(u, '💫 2s', '#c9a24a');
+   let best = null;
+   const midC = Math.floor(COLS / 2);
 
-  // Wir suchen zuerst in Reihe 0 (ganz hinten) und priorisieren die Felder nahe der Mitte
-  let bestDist = 999;
-  for (let c = 0; c < COLS; c++) {
-   const cell = { r: 0, c: c };
-   if (!occ.has(cell.r + ',' + cell.c)) {
-    const d = Math.abs(c - midC); // Abstand zur Mitte
-    if (d < bestDist) {
-     bestDist = d;
-     best = cell;
-    }
-   }
-  }
-
-  // Falls Reihe 0 komplett besetzt ist, weichen wir auf Reihe 1 aus (ebenfalls mittig)
-  if (!best) {
-   for (let r = 1; r < 4; r++) {
-    for (let c = 0; c < COLS; c++) {
-     const cell = { r: r, c: c };
-     if (!occ.has(cell.r + ',' + cell.c)) {
-      const d = Math.abs(c - midC);
-      if (d < bestDist) {
-       bestDist = d;
-       best = cell;
-      }
+   let bestDist = 999;
+   for (let c = 0; c < COLS; c++) {
+    const cell = { r: 0, c: c };
+    if (!occ.has(cell.r + ',' + cell.c)) {
+     const d = Math.abs(c - midC);
+     if (d < bestDist) {
+      bestDist = d;
+      best = cell;
      }
     }
-    if (best) break;
    }
-  }
 
-  if (best) {
-   u.r = best.r; u.c = best.c;
-   const [nx, ny] = px(u.r, u.c);
-   u.x = nx; u.y = ny;
-   B.waves.push({ x: nx, y: ny, r: 4, maxR: 42, col: '#c9a24a', t: .4, maxT: .4 });
-   say(u, '💨', '#c9a24a');
+   if (!best) {
+    for (let r = 1; r < 4; r++) {
+     for (let c = 0; c < COLS; c++) {
+      const cell = { r: r, c: c };
+      if (!occ.has(cell.r + ',' + cell.c)) {
+       const d = Math.abs(c - midC);
+       if (d < bestDist) {
+        bestDist = d;
+        best = cell;
+       }
+      }
+     }
+     if (best) break;
+    }
+   }
+
+   if (best) {
+    u.r = best.r; u.c = best.c;
+    const [nx, ny] = px(u.r, u.c);
+    u.x = nx; u.y = ny;
+    B.waves.push({ x: nx, y: ny, r: 4, maxR: 42, col: '#c9a24a', t: .4, maxT: .4 });
+    say(u, '💨', '#c9a24a');
+   }
+   occ.add(u.r + ',' + u.c);
   }
-  occ.add(u.r + ',' + u.c);
  }
-}
  render();
 }
 
@@ -1037,7 +1149,6 @@ function castPlayerSkill(u,t,A){
 
  switch(u.abName){
   case 'Close Combat':{
-   /* Rote Explosion: 1,75x Ability DMG aufgeteilt auf alle Gegner auf dem Feld */
    if(!foes.length)break;
    const splitDmg=(rawAb*1.75)/foes.length;
    B.waves.push({x:u.x,y:u.y,r:12,maxR:W*3.2,col:'#ff3b3b',t:.45,maxT:.45,fill:true});
@@ -1050,7 +1161,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Snipe Shot':{
-   /* Gelber Laserstrahl: trifft alle im Weg befindlichen Gegner für 2,5x Ability DMG */
    const dx=t.x-u.x,dy=t.y-u.y,len=Math.hypot(dx,dy)||1;
    const ex=u.x+(dx/len)*850,ey=u.y+(dy/len)*850;
    B.fx.push({x1:u.x,y1:u.y,x2:ex,y2:ey,t:.38,maxT:.38,col:'#ffe63b',w:8,glow:'#ffae00'});
@@ -1064,7 +1174,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Reflect':{
-   /* Pinke Animation: baut links, mittig und rechts für 2s Barriere auf (-50% Schaden, +50% ASPD für Allies) */
    const targetCols=[u.c-1,u.c,u.c+1].filter(c=>c>=0&&c<COLS);
    for(const c of targetCols){
     B.barriers.push({
@@ -1082,7 +1191,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Bulldoze':{
-   /* Braune Animation: dasht zum Ziel mit den wenigsten HP und verursacht 1,75x Ability DMG */
    let boss=foes[0];
    for(const f of foes)if(f.hp<boss.hp)boss=f;
    if(!boss)break;
@@ -1103,7 +1211,6 @@ function castPlayerSkill(u,t,A){
    break;
   }
   case 'Weather Ball':{
-   /* Weiße Animation: greift Gegner mit meisten HP an, erzeugt für 2s weißes Feld (Ziel + umliegende Waben): -50% DEF, -50% Mana Gain; Ability DMG nur auf das Ziel */
    let boss=foes[0];
    for(const f of foes)if(f.hp>boss.hp)boss=f;
    if(!boss)break;
@@ -1115,7 +1222,6 @@ function castPlayerSkill(u,t,A){
      const centerC=boss.hp>0?boss.c:Math.round((bx-OX)/W);
      B.fields.push({r:centerR,c:centerC,rad:1.3,t:2,maxT:2,type:'weather'});
      B.waves.push({x:bx,y:by,r:10,maxR:W*1.5,col:'#ffffff',t:.42,maxT:.42,fill:true});
-     /* Schaden nur auf das Hauptziel; Debuff-Feld (AoE) bleibt bestehen */
      const effDef=boss.def*0.5;
      dealDmg(boss,rawAb*100/(100+effDef),'#ffffff','❄️',u);
     }
@@ -1166,7 +1272,6 @@ function hit(u,t,A){
  const cast=(u.mana>=u.mmax);
  if(cast){
   u.mana=0;
-  /* Psycho-Bonus: beim Casten der Ability automatisch das nächstgelegene Ziel für 2s stunnen */
   if(u.psy){
    const foes=A.filter(f=>f.team!=u.team&&f.hp>0);
    if(foes.length){
@@ -1176,7 +1281,6 @@ function hit(u,t,A){
     say(near,'💫 Stun','#f95587');
    }
   }
-  /* Fee-Bonus: beim Casten umliegende Allies (1 Feld) um 60% max HP heilen */
   if(u.fairy){
    for(const a of A){
     if(a.team==u.team&&!a.decoy&&a.hp>0&&dist(a,u)<=1){
@@ -1313,7 +1417,7 @@ function step(dt){
 function finish(win){if(S.phase!='battle')return;renderDpsChart();S.phase='prep';const last=S.round>=EN.length;
  if(win&&last){S.phase='done';clearSave();B.units=[];render();return}
  S.gold+=income();tryMerge();
- if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1; /* Typ-Token nach Abschluss von Runde 25 */
+ if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1;
  if(win)S.round++;
  else{S.lives--;if(S.lives<=0){S.phase='done';clearSave();render();return}}
  roll();save();render()}
@@ -1394,7 +1498,9 @@ function useToken(o,x,y){
   o.xt=t;S.tokens--;closeTypeMenu();save();render()});
  document.body.appendChild(m);
 }
-window.addEventListener('keydown',e=>{if(e.key==='Escape')closeTypeMenu()});
+window.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){closeTypeMenu();closeTutorial();}
+});
 
 $('cv').addEventListener('pointerdown',e=>{
  if(S.phase!='prep')return;e.preventDefault();
@@ -1469,7 +1575,6 @@ function tipMove(e){const el=$('tip');el.style.left=Math.max(4,Math.min(e.client
 let tipU=null;
 function tipHide(){tipU=null;$('tip').style.display='none'}
 
-/* Einheit unter der Maus finden (Canvas-Koordinaten wie in draw()) */
 function unitAtPoint(cx,cy){
  if(!S||!B.units)return null;
  const cv=$('cv'),b=cv.getBoundingClientRect(),
@@ -1483,7 +1588,6 @@ function unitAtPoint(cx,cy){
  return best;
 }
 
-/* Tooltip mit Live-Werten (für Gegner, Beschwörungen, Delegator) */
 function tipLive(u,e){
  const cl=u.cls&&CLASSES[u.cls];
  const h=`<div><b>${u.name}</b>${cl?` (${cl.icon} ${u.cls})`:''}</div>

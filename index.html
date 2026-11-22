@@ -113,6 +113,24 @@ h4{margin:8px 0 2px;color:#9ab}
 /* ================= TUTORIAL MODAL ================= */
 #tutModal{position:fixed;inset:0;z-index:100;background:rgba(6,8,14,.82);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:12px}
 #tutModal.open{display:flex}
+#vicModal{position:fixed;inset:0;z-index:110;background:rgba(6,8,14,.88);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:12px}
+#vicModal.open{display:flex}
+.vic-box{background:#151924;border:2px solid #ffd700;border-radius:14px;max-width:1240px;width:100%;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 0 40px rgba(255,215,0,.25),0 16px 48px rgba(0,0,0,.75);overflow:hidden}
+.vic-head{background:linear-gradient(180deg,#2a2414,#151924);padding:16px 18px 10px;text-align:center;border-bottom:1px solid #4a3f1c}
+.vic-head h2{margin:0;font-size:28px;color:#ffd700;letter-spacing:1px}
+.vic-head small{color:#cdbf8a;font-size:13px}
+.vic-grid{padding:14px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+.vic-card{position:relative;background:#1b2030;border:2px solid #2e3856;border-radius:10px;padding:8px 6px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.vic-card.mvp{border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.35)}
+.vic-card .mvpTag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#ffd700;color:#000;font-size:10px;font-weight:bold;border-radius:8px;padding:1px 8px;white-space:nowrap}
+.vic-card img{width:112px;height:112px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+.vic-nm{font-weight:bold;font-size:13px;line-height:1.1;min-height:28px;display:flex;align-items:center;justify-content:center}
+.vic-lv{font-size:12px;font-weight:bold;padding:1px 8px;border-radius:10px;background:#0e1119;border:1px solid #42507a}
+.vic-ty{display:flex;gap:2px;justify-content:center;min-height:18px}
+.vic-st{width:100%;margin-top:4px;display:grid;gap:3px;font-size:12px;text-align:left}
+.vic-st div{display:flex;justify-content:space-between;background:#131620;border-radius:5px;padding:3px 6px}
+.vic-st b{color:#fff}.vic-st span{color:#9aa4c8}
+.vic-foot{background:#0e1119;padding:11px 18px;border-top:1px solid #2c3556;display:flex;justify-content:center;gap:10px}
 .tut-box{background:#151924;border:2px solid #4c5b96;border-radius:14px;max-width:820px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.75);overflow:hidden}
 .tut-head{background:#0e1119;padding:14px 18px;border-bottom:1px solid #2c3556;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .tut-head h3{margin:0;font-size:18px;color:#fc6;display:flex;align-items:center;gap:8px}
@@ -166,6 +184,13 @@ h4{margin:8px 0 2px;color:#9ab}
 <div id="tip"></div><div id="toast"></div>
 
 <!-- TUTORIAL MODAL -->
+<div id="vicModal" onclick="if(event.target===this)closeVictory()">
+ <div class="vic-box">
+  <div class="vic-head"><h2>🏆 VICTORY! 🏆</h2><small id="vicSub"></small></div>
+  <div class="vic-grid" id="vicGrid"></div>
+  <div class="vic-foot"><button onclick="closeVictory()">Schließen</button><button class="red" onclick="closeVictory();newGame()">🔄 Neues Spiel</button></div>
+ </div>
+</div>
 <div id="tutModal" onclick="if(event.target===this)closeTutorial()">
  <div class="tut-box">
   <div class="tut-head">
@@ -958,6 +983,10 @@ function refreshView(){
 }
 
 /* ================= DPS-CHART ================= */
+function stat(u,k,v){
+ if(!u||u.team!='p'||u.decoy||!u.uid||!(v>0)||!B.dps)return;
+ const e=B.dps.find(x=>x.uid===u.uid);if(e)e[k]=(e[k]||0)+v;
+}
 function recordDamage(attacker,amount){
  if(!attacker||attacker.team!='p'||attacker.decoy||!attacker.uid||amount<=0)return;
  const entry=B.dps.find(x=>x.uid===attacker.uid);
@@ -1009,7 +1038,7 @@ function startBattle(){
  const playerUnits=buildPlayer(true);
  B.units=playerUnits.concat(buildEnemy());
  B.fx=[];B.proj=[];B.waves=[];B.barriers=[];B.txt=[];B.fields=[];B.flag={};B.end=0;B.time=0;
- B.dps=playerUnits.map(u=>({uid:u.uid,name:u.name,spriteId:u.id,sh:u.sh,dmg:0}));
+ B.dps=playerUnits.map(u=>({uid:u.uid,name:u.name,spriteId:u.id,sh:u.sh,star:u.star,t:u.t||[],dmg:0,heal:0,blk:0,casts:0}));
  B.dpsTimer=0;
  renderDpsChart();
 
@@ -1079,16 +1108,17 @@ const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-32,s,t:.75,col});
 
 function dealDmg(t, d, col, pre, attacker){
  if(!t||t.hp<=0)return 0;
- if(t.invuln>0){B.txt.push({x:t.x,y:t.y-30,s:'🛡 0',t:.5,col:'#c9a24a'});return 0}
+ if(t.invuln>0){stat(t,'blk',d);B.txt.push({x:t.x,y:t.y-30,s:'🛡 0',t:.5,col:'#c9a24a'});return 0}
  if(t.team == 'p') {
   const inReflect = B.barriers.some(b => b.team == t.team && b.type == 'reflectZone' && b.r == t.r && b.c == t.c);
   if(inReflect) {
+   stat(t,'blk',d*0.5);
    d = d * 0.50;
   }
  }
  const dealt=Math.max(1,Math.round(d));
  let rem=dealt;
- if(t.shield>0){const a=Math.min(t.shield,rem);t.shield-=a;rem-=a}
+ if(t.shield>0){const a=Math.min(t.shield,rem);t.shield-=a;rem-=a;stat(t,'blk',a)}
  t.hp-=rem;
  recordDamage(attacker,dealt);
  B.txt.push({x:t.x,y:t.y-30,s:(pre||'')+dealt,t:.7,col:col||'#fff'});
@@ -1118,7 +1148,7 @@ function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!
   const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:(u.atk*(k.atkX||1))/splitCount,aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
   n.hp=n.max*(k.hp!=null?k.hp:u.split.at);n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 
-const heal=(u,a)=>{if(u&&u.hp>0)u.hp=Math.min(u.max,u.hp+a)};
+const heal=(u,a)=>{if(u&&u.hp>0){const b=u.hp;u.hp=Math.min(u.max,u.hp+a);stat(u,'heal',u.hp-b)}};
 
 function checkBarrierMitigation(sx,sy,tx,ty,targetTeam){
  for(const b of B.barriers){
@@ -1274,7 +1304,7 @@ function hit(u,t,A){
 
  const cast=(u.mana>=u.mmax);
  if(cast){
-  u.mana=0;
+  u.mana=0;stat(u,'casts',1);
   if(u.psy){
    const foes=A.filter(f=>f.team!=u.team&&f.hp>0);
    if(foes.length){
@@ -1310,6 +1340,7 @@ function hit(u,t,A){
  if(u.team=='e'){
   B.fx.push({x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.18,maxT:.18,col:'#ff3838',w:cast?5:2.5,glow:'#aa0000'});
   const d=Math.max(1,Math.round(baseD*100/(100+t.def)));
+  stat(t,'blk',baseD-d);
   dealDmg(t,d,cast?'#ff5555':crit?'#ff9944':'#ffcccc',cast?'💥':crit?'!':'',u);
   applyOnHitEffects(u,t,d);
   if(cast&&u.onCast)u.onCast(u,t,A);
@@ -1418,8 +1449,36 @@ function step(dt){
  if(!pl||!en){B.end+=dt;if(B.end>1.2)finish(pl)}
 }
 
+let VIC=null;
+function showVictory(){
+ const fmt=n=>Math.round(n||0).toLocaleString('de-DE');
+ const rows=B.dps.map(e=>{const u=B.units.find(x=>x.team=='p'&&x.uid===e.uid);
+  return{...e,name:u?u.name:e.name,spriteId:u?u.id:e.spriteId,fb:u?u.fb:null,sh:u?u.sh:e.sh,star:u?u.star:e.star,t:u?(u.t||e.t):e.t}});
+ VIC={rows,round:S.round,lives:S.lives};
+ renderVictory();$('vicModal').classList.add('open');
+}
+function renderVictory(){
+ if(!VIC)return;
+ const fmt=n=>Math.round(n||0).toLocaleString('de-DE');
+ const rows=[...VIC.rows].sort((a,b)=>b.dmg-a.dmg),top=rows[0]&&rows[0].dmg;
+ $('vicSub').textContent=`Alle ${VIC.round} Runden geschafft · ❤️ ${VIC.lives} Leben übrig`;
+ $('vicGrid').innerHTML=rows.map((e,i)=>{
+  const fb=e.fb!=null?url(e.fb,e.sh):'';
+  return`<div class="vic-card${i==0&&top>0?' mvp':''}">${i==0&&top>0?'<div class="mvpTag">👑 MVP</div>':''}
+   <img src="${url(e.spriteId,e.sh)}" onerror="if('${fb}'&&this.src!=='${fb}')this.src='${fb}';else this.style.opacity=.2">
+   <div class="vic-nm">${e.name}</div>
+   <div class="vic-lv" style="color:${STAR_COL[Math.max(0,(e.star||1)-1)]}">${'★'.repeat(e.star||1)} Stufe ${e.star||1}</div>
+   <div class="vic-ty">${(e.t||[]).map(typeIcon).join('')}</div>
+   <div class="vic-st">
+    <div><span>⚔️ Schaden</span><b>${fmt(e.dmg)}</b></div>
+    <div><span>💚 Geheilt</span><b>${fmt(e.heal)}</b></div>
+    <div><span>🛡 Geblockt</span><b>${fmt(e.blk)}</b></div>
+    <div><span>✨ Abilities</span><b>${fmt(e.casts)}</b></div>
+   </div></div>`}).join('');
+}
+function closeVictory(){$('vicModal').classList.remove('open')}
 function finish(win){if(S.phase!='battle')return;renderDpsChart();S.phase='prep';B.barriers=[];B.fields=[];B.proj=[];B.waves=[];B.fx=[];B.txt=[];const last=S.round>=EN.length;
- if(win&&last){S.phase='done';clearSave();B.units=[];render();return}
+ if(win&&last){S.phase='done';clearSave();showVictory();B.units=[];render();return}
  S.gold+=income();tryMerge();
  if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1;
  if(win)S.round++;
@@ -1503,7 +1562,7 @@ function useToken(o,x,y){
  document.body.appendChild(m);
 }
 window.addEventListener('keydown',e=>{
- if(e.key==='Escape'){closeTypeMenu();closeTutorial();}
+ if(e.key==='Escape'){closeTypeMenu();closeTutorial();closeVictory();}
 });
 
 $('cv').addEventListener('pointerdown',e=>{
@@ -1623,7 +1682,7 @@ function slotInfo(){const T=CFG.slotAfter.find(t=>t>=S.round);
 function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().length;
  $('tr').innerHTML=`Runde <b>${S.round}/${EN.length}</b>`;
  $('tl').innerHTML=`❤️ <b>${S.lives}</b>`;
- $('tn').innerHTML=S.phase=='done'?(S.lives<=0?'💀 <b>Game Over</b>':'🏆 <b>Gewonnen!</b>'):`Nächster Gegner: <b>${EN[Math.min(S.round,EN.length)-1].map(e=>e.name).join(', ')}</b>`;
+ $('tn').innerHTML=S.phase=='done'?(S.lives<=0?'💀 <b>Game Over</b>':'🏆 <b>Gewonnen!</b> <button onclick="renderVictory();$(\'vicModal\').classList.add(\'open\')" style="padding:2px 8px;font-size:12px">Ergebnis</button>'):`Nächster Gegner: <b>${EN[Math.min(S.round,EN.length)-1].map(e=>e.name).join(', ')}</b>`;
  $('gold').innerHTML=`💰 <b>${S.gold}</b> (+${income()} nächste Runde)`;
  $('plc').innerHTML=`Verfügbar: <b>${pl}/${limit()}</b>`;$('plc').title=slotInfo();$('plc').style.color=(S.phase=='prep'&&pl<limit())?'#ff5555':'';
  $('bBattle').disabled=S.phase=='battle';$('bBattle').textContent=S.phase=='done'?'🔄 Neues Spiel':'⚔️ Kampf!';$('bRoll').disabled=!act()||S.gold<CFG.reroll;

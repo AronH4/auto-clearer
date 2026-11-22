@@ -91,6 +91,7 @@ h4{margin:8px 0 2px;color:#9ab}
 #crownBox{display:inline-flex;align-items:center;justify-content:center;background:#2a2414;border:2px solid #ffd700;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1}
 #crownBox.hidden{display:none}
 #tokenBox{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#1f1a30;border:2px solid #b07cff;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1;touch-action:none;box-shadow:0 0 8px #b07cff88}
+#tokenBox img{width:34px;height:34px;object-fit:contain}.teraI{height:1.25em;width:1.25em;vertical-align:-.25em;object-fit:contain}
 #tokenBox b{font-size:14px;color:#d9c2ff}#tokenBox.hidden{display:none}
 .ti.xt{outline:2px solid #ffd700;outline-offset:1px}
 #tmenu{position:fixed;inset:0;z-index:70;background:rgba(8,10,16,.55)}
@@ -170,7 +171,7 @@ h4{margin:8px 0 2px;color:#9ab}
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
    <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+20% ATK, ASPD & Mana/ATK)">👑</span>
-   <span id="tokenBox" class="hidden" title="Typ-Token: Auf ein Pokémon mit nur einem Typ ziehen, um einen Zusatztyp zu wählen (einmalig, dauerhaft)">🪙<b id="tokenN"></b></span></div>
+   <span id="tokenBox" class="hidden" title="Terastallize: Auf ein Pokémon mit nur einem Typ ziehen, um einen Tera-Typ zu wählen (einmalig, dauerhaft)"><img id="teraBoxImg" alt="Tera" src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e8ddc4da-23dd-4502-b65b-378c9cfe5efa/dffvs1r-f0988057-cf62-4bd7-b837-6bd4444ba4e8.png/v1/fill/w_1280,h_1280/terastal_phenomenon_icon_by_jormxdos_dffvs1r-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI4MCIsInBhdGgiOiIvZi9lOGRkYzRkYS0yM2RkLTQ1MDItYjY1Yi0zNzhjOWNmZTVlZmEvZGZmdnMxci1mMDk4ODA1Ny1jZjYyLTRiZDctYjgzNy02YmQ0NDQ0YmE0ZTgucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.DW8w4JOMFTYz3rC0LFgf0yzgactmgBPENIWprFgK198" onerror="this.replaceWith(document.createTextNode('💎'))"><b id="tokenN"></b></span></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
   <div id="under">
@@ -266,6 +267,8 @@ const SKILLS={
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
+const TERA_URL='https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e8ddc4da-23dd-4502-b65b-378c9cfe5efa/dffvs1r-f0988057-cf62-4bd7-b837-6bd4444ba4e8.png/v1/fill/w_1280,h_1280/terastal_phenomenon_icon_by_jormxdos_dffvs1r-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI4MCIsInBhdGgiOiIvZi9lOGRkYzRkYS0yM2RkLTQ1MDItYjY1Yi0zNzhjOWNmZTVlZmEvZGZmdnMxci1mMDk4ODA1Ny1jZjYyLTRiZDctYjgzNy02YmQ0NDQ0YmE0ZTgucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.DW8w4JOMFTYz3rC0LFgf0yzgactmgBPENIWprFgK198';
+const teraImg=(c='teraI')=>`<img class="${c}" src="${TERA_URL}" alt="Tera" onerror="this.replaceWith(document.createTextNode('💎'))">`;
 const TYPE_URL={"Normal": "https://www.pokewiki.de/images/thumb/8/85/Typ-Icon_Normal_%28Symbol%29_PLA.png/32px-Typ-Icon_Normal_%28Symbol%29_PLA.png", "Fighting": "https://www.pokewiki.de/images/thumb/3/3c/Typ-Icon_Kampf_%28Symbol%29_PLA.png/32px-Typ-Icon_Kampf_%28Symbol%29_PLA.png", "Flying": "https://www.pokewiki.de/images/thumb/0/00/Typ-Icon_Flug_%28Symbol%29_PLA.png/32px-Typ-Icon_Flug_%28Symbol%29_PLA.png", "Poison": "https://www.pokewiki.de/images/thumb/b/b5/Typ-Icon_Gift_%28Symbol%29_PLA.png/32px-Typ-Icon_Gift_%28Symbol%29_PLA.png", "Ground": "https://www.pokewiki.de/images/thumb/c/cc/Typ-Icon_Boden_%28Symbol%29_PLA.png/32px-Typ-Icon_Boden_%28Symbol%29_PLA.png", "Rock": "https://www.pokewiki.de/images/thumb/0/0a/Typ-Icon_Gestein_%28Symbol%29_PLA.png/32px-Typ-Icon_Gestein_%28Symbol%29_PLA.png", "Bug": "https://www.pokewiki.de/images/thumb/f/fd/Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png/32px-Typ-Icon_K%C3%A4fer_%28Symbol%29_PLA.png", "Ghost": "https://www.pokewiki.de/images/thumb/c/c0/Typ-Icon_Geist_%28Symbol%29_PLA.png/32px-Typ-Icon_Geist_%28Symbol%29_PLA.png", "Steel": "https://www.pokewiki.de/images/thumb/2/2b/Typ-Icon_Stahl_%28Symbol%29_PLA.png/32px-Typ-Icon_Stahl_%28Symbol%29_PLA.png", "Fire": "https://www.pokewiki.de/images/thumb/f/f0/Typ-Icon_Feuer_%28Symbol%29_PLA.png/32px-Typ-Icon_Feuer_%28Symbol%29_PLA.png", "Water": "https://www.pokewiki.de/images/thumb/b/b6/Typ-Icon_Wasser_%28Symbol%29_PLA.png/32px-Typ-Icon_Wasser_%28Symbol%29_PLA.png", "Grass": "https://www.pokewiki.de/images/thumb/8/82/Typ-Icon_Pflanze_%28Symbol%29_PLA.png/32px-Typ-Icon_Pflanze_%28Symbol%29_PLA.png", "Electric": "https://www.pokewiki.de/images/thumb/a/a9/Typ-Icon_Elektro_%28Symbol%29_PLA.png/32px-Typ-Icon_Elektro_%28Symbol%29_PLA.png", "Psychic": "https://www.pokewiki.de/images/thumb/1/12/Typ-Icon_Psycho_%28Symbol%29_PLA.png/32px-Typ-Icon_Psycho_%28Symbol%29_PLA.png", "Ice": "https://www.pokewiki.de/images/thumb/d/d8/Typ-Icon_Eis_%28Symbol%29_PLA.png/32px-Typ-Icon_Eis_%28Symbol%29_PLA.png", "Dragon": "https://www.pokewiki.de/images/thumb/6/6f/Typ-Icon_Drache_%28Symbol%29_PLA.png/32px-Typ-Icon_Drache_%28Symbol%29_PLA.png", "Dark": "https://www.pokewiki.de/images/thumb/5/58/Typ-Icon_Unlicht_%28Symbol%29_PLA.png/32px-Typ-Icon_Unlicht_%28Symbol%29_PLA.png", "Fairy": "https://www.pokewiki.de/images/thumb/6/6c/Typ-Icon_Fee_%28Symbol%29_PLA.png/32px-Typ-Icon_Fee_%28Symbol%29_PLA.png"};
 const SPRITE_OVERRIDE={};
 const STAR_COL=['#cd7f32','#c0c0c0','#ffd700'];
@@ -406,16 +409,16 @@ const TUT_PAGES=[
   </div>`
  },
  {
-  tab:'8. Typ-Token (Runde 25)',
-  title:'🪙 Was ist der Typ-Token ab Runde 25?',
-  html:`<p>Wenn du <b>Runde 25 erfolgreich meisterst</b>, erhältst du als besondere Belohnung einen <b>🪙 Typ-Token</b> (erscheint oben neben dem Kampf-Button).</p>
+  tab:'8. Terastallize (Runde 25)',
+  title:`${teraImg()} Was ist Terastallize ab Runde 25?`,
+  html:`<p>Wenn du <b>Runde 25 erfolgreich meisterst</b>, erhältst du als besondere Belohnung einen <b>${teraImg()} Terastallize</b>-Token (erscheint oben neben dem Kampf-Button).</p>
   <div class="tut-grid">
-   <div class="tut-card"><b class="t-ttl">Wie benutze ich ihn?</b>Ziehe den <b>🪙 Typ-Token</b> in der Vorbereitungsphase per Drag & Drop auf eines deiner Pokémon (auf dem Feld oder auf der Bank).</div>
-   <div class="tut-card"><b class="t-ttl">Was bewirkt er?</b>Es öffnet sich ein Auswahlrad mit allen 18 Typen. Du kannst deinem Pokémon <b>dauerhaft einen zweiten Zusatztyp</b> verleihen!</div>
+   <div class="tut-card"><b class="t-ttl">Wie benutze ich ihn?</b>Ziehe den <b>${teraImg()} Terastallize</b>-Token in der Vorbereitungsphase per Drag & Drop auf eines deiner Pokémon (auf dem Feld oder auf der Bank).</div>
+   <div class="tut-card"><b class="t-ttl">Was bewirkt er?</b>Es öffnet sich ein Auswahlrad mit allen 18 Typen. Du kannst deinem Pokémon <b>dauerhaft einen zweiten Tera-Typ</b> verleihen!</div>
   </div>
-  <div class="tut-warn">⚠️ <b>Regeln für den Typ-Token:</b><br>
+  <div class="tut-warn">⚠️ <b>Regeln für Terastallize:</b><br>
   • Funktioniert <b>nur bei Pokémon, die bisher genau 1 Typ besitzen</b> (z. B. Arceus, Pikachu, Relaxo, Nachtara, Monozyto).<br>
-  • Die Wahl ist <b>endgültig</b> – der Zusatztyp bleibt auch beim Entwickeln erhalten und zählt voll für alle Typ-Boni mit!</div>`
+  • Die Wahl ist <b>endgültig</b> – der Tera-Typ bleibt auch beim Entwickeln erhalten und zählt voll für alle Typ-Boni mit!</div>`
  }
 ];
 
@@ -446,7 +449,7 @@ const RAW=[
 [1,'Wingull,Wingull,Pelipper','278,278,279','Water,Flying','Sniper','Weather Ball'],
 [1,'Ganovil,Rokkaiman,Rabigator','551,552,553','Ground,Dark','Fighter','Close Combat'],
 [1,'Dartiri,Dartignis,Fiaro','661,662,663','Fire,Flying','Sniper','Snipe Shot'],
-[1,'Eguana,EGuana,Elezard','694,694,695','Electric,Normal','Sniper','Close Combat'],
+[1,'Eguana,Eguana,Elezard','694,694,695','Electric,Normal','Sniper','Close Combat'],
 [1,'Sandan,Sandan,Sandamer','10101,10101,10102','Ice,Steel','Caster','Bulldoze'],
 [1,'Meikro,Kranoviz,Krarmor','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
 [1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
@@ -1541,29 +1544,29 @@ $('crownBox').addEventListener('pointerdown',e=>{
 $('tokenBox').addEventListener('pointerdown',e=>{
  if(S.phase!='prep'||!(S.tokens>0)||$('tmenu'))return;e.preventDefault();
  D={type:'token',x:e.clientX,y:e.clientY,moved:false};
- const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.textContent='🪙';document.body.appendChild(g);D.g=g;
+ const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.innerHTML=teraImg('teraI').replace('class="teraI"','class="teraI" style="width:36px;height:36px"');document.body.appendChild(g);D.g=g;
 });
 
-/* ===== Typ-Token: Ziel prüfen, Kreis-Menü, Anwenden ===== */
+/* ===== Terastallize: Ziel prüfen, Kreis-Menü, Anwenden ===== */
 function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2600)}
 function closeTypeMenu(){const m=$('tmenu');if(m)m.remove()}
 function useToken(o,x,y){
  if(!o||S.phase!='prep'||!(S.tokens>0))return;
  const s=SP[o.sp];
- if(o.xt){toast('Dieses Pokémon hat bereits einen Zusatztyp.');return}
- if(s.t.length!==1){toast('Nur Pokémon mit genau einem Typ können einen Zusatztyp erhalten.');return}
+ if(o.xt){toast('Dieses Pokémon hat bereits einen Tera-Typ.');return}
+ if(s.t.length!==1){toast('Nur Pokémon mit genau einem Typ können terastallisieren und einen Tera-Typ erhalten.');return}
  closeTypeMenu();
  const opts=Object.keys(TYPES).filter(t=>!s.t.includes(t)),n=opts.length;
  const R=Math.round(n*47/(2*Math.PI)),m=document.createElement('div');m.id='tmenu';
  const cx=Math.max(R+34,Math.min(x,innerWidth-R-34)),cy=Math.max(R+34,Math.min(y,innerHeight-R-34));
- let h=`<div class="tm-c" style="left:${cx}px;top:${cy}px"><img src="${url(s.id[o.star-1],s.sh)}"><div>Zusatztyp für<br><b id="tmName">${s.n[o.star-1]}</b></div></div>`;
+ let h=`<div class="tm-c" style="left:${cx}px;top:${cy}px"><img src="${url(s.id[o.star-1],s.sh)}"><div>Tera-Typ für<br><b id="tmName">${s.n[o.star-1]}</b></div></div>`;
  opts.forEach((t,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;
   h+=`<button class="tm-o" data-t="${t}" title="${TYPES[t][1]}" style="left:${cx+R*Math.cos(a)}px;top:${cy+R*Math.sin(a)}px;background:${TYPES[t][2]}"><img src="${TYPE_URL[t]}" onerror="this.parentNode.textContent='${TYPES[t][1][0]}'"></button>`});
  m.innerHTML=h;
  m.addEventListener('pointerdown',e=>{if(e.target===m)closeTypeMenu()});
  m.addEventListener('mouseover',e=>{const b=e.target.closest('.tm-o');$('tmName').textContent=b?TYPES[b.dataset.t][1]:s.n[o.star-1]});
  m.addEventListener('click',e=>{const b=e.target.closest('.tm-o');if(!b)return;const t=b.dataset.t;
-  if(!confirm(`${TYPES[t][1]} dauerhaft als Zusatztyp für ${s.n[o.star-1]} festlegen? Das ist endgültig.`))return;
+  if(!confirm(`${TYPES[t][1]} dauerhaft als Tera-Typ für ${s.n[o.star-1]} festlegen (Terastallize)? Das ist endgültig.`))return;
   if(S.phase!='prep'||!(S.tokens>0)||o.xt)return;
   o.xt=t;S.tokens--;closeTypeMenu();save();render()});
  document.body.appendChild(m);
@@ -1634,7 +1637,7 @@ function tipPoke(spIdx,star,e,xt){
  const cMul=CFG.costMul[s.c]||1,sMul=CFG.hpMul[star-1]||1;
  const hp=Math.round(cl.hp*cMul*sMul),atk=Math.round(cl.atk*cMul*sMul),ab=Math.round(cl.abDmg*cMul*sMul);
  const h=`<div><b>${s.n[star-1]}</b> (${s.c}-Cost · ${cl.icon} ${s.cls})</div>
-  <div style="margin:3px 0">${s.t.map(typeBadge).join(' ')}${xt?` + ${typeBadge(xt)} <small style="color:#fd6">(Zusatztyp)</small>`:''}</div>
+  <div style="margin:3px 0">${s.t.map(typeBadge).join(' ')}${xt?` + ${typeBadge(xt)} <small style="color:#fd6">(Tera-Typ)</small>`:''}</div>
   <div style="color:#cde">HP: <b>${hp}</b> · ATK: <b>${atk}</b> · Ability DMG: <b>${ab}</b></div>
   <div style="color:#cde">DEF: <b>${cl.def}</b> · ASPD: <b>${cl.aspd}</b> · Crit: <b>${p(cl.crit)}</b> · Range: <b>${cl.range}</b></div>
   <div style="margin-top:5px;color:#fd6"><b>Fähigkeit – ${s.ab}:</b></div>

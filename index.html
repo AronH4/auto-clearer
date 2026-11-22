@@ -235,9 +235,9 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
   fRounds:50,
   early:1.05,
   from6:1.05,
-  from15:1.05,
-  from30:1.05,
-  from42:1.05,
+  from15:1.06,
+  from30:1.06,
+  from42:1.06,
   aspd:1.0,
   skill:2,
   def:10,
@@ -446,7 +446,7 @@ const RAW=[
 [1,'Wingull,Wingull,Pelipper','278,278,279','Water,Flying','Sniper','Weather Ball'],
 [1,'Ganovil,Rokkaiman,Rabigator','551,552,553','Ground,Dark','Fighter','Close Combat'],
 [1,'Dartiri,Dartignis,Fiaro','661,662,663','Fire,Flying','Sniper','Snipe Shot'],
-[1,'Eguana,Eguana,Elezard','694,694,695','Electric,Normal','Sniper','Close Combat'],
+[1,'Eguana,EGuana,Elezard','694,694,695','Electric,Normal','Sniper','Close Combat'],
 [1,'Sandan,Sandan,Sandamer','10101,10101,10102','Ice,Steel','Caster','Bulldoze'],
 [1,'Meikro,Kranoviz,Krarmor','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
 [1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
@@ -781,7 +781,7 @@ function fixSlots(){const used=new Set();S.units.forEach(u=>{if(u.pos){u.slot=nu
 const unitById=id=>S.units.find(u=>u.id==id);
 
 function newGame(){
- S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0};
+ S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0,stats:{}};
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
@@ -810,6 +810,9 @@ function tryMerge(){let again=true;const bat=S.phase=='battle';
     const hadCrown=t.some(x=>S.crownOn===x.id);
     const xt=(t.find(x=>x.xt)||{}).xt;
     const nid=S.nextId++;
+    S.stats=S.stats||{};const ns={dmg:0,heal:0,blk:0,casts:0};
+    for(const x of t){const o=S.stats[x.id];if(o){for(const k in ns)ns[k]+=o[k]||0;delete S.stats[x.id]}}
+    S.stats[nid]=ns;
     S.units=S.units.filter(u=>!t.includes(u));
     S.units.push({id:nid,sp,star:st+1,pos,slot:pos?null:(keep?keep.slot:freeSlot()),...(xt?{xt}:{})});
     if(hadCrown)S.crownOn=nid;
@@ -1452,22 +1455,23 @@ let VIC=null;
 function showVictory(){
  const fmt=n=>Math.round(n||0).toLocaleString('de-DE');
  const rows=B.dps.map(e=>{const u=B.units.find(x=>x.team=='p'&&x.uid===e.uid);
-  return{...e,name:u?u.name:e.name,spriteId:u?u.id:e.spriteId,fb:u?u.fb:null,sh:u?u.sh:e.sh,star:u?u.star:e.star,t:u?(u.t||e.t):e.t}});
+  const o=unitById(e.uid),tot=(S.stats&&S.stats[e.uid])||{dmg:e.dmg,heal:e.heal,blk:e.blk,casts:e.casts};
+  return{...e,dmg:tot.dmg,heal:tot.heal,blk:tot.blk,casts:tot.casts,name:u?u.name:e.name,spriteId:u?u.id:e.spriteId,fb:u?u.fb:null,sh:u?u.sh:e.sh,star:u?u.star:e.star,bt:o?SP[o.sp].t:(e.t||[]),xt:o?o.xt:null}});
  VIC={rows,round:S.round,lives:S.lives};
  renderVictory();$('vicModal').classList.add('open');
 }
 function renderVictory(){
  if(!VIC)return;
  const fmt=n=>Math.round(n||0).toLocaleString('de-DE');
- const rows=[...VIC.rows].sort((a,b)=>b.dmg-a.dmg),top=rows[0]&&rows[0].dmg;
+ const rows=[...VIC.rows].sort((a,b)=>b.dmg-a.dmg);
  $('vicSub').textContent=`Alle ${VIC.round} Runden geschafft · ❤️ ${VIC.lives} Leben übrig`;
- $('vicGrid').innerHTML=rows.map((e,i)=>{
+ $('vicGrid').innerHTML=rows.map(e=>{
   const fb=e.fb!=null?url(e.fb,e.sh):'';
-  return`<div class="vic-card${i==0&&top>0?' mvp':''}">${i==0&&top>0?'<div class="mvpTag">👑 MVP</div>':''}
+  return`<div class="vic-card">
    <img src="${url(e.spriteId,e.sh)}" onerror="if('${fb}'&&this.src!=='${fb}')this.src='${fb}';else this.style.opacity=.2">
    <div class="vic-nm">${e.name}</div>
    <div class="vic-lv" style="color:${STAR_COL[Math.max(0,(e.star||1)-1)]}">${'★'.repeat(e.star||1)} Stufe ${e.star||1}</div>
-   <div class="vic-ty">${(e.t||[]).map(typeIcon).join('')}</div>
+   <div class="tys">${(e.bt||[]).map(typeIcon).join('')}${e.xt?typeIcon(e.xt).replace('class="ti"','class="ti xt"'):''}</div>
    <div class="vic-st">
     <div><span>⚔️ Schaden</span><b>${fmt(e.dmg)}</b></div>
     <div><span>💚 Geheilt</span><b>${fmt(e.heal)}</b></div>
@@ -1476,7 +1480,11 @@ function renderVictory(){
    </div></div>`}).join('');
 }
 function closeVictory(){$('vicModal').classList.remove('open')}
-function finish(win){if(S.phase!='battle')return;renderDpsChart();S.phase='prep';B.barriers=[];B.fields=[];B.proj=[];B.waves=[];B.fx=[];B.txt=[];const last=S.round>=EN.length;
+function finish(win){if(S.phase!='battle')return;renderDpsChart();
+ S.stats=S.stats||{};
+ for(const e of B.dps||[]){if(!unitById(e.uid))continue;const o=S.stats[e.uid]||(S.stats[e.uid]={dmg:0,heal:0,blk:0,casts:0});
+  o.dmg+=e.dmg||0;o.heal+=e.heal||0;o.blk+=e.blk||0;o.casts+=e.casts||0}
+S.phase='prep';B.barriers=[];B.fields=[];B.proj=[];B.waves=[];B.fx=[];B.txt=[];const last=S.round>=EN.length;
  if(win&&last){S.phase='done';clearSave();showVictory();B.units=[];render();return}
  S.gold+=income();tryMerge();
  if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1;

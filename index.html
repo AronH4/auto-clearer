@@ -288,7 +288,7 @@ const TB={
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
  Rock:    {th:[2],    v:[.9],         d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
- Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Sie sind dabei 2 Sekunden lang unverwundbar, aber nicht einsatzfähig`},
+ Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Danach sind sie 2 Sekunden lang unverwundbar, können aber sofort angreifen`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
  Ghost:   {th:[2,3,5],v:DECOY_HP,d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
@@ -446,7 +446,7 @@ const RAW=[
 [1,'Wingull,Wingull,Pelipper','278,278,279','Water,Flying','Sniper','Weather Ball'],
 [1,'Ganovil,Rokkaiman,Rabigator','551,552,553','Ground,Dark','Fighter','Close Combat'],
 [1,'Dartiri,Dartignis,Fiaro','661,662,663','Fire,Flying','Sniper','Snipe Shot'],
-[1,'Eguana,Eguana,Elezard','694,694,695','Electric,Normal','Sniper','Close Combat'],
+[1,'Eguana,EGuana,Elezard','694,694,695','Electric,Normal','Sniper','Close Combat'],
 [1,'Sandan,Sandan,Sandamer','10101,10101,10102','Ice,Steel','Caster','Bulldoze'],
 [1,'Meikro,Kranoviz,Krarmor','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
 [1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
@@ -1055,9 +1055,8 @@ function startBattle(){
  for (const u of B.units) {
   if (u.team == 'p' && u.ground > 0) {
    occ.delete(u.r + ',' + u.c);
-   u.stun = Math.max(u.stun || 0, 2);
    u.invuln = 2;
-   say(u, '💫 2s', '#c9a24a');
+   say(u, '🛡 2s', '#c9a24a');
    let best = null;
    const midC = Math.floor(COLS / 2);
 

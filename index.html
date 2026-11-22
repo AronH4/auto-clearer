@@ -263,7 +263,7 @@ const TB={
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
  Rock:    {th:[2],    v:[.9],         d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
- Ground:  {th:[2],    v:[200],        d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (+${v} Schaden beim 1. Angriff) und sind danach 2 Sekunden lang nicht einsatzfähig`},
+ Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Sie sind dabei 2 Sekunden lang unverwundbar, aber nicht einsatzfähig`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
  Ghost:   {th:[2,3,5],v:DECOY_HP,d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
@@ -814,7 +814,7 @@ function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
  return{team,r,c,name,id,sh,x,y,lx:0,ly:0,hp:st.hp,max:st.hp,atk:st.atk,abDmg:st.abDmg||90,aspd:st.aspd,def:st.def,crit:st.crit,critMult:2,range:st.range,
   mana:0,mmax:st.mmax||CFG.base.mana,mg:st.mg,skill:st.skill||1,abName:st.abName||null,cls:st.cls||null,uid:st.uid||null,
   cd:Math.random()*.4,mv:0,star:st.star||0,big:!!st.big,
-  dm:1,ls:0,shield:0,fight:0,fire:0,fireDotDone:0,ice:0,fairy:0,bug:0,ground:0,groundDone:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
+  dm:1,ls:0,shield:0,fight:0,fire:0,fireDotDone:0,ice:0,fairy:0,bug:0,ground:0,groundDone:0,invuln:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
   fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,
   stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyDmg:0,crowned:false}}
 
@@ -854,7 +854,7 @@ function applyBonus(u,t,v,tier){
   case'Ice':u.ice=v;break;
   case'Rock':u.def+=v*S.round;break;
   case'Fairy':u.fairy=v;break;
-  case'Ground':u.ground=v;break;
+  case'Ground':u.ground=v*S.round;break;
   case'Poison':u.pois=v;break;
   case'Psychic':u.psy=1;break;
   case'Dragon':u.dragon=v;break;
@@ -1027,6 +1027,7 @@ function startBattle(){
   if (u.team == 'p' && u.ground > 0) {
    occ.delete(u.r + ',' + u.c);
    u.stun = Math.max(u.stun || 0, 2);
+   u.invuln = 2;
    say(u, '💫 2s', '#c9a24a');
    let best = null;
    const midC = Math.floor(COLS / 2);
@@ -1078,6 +1079,7 @@ const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-32,s,t:.75,col});
 
 function dealDmg(t, d, col, pre, attacker){
  if(!t||t.hp<=0)return 0;
+ if(t.invuln>0){B.txt.push({x:t.x,y:t.y-30,s:'🛡 0',t:.5,col:'#c9a24a'});return 0}
  if(t.team == 'p') {
   const inReflect = B.barriers.some(b => b.team == t.team && b.type == 'reflectZone' && b.r == t.r && b.c == t.c);
   if(inReflect) {
@@ -1357,6 +1359,7 @@ function step(dt){
 
  for(const u of A){
   if(u.stun>0)u.stun-=dt;
+  if(u.invuln>0)u.invuln-=dt;
   if(u.berserk>0)u.berserk-=dt;
   if(u.slowT>0)u.slowT-=dt;
   if(u.atkDownT>0)u.atkDownT-=dt;
@@ -1720,6 +1723,7 @@ function draw(t){ctx.clearRect(0,0,720,514);
   if(u.crowned){ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('👑',u.x,by-20)}
   if(u.berserk>0){ctx.font='15px sans-serif';ctx.textAlign='center';ctx.fillText('💢',u.x+24,by-10)}
   else if(u.stun>0){ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('💫',u.x,by-20)}
+  if(u.invuln>0){ctx.save();ctx.strokeStyle='#c9a24a';ctx.lineWidth=3;ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(u.x,u.y,30,0,Math.PI*2);ctx.stroke();ctx.restore()}
   if(u.poisT>0){ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('☠',u.x+28,by+6)}
  }
 

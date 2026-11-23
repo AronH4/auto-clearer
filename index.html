@@ -209,6 +209,30 @@ h4{margin:8px 0 2px;color:#9ab}
 .tut-warn{background:#2b1f33;border-left:4px solid #b07cff;padding:9px 12px;border-radius:6px;margin-top:12px;font-size:13px;color:#eadbff}
 .tut-foot{background:#0e1119;padding:11px 18px;border-top:1px solid #2c3556;display:flex;align-items:center;justify-content:space-between}
 .tut-step{font-size:12px;color:#889}
+
+/* ===== Professor-Wahl & Gold Rush ===== */
+#profModal,#rushModal{position:fixed;inset:0;z-index:108;background:rgba(6,8,14,.92);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:12px}
+#profModal.open,#rushModal.open{display:flex}
+.pf-box,.rs-box{background:#151924;border:2px solid #5cd6a0;border-radius:14px;max-width:1180px;width:100%;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 40px rgba(92,214,160,.22),0 16px 48px rgba(0,0,0,.7)}
+.pf-head,.rs-head{background:linear-gradient(180deg,#14281f,#151924);padding:14px 18px 10px;text-align:center;border-bottom:1px solid #26503e}
+.pf-head h2,.rs-head h2{margin:0 0 4px;font-size:22px;color:#7ef0b8}.pf-head small,.rs-head small{color:#b9c6e8;font-size:13px;line-height:1.5}
+.pf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:14px;overflow:auto}
+.pf-card{background:#1b2030;border:2px solid #2e3856;border-radius:10px;padding:8px 8px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:transform .12s,border-color .12s,box-shadow .12s}
+.pf-card:hover{transform:translateY(-3px);border-color:#5cd6a0;box-shadow:0 0 16px rgba(92,214,160,.35)}
+.pf-img{height:100px;display:flex;align-items:flex-end;justify-content:center;font-size:56px}
+.pf-n{font-size:15px;color:#fff}.pf-g{font-size:12px;color:#9ab}
+.pf-m{display:flex;flex-wrap:wrap;gap:3px;justify-content:center}
+.pf-c{display:flex;flex-direction:column;align-items:center;font-size:10px;color:#cde;background:#131620;border:1px solid #2e3856;border-radius:6px;padding:1px 4px;width:58px;opacity:.75}
+.pf-c img{width:36px;height:36px;image-rendering:pixelated}.pf-c.own{opacity:1;border-color:#5c5;background:#1c2b1c}
+.pf-b{font-size:12px;font-weight:bold;background:#1c3a2c;color:#7ef0b8;border:1px solid #3c8b6a;border-radius:10px;padding:1px 10px}
+.rs-box{max-width:560px}
+.rs-stats{display:flex;justify-content:center;gap:34px;padding:10px;font-size:20px;background:#11141e}
+.rs-area{display:flex;justify-content:center;padding:18px}
+#rushCircle{width:230px;height:230px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe98a,#f3b61f 60%,#b57d00);border:6px solid #fff3b0;box-shadow:0 0 30px rgba(255,215,0,.5),inset 0 -10px 20px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:bold;color:#4a3300;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;outline:none;transition:transform .05s}
+#rushCircle.go{background:radial-gradient(circle at 35% 30%,#ffd0d0,#ff5a5a 60%,#a11f1f);border-color:#ffc9c9;color:#fff;box-shadow:0 0 34px rgba(255,90,90,.6),inset 0 -10px 20px rgba(0,0,0,.25)}
+#rushCircle.pop{transform:scale(.93)}
+#rushCircle.done{cursor:default;background:radial-gradient(circle at 35% 30%,#d6ffe9,#4fcf92 60%,#1f7a52);border-color:#c9ffe5;color:#063;font-size:64px;box-shadow:0 0 30px rgba(80,220,150,.5)}
+.rs-info{text-align:center;padding:0 16px 16px;color:#cde;font-size:15px;min-height:44px}
 </style></head><body>
 <div id="top">
  <b class="ttl">Auto-Clearer</b>
@@ -256,6 +280,19 @@ h4{margin:8px 0 2px;color:#9ab}
   <div class="it-foot" id="itemFoot" style="display:none"><button id="itemConfirm" onclick="confirmPrio()">🎰 Priorisierung bestätigen &amp; Slot-Maschine starten</button><button id="itemTake" onclick="closeItemOffer()" style="display:none">Item übernehmen ✓</button></div>
  </div>
 </div>
+<!-- PROFESSOR MODAL (Runde 15) -->
+<div id="profModal"><div class="pf-box">
+ <div class="pf-head"><h2>🎓 Generational Run</h2><small>Wähle einen Pokémon-Professor! Alle Pokémon der zugehörigen Generation erhalten dauerhaft <b>+10 % ATK</b>.</small></div>
+ <div class="pf-grid" id="profGrid"></div>
+</div></div>
+<!-- GOLD RUSH MODAL (Runde 45) -->
+<div id="rushModal"><div class="rs-box">
+ <div class="rs-head"><h2>💰 Gold Rush!</h2><small id="rushSub"></small></div>
+ <div class="rs-stats"><span>⏱️ <b id="rushTime">5,0 s</b></span><span>👆 Klicks: <b id="rushCnt">0</b></span></div>
+ <div class="rs-area"><div id="rushCircle" tabindex="0" role="button" aria-label="Klick-Kreis"><span>START</span></div></div>
+ <div id="rushInfo" class="rs-info"></div>
+ <div class="it-foot" id="rushFoot" style="display:none"><button onclick="closeRush()">Weiter ▶</button></div>
+</div></div>
 <!-- TUTORIAL MODAL -->
 <div id="vicModal" onclick="if(event.target===this)closeVictory()">
  <div class="vic-box">
@@ -394,17 +431,17 @@ const itemIcon=(k,st='')=>`<img class="it-ic" src="${ITEM_IMGS[k]}" alt="" ${st?
 
 const ITEMS={
  mega:{icon:itemIcon('mega'),name:'Mega-Stein',col:'#7fe9ff',
-  short:'Entwicklung zu Stufe 4 💎 mit neuem Aussehen: 4× HP & 4× ATK.',
-  desc:'Das Pokémon entwickelt sich zur <b>Stufe 4</b> (★★★★) und verändert sein Aussehen. Als 4★-Einheit hat es <b>4× HP und 4× ATK</b> (statt 3×).',
+  short:'Entwicklung zu Stufe 4 💎 mit neuem Aussehen: 4× HP & 4× ATK (kein Bonus auf Ability Power).',
+  desc:'Das Pokémon entwickelt sich zur <b>Stufe 4</b> (★★★★) und verändert sein Aussehen. Als Mega-Pokémon hat es <b>4× HP und 4× ATK</b> (statt 3×) – die <b>Ability Power</b> erhält <b>keinen</b> Mega-Bonus.',
   carriers:['Rexblisar','Gengar','Stolloss','Brigaron','Impi']},
  zcrystal:{icon:itemIcon('zcrystal'),name:'Z-Kristall',col:'#ffb347',
   short:'Close Combat, Snipe Shot & Bulldoze: doppelter Schaden. Weather Ball & Reflect: 75 % statt 50 %.',
   desc:'Der Schaden von <b>Close Combat, Snipe Shot und Bulldoze</b> wird <b>verdoppelt</b>. <b>Weather Ball</b> (−DEF & −Mana Gain beim Gegner) und <b>Reflect</b> (−eingehender Schaden & +Attack Speed) wirken mit <b>75 % statt 50 %</b>.',
-  carriers:['Pelipper','Fermicula','Durengard','Silvarro','Sandamer','Agoyon']},
+  carriers:['Pelipper','Fermicula','Durengard','Silvarro','Sandamer']},
  dyna:{icon:itemIcon('dyna'),name:'Dyna-Pilz',col:'#ff6b81',
   short:'Neues Aussehen (Gigadynamax). +25 % DEF & +25 % Mana pro ATK.',
   desc:'Das Pokémon verändert sein Aussehen (<b>Gigadynamax</b>). Verstärkt <b>DEF und Mana pro ATK um 25 %</b>.',
-  carriers:['Krarmor','Olangaar','Maritellit','Gengar','Pikachu']},
+  carriers:['Krarmor','Olangaar','Maritellit','Relaxo','Pikachu']},
  scarf:{icon:itemIcon('scarf'),name:'Wahlschal',col:'#7aa2ff',
   short:'+50 % Attack Speed.',
   desc:'Steigert den <b>Attack Speed um 50 %</b>.',
@@ -427,10 +464,30 @@ const ITEM_FORMS={
   Krarmor:{n:'Krarmor',id:10212},
   Olangaar:{n:'Olangaar',id:10222},
   Maritellit:{n:'Maritellit',id:10213},
-  Gengar:{n:'Gengar',id:10202},
+  Relaxo:{n:'Relaxo',id:10206},
   Pikachu:{n:'Pikachu',id:10199}
  }
 };
+
+/* ================= GENERATIONAL RUN (Professor-Wahl nach Runde 15) ================= */
+const PROF_ROUND=15,RUSH_ROUND=45,GEN_BONUS=0.10;
+const TR='https://play.pokemonshowdown.com/sprites/trainers/';
+const PROFS=[
+ {k:'eich',name:'Prof. Eich',gen:1,img:TR+'oak.png',em:'🧪',mons:['Pichu','Nebulak','Fukano','Mampfaxo']},
+ {k:'lind',name:'Prof. Lind',gen:2,img:TR+'elm.png',em:'🔬',mons:['Karnimani','Evoli','Ursaluna']},
+ {k:'birk',name:'Prof. Birk',gen:3,img:TR+'birch.png',em:'🌿',mons:['Samurzel','Stollunior','Wingull']},
+ {k:'eibe',name:'Prof. Eibe',gen:4,img:TR+'rowan.png',em:'📚',mons:['Panflam','Rotom','Shnebedeck','Arceus']},
+ {k:'esche',name:'Prof. Esche',gen:5,img:TR+'juniper.png',em:'🧬',mons:['Ganovil','Monozyto','Fermicula']},
+ {k:'platan',name:'Prof. Platan',gen:6,img:TR+'sycamore.png',em:'💠',mons:['Igamaro','Dartiri','Eguana','Gramokles']},
+ {k:'kukui',name:'Prof. Kukui',gen:7,img:TR+'kukui.png',em:'🥊',mons:['Bauz','Curelei','Sandan','Venicro']},
+ {k:'magnolica',name:'Prof. Magnolica',gen:8,img:TR+'magnolia.png',em:'🌌',mons:['Meikro','Porenta','Bähmon','Grolldra','Sensect']},
+ {k:'futurus',name:'Prof. Futurus',gen:9,img:TR+'turo.png',em:'🤖',mons:['Pamo','Geosali','Eisenbündel']}
+];
+const profOf=k=>PROFS.find(x=>x.k===k)||null;
+const spInGen=(sp,pr)=>!!pr&&SP[sp].n.some(n=>pr.mons.includes(n));
+const genActive=()=>!!S&&S.gen?profOf(S.gen):null;
+const profImg=(pr,w=84)=>`<img src="${pr.img}" alt="" style="height:${w}px;image-rendering:auto" onerror="this.replaceWith(document.createTextNode('${pr.em}'))">`;
+
 const itemChips=k=>ITEMS[k].carriers.map(n=>{const s=SP.find(x=>x.n[2]===n);
  return`<span class="it-chip"><img src="${url(s.id[2],s.sh)}" onerror="this.style.opacity=.2">${n}</span>`}).join('');
 
@@ -563,12 +620,26 @@ const TUT_PAGES=[
   • Die Übergabe ist <b>einmalig und endgültig</b>. Verkaufst du den Träger, geht das Item verloren.<br>
   • Eine Einheit kann nur <b>ein</b> Item tragen.<br>
   • 🍬 <b>Sonderbonbon:</b> Solange ein Pokémon es trägt (auf dem Feld oder der Bank), wird <b>1 zusätzlicher Platz</b> auf dem Spielfeld freigeschaltet (bis zu 9). Verkaufst du den Träger, fällt der Platz weg.<br>
-  • Item-Form und <b>Tera-Typ</b> sind kombinierbar (z. B. Impi mit Mega-Stein, Pikachu mit Dyna-Pilz).</div>
+  • Item-Form und <b>Tera-Typ</b> sind kombinierbar (z. B. Impi mit Mega-Stein, Pikachu mit Dyna-Pilz, Relaxo mit Dyna-Pilz als Gigadynamax-Relaxo).</div>
   <h4 style="margin-top:14px;font-size:15px">🧰 Die 5 Items &amp; ihre Träger</h4>
   <div class="tut-grid" style="grid-template-columns:1fr">
   ${ITEM_KEYS.map(k=>`<div class="tut-card" style="border-color:${ITEMS[k].col}"><b class="t-ttl" style="color:${ITEMS[k].col};font-size:14px">${ITEMS[k].icon} ${ITEMS[k].name}</b>${ITEMS[k].desc}<div class="it-car" style="justify-content:flex-start;margin-top:6px">${itemChips(k)}</div></div>`).join('')}
   </div>
   <div class="tut-note">💡 <b>Tipp:</b> Setze das Item, das du am dringendsten brauchst, auf Prio 1 – so ist die Chance am größten, dass die Slot-Maschine es dir gibt.</div>`
+ }
+ ,{
+  tab:'10. Generational Run (Runde 15)',
+  title:()=>'🎓 Generational Run ab Runde 15',
+  html:()=>`<p>Wenn du <b>Runde 15 erfolgreich meisterst</b>, öffnet sich ein Auswahlfenster: Du entscheidest dich für einen <b>Pokémon-Professor</b> (einmalig pro Spiel). Alle Pokémon seiner Generation erhalten dauerhaft <b>+10 % ATK</b> – das nennt sich <b>Generational Run</b>.</p>
+  <div class="tut-grid" style="grid-template-columns:1fr 1fr">${PROFS.map(pr=>`<div class="tut-card"><b class="t-ttl">${pr.name} · Gen ${pr.gen}</b>${pr.mons.join(', ')}</div>`).join('')}</div>
+  <div class="tut-note">💡 Pokémon, die vom Bonus profitieren, zeigen das im Tooltip an (🎓). Der Bonus gilt für alle Entwicklungsstufen des jeweiligen Pokémon.</div>`
+ },{
+  tab:'11. Gold Rush (Runde 45)',
+  title:()=>'💰 Gold Rush ab Runde 45',
+  html:()=>`<p>Wenn du <b>Runde 45 erfolgreich meisterst</b>, startet das <b>Gold-Rush-Event</b>: Du hast <b>5 Sekunden</b> Zeit, so schnell wie möglich auf einen Kreis zu tippen. Danach werden deine Klicks gezählt.</p>
+  <div class="tut-grid" style="grid-template-columns:1fr 1fr">
+   <div class="tut-card"><b class="t-ttl">35+ Klicks</b>💰 50 Gold</div><div class="tut-card"><b class="t-ttl">33–34 Klicks</b>💰 40 Gold</div>
+   <div class="tut-card"><b class="t-ttl">30–32 Klicks</b>💰 30 Gold</div><div class="tut-card"><b class="t-ttl">unter 30 Klicks</b>💰 20 Gold</div></div>`
  }
 ];
 
@@ -1003,7 +1074,7 @@ function formOf(o){
  return f}
 
 function newGame(){
- S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0,item:null,itemOffer:false,itemDone:false,stats:{}};
+ S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0,item:null,itemOffer:false,itemDone:false,gen:null,profOffer:false,profDone:false,rushOffer:false,rushDone:false,stats:{}};
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
@@ -1012,6 +1083,15 @@ function clearSave(){try{localStorage.removeItem('pab7')}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;migrateItems();fixSlots();return true}}catch(e){}return false}
 
 function migrateItems(){
+ /* Gengar kann keinen Dyna-Pilz mehr tragen -> Item zurück in die Item-Box */
+ S.units.forEach(u=>{if(u.item==='dyna'&&SP[u.sp]&&SP[u.sp].n[2]==='Gengar'){u.item=null;if(!S.item)S.item='dyna'}});
+ /* Agoyon darf keinen Z-Kristall mehr tragen */
+ S.units.forEach(u=>{if(u.item==='zcrystal'&&SP[u.sp]&&SP[u.sp].n[2]==='Agoyon'){u.item=null;if(!S.item)S.item='zcrystal'}});
+ if(S.gen===undefined)S.gen=null;
+ if(S.profDone===undefined)S.profDone=!!S.gen||S.round<=PROF_ROUND;
+ if(!S.profDone&&!S.gen&&S.round>PROF_ROUND)S.profOffer=true;
+ if(S.rushDone===undefined)S.rushDone=S.round<=RUSH_ROUND;
+ if(!S.rushDone&&S.round>RUSH_ROUND)S.rushOffer=true;
  if(S.item==='leftovers')S.item='candy';
  S.units.forEach(u=>{if(u.item==='leftovers')u.item='candy'});
  if(S.itemDone===undefined)S.itemDone=!!(S.item||S.round>40||S.units.some(u=>u.item));
@@ -1131,7 +1211,7 @@ function buildUnit(o,pos){
  const sMulAtk=CFG.atkMul[st-1]||1;
  const hp=(ov.hp||cl.hp)*cMul*sMulHp;
  const atk=(ov.atk||cl.atk)*cMul*sMulAtk;
- const abDmg=(ov.abDmg||cl.abDmg)*cMul*sMulAtk;
+ const abDmg=(ov.abDmg||cl.abDmg)*cMul*(o.item==='mega'?CFG.atkMul[2]:sMulAtk); /* Mega: kein Ability-Power-Bonus (bleibt auf 3★-Niveau) */
  const u=mk('p',pos.r,pos.c,f.name,f.id,f.sh,{
   hp,atk,abDmg,
   aspd:ov.aspd||cl.aspd,
@@ -1161,6 +1241,7 @@ function buildPlayer(bat){
  const cnt=typeCounts();
  const L=placed().map(o=>{
   const u=buildUnit(o,o.pos);
+  if(spInGen(o.sp,genActive())){u.atk*=1+GEN_BONUS;u.genB=1}
   if(S.crownOn===o.id&&(cnt.Bug||0)>=2){
    u.crowned=true;
    u.atk*=1.20;
@@ -1733,9 +1814,11 @@ S.phase='prep';B.barriers=[];B.fields=[];B.proj=[];B.waves=[];B.fx=[];B.txt=[];c
  S.gold+=income();tryMerge();
  if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1;
  if(win&&S.round===ITEM_ROUND&&!S.itemDone)S.itemOffer=true;
+ if(win&&S.round===PROF_ROUND&&!S.profDone)S.profOffer=true;
+ if(win&&S.round===RUSH_ROUND&&!S.rushDone)S.rushOffer=true;
  if(win)S.round++;
  else{S.lives--;if(S.lives<=0){S.phase='done';clearSave();render();return}}
- roll();save();render();if(S.itemOffer)showItemOffer()}
+ roll();save();render();showPendingEvents()}
 
 /* ================= EINGABE (Klick + Drag & Drop) ================= */
 function cellAt(cx,cy){const cv=$('cv'),b=cv.getBoundingClientRect(),mx=(cx-b.left)*cv.width/b.width,my=(cy-b.top)*cv.height/b.height;
@@ -1888,7 +1971,72 @@ function spinSlot(cells,w){
   $('itemFoot').style.display='flex';$('itemTake').style.display='';
  },dur*1000+250);
 }
-function closeItemOffer(){$('itemModal').classList.remove('open');itemBusy=false;render()}
+function closeItemOffer(){$('itemModal').classList.remove('open');itemBusy=false;render();if(S&&(S.profOffer||S.rushOffer))showPendingEvents()}
+
+/* ================= EVENTS: Professor-Wahl & Gold Rush ================= */
+function showPendingEvents(){
+ if(!S)return;
+ if(S.itemOffer)showItemOffer();
+ else if(S.profOffer)showProfOffer();
+ else if(S.rushOffer)showRushOffer();
+}
+function showProfOffer(){
+ const own=new Set(S.units.map(u=>u.sp));
+ $('profGrid').innerHTML=PROFS.map(pr=>{
+  const mons=SP.map((x,i)=>({x,i})).filter(o=>spInGen(o.i,pr));
+  return`<div class="pf-card" onclick="pickProf('${pr.k}')">
+   <div class="pf-img">${profImg(pr,96)}</div>
+   <b class="pf-n">${pr.name}</b><span class="pf-g">Generation ${pr.gen}</span>
+   <div class="pf-m">${mons.map(o=>`<span class="pf-c ${own.has(o.i)?'own':''}" title="${o.x.n[0]}${own.has(o.i)?' (im Besitz)':''}"><img src="${url(o.x.id[0],o.x.sh)}" onerror="this.style.opacity=.2">${o.x.n[0]}</span>`).join('')}</div>
+   <span class="pf-b">+${Math.round(GEN_BONUS*100)} % ATK</span></div>`}).join('');
+ $('profModal').classList.add('open');
+}
+function pickProf(k){
+ const pr=profOf(k);if(!pr||!S||!S.profOffer)return;
+ S.gen=k;S.profOffer=false;S.profDone=true;save();
+ $('profModal').classList.remove('open');
+ toast('🎓 Generational Run: '+pr.name+' – Generation '+pr.gen+' erhält +'+Math.round(GEN_BONUS*100)+' % ATK');
+ render();showPendingEvents();
+}
+let rush={t:0,n:0,run:false,tm:null,end:0};
+function rushReward(n){return n>=35?50:n>=33?40:n>=30?30:20}
+function showRushOffer(){
+ rush={t:0,n:0,run:false,tm:null,end:0};
+ $('rushSub').innerHTML='Tippe <b>5 Sekunden</b> lang so schnell wie möglich auf den Kreis! Danach werden deine Klicks gezählt.<br><small>35+ Klicks = <b>50</b> Gold · 33–34 = <b>40</b> · 30–32 = <b>30</b> · unter 30 = <b>20</b></small>';
+ $('rushCircle').className='';$('rushCircle').innerHTML='<span>START</span>';
+ $('rushInfo').innerHTML='Klicke auf den Kreis, um zu starten – der erste Klick zählt bereits mit.';
+ $('rushTime').textContent='5,0 s';$('rushCnt').textContent='0';$('rushFoot').style.display='none';
+ $('rushModal').classList.add('open');
+}
+function rushTap(e){
+ if(e)e.preventDefault();
+ if(!S||!S.rushOffer)return;
+ const c=$('rushCircle');
+ if(!rush.run&&rush.end===0){
+  rush.run=true;rush.n=0;rush.end=performance.now()+5000;
+  c.className='go';c.innerHTML='<span>TIPP!</span>';$('rushInfo').textContent='Schnell, schnell, schnell!';
+  rush.tm=setInterval(rushTick,50);
+ }
+ if(rush.run&&performance.now()<rush.end){rush.n++;$('rushCnt').textContent=rush.n;
+  c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}
+}
+function rushTick(){
+ const left=Math.max(0,rush.end-performance.now());
+ $('rushTime').textContent=(left/1000).toFixed(1).replace('.',',')+' s';
+ if(left<=0)rushEnd();
+}
+function rushEnd(){
+ clearInterval(rush.tm);rush.run=false;
+ const n=rush.n,g=rushReward(n);
+ S.gold+=g;S.rushOffer=false;S.rushDone=true;save();
+ const c=$('rushCircle');c.className='done';c.innerHTML='<span>'+n+'</span>';
+ $('rushInfo').innerHTML=`⏱️ Zeit abgelaufen! <b>${n}</b> Klicks → <b style="color:#fd6;font-size:20px">+${g} Gold 💰</b>`;
+ $('rushFoot').style.display='flex';render();
+}
+function closeRush(){$('rushModal').classList.remove('open');render();showPendingEvents()}
+(()=>{const c=$('rushCircle');c.addEventListener('pointerdown',rushTap);c.addEventListener('contextmenu',e=>e.preventDefault());
+ c.addEventListener('keydown',e=>{if(e.key==' '||e.key=='Enter'){e.preventDefault();if(!e.repeat)rushTap()}})})();
+
 
 /* ===== Terastallize: Ziel prüfen, Kreis-Menü, Anwenden ===== */
 function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2600)}
@@ -1986,10 +2134,11 @@ function tipPoke(spIdx,star,e,xt,item){
  const s=SP[spIdx],cl=CLASSES[s.cls],sk=SKILLS[s.ab];
  const f=formOf({sp:spIdx,star,item:item||null}),it=item&&ITEMS[item];
  const cMul=CFG.costMul[s.c]||1,sMul=CFG.hpMul[f.star-1]||1;
- const hp=Math.round(cl.hp*cMul*sMul),atk=Math.round(cl.atk*cMul*sMul),ab=Math.round(cl.abDmg*cMul*sMul);
+ const hp=Math.round(cl.hp*cMul*sMul),atk=Math.round(cl.atk*cMul*sMul),ab=Math.round(cl.abDmg*cMul*(item==='mega'?CFG.atkMul[2]:sMul));
  const h=`<div><b>${f.name}</b> ${starsHtml(f.star)} (${s.c}-Cost · ${cl.icon} ${s.cls})</div>
   <div style="margin:3px 0">${s.t.map(typeBadge).join(' ')}${xt?` + ${typeBadge(xt)} <small style="color:#fd6">(Tera-Typ)</small>`:''}</div>
   <div style="color:#cde">HP: <b>${hp}</b> · ATK: <b>${atk}</b> · Ability DMG: <b>${ab}</b></div>
+  ${spInGen(spIdx,genActive())?`<div style="color:#8fd">🎓 Generational Run (${genActive().name}): +${Math.round(GEN_BONUS*100)} % ATK</div>`:''}
   <div style="color:#cde">DEF: <b>${cl.def}</b> · ASPD: <b>${cl.aspd}</b> · Crit: <b>${p(cl.crit)}</b> · Range: <b>${cl.range}</b></div>
   <div style="margin-top:5px;color:#fd6"><b>Fähigkeit – ${s.ab}:</b></div>
   <div style="color:#ddd">${sk?sk.desc:''}</div>${it?`<div style="margin-top:5px;color:#ffb86b"><b>${it.icon} ${it.name}:</b> ${it.desc}</div>`:''}`;
@@ -2042,7 +2191,7 @@ function slotInfo(){const T=CFG.slotAfter.find(t=>t>=S.round),b=limitFor(S.round
 
 function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().length;
  $('tr').innerHTML=`Runde <b>${S.round}/${EN.length}</b>`;
- $('tl').innerHTML=`❤️ <b>${S.lives}</b>`;
+ {const g=genActive();$('tl').innerHTML=`❤️ <b>${S.lives}</b>`+(g?` <span title="Generational Run: Alle Pokémon der Generation ${g.gen} (${g.mons.join(', ')}) erhalten +10 % ATK" style="cursor:help;margin-left:10px;color:#7ef0b8">🎓 ${g.name} · Gen ${g.gen} (+10 % ATK)</span>`:'')}
  $('tn').innerHTML=S.phase=='done'?(S.lives<=0?'💀 <b>Game Over</b>':'🏆 <b>Gewonnen!</b> <button onclick="renderVictory();$(\'vicModal\').classList.add(\'open\')" style="padding:2px 8px;font-size:12px">Ergebnis</button>'):`Nächster Gegner: <b>${ROUND_LABEL[S.round]||EN[Math.min(S.round,EN.length)-1].map(e=>e.name).join(', ')}</b>`;
  $('gold').innerHTML=`💰 <b>${S.gold}</b> (+${income()} nächste Runde)`;
  $('plc').innerHTML=`Verfügbar: <b>${pl}/${limit()}</b>`;$('plc').title=slotInfo();$('plc').style.color=(S.phase=='prep'&&pl<limit())?'#ff5555':'';
@@ -2197,6 +2346,6 @@ function frame(t){const dt=Math.min((t-last)/1000,.05);last=t;
  draw(t);requestAnimationFrame(frame)}
 
 if(!load())newGame();else render();
-if(S&&S.itemOffer)showItemOffer();
+showPendingEvents();
 requestAnimationFrame(frame);
 </script></body></html>

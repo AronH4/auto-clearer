@@ -406,8 +406,8 @@ const ITEMS={
   desc:'Das Pokémon verändert sein Aussehen (<b>Gigadynamax</b>). Verstärkt <b>DEF und Mana pro ATK um 25 %</b>.',
   carriers:['Krarmor','Olangaar','Maritellit','Gengar','Pikachu']},
  scarf:{icon:itemIcon('scarf'),name:'Wahlschal',col:'#7aa2ff',
-  short:'+30 % Attack Speed.',
-  desc:'Steigert den <b>Attack Speed um 30 %</b>.',
+  short:'+50 % Attack Speed.',
+  desc:'Steigert den <b>Attack Speed um 50 %</b>.',
   carriers:[]}, /* alle außer Mega-/Z-/Dyna-Träger – wird nach SP berechnet */
  candy:{icon:itemIcon('candy'),name:'Sonderbonbon',col:'#ff8ad8',
   short:'Solange ein Pokémon es trägt: +1 Platz auf dem Spielfeld (bis max. 9).',
@@ -417,18 +417,18 @@ const ITEMS={
 /* Neues Aussehen je Träger (Schlüssel = Name der 3★-Form). id = PokeAPI-Sprite-ID oder komplette Bild-URL */
 const ITEM_FORMS={
  mega:{
-  Rexblisar:{n:'Mega-Rexblisar',id:10060},
-  Gengar:{n:'Mega-Gengar',id:10038},
-  Stolloss:{n:'Mega-Stolloss',id:10053},
-  Brigaron:{n:'Mega-Brigaron',id:'https://play.pokemonshowdown.com/sprites/ani/chesnaught-mega.gif'},
-  Impi:{n:'Mega-Impi',id:'https://play.pokemonshowdown.com/sprites/ani/feraligatr-mega.gif'}
+  Rexblisar:{n:'Rexblisar',id:10060},
+  Gengar:{n:'Gengar',id:10038},
+  Stolloss:{n:'Stolloss',id:10053},
+  Brigaron:{n:'Brigaron',id:10292},
+  Impi:{n:'Impi',id:10283}
  },
  dyna:{
-  Krarmor:{n:'Gigadynamax-Krarmor',id:10212},
-  Olangaar:{n:'Gigadynamax-Olangaar',id:10222},
-  Maritellit:{n:'Gigadynamax-Maritellit',id:10213},
-  Gengar:{n:'Gigadynamax-Gengar',id:10202},
-  Pikachu:{n:'Gigadynamax-Pikachu',id:10199}
+  Krarmor:{n:'Krarmor',id:10212},
+  Olangaar:{n:'Olangaar',id:10222},
+  Maritellit:{n:'Maritellit',id:10213},
+  Gengar:{n:'Gengar',id:10202},
+  Pikachu:{n:'Pikachu',id:10199}
  }
 };
 const itemChips=k=>ITEMS[k].carriers.map(n=>{const s=SP.find(x=>x.n[2]===n);
@@ -1149,7 +1149,7 @@ function buildUnit(o,pos){
  u.item=o.item||null;
  switch(o.item){
   case'dyna':u.def*=1.25;u.mg*=1.25;break;
-  case'scarf':u.aspd*=1.3;break;
+  case'scarf':u.aspd*=1.5;break;
   case'zcrystal':u.zc=1;break;
  }
  return u;

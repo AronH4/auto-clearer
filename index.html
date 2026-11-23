@@ -889,6 +889,60 @@ const ENEMIES=[
   E('Amigento (Fee)',773,{pos:[0,2],die:SPAWN_ARCEUS_AFTER_SILVALLY})
  ]
 ];
+
+const ROUND_LABEL = {
+ 1: 'Karpador',
+ 2: 'Team Rocket',
+ 3: 'Kanto-Champion Red',
+ 4: 'Arktos, Zapdos, Lavados',
+ 5: 'Mewtu & Mew',
+ 6: 'Woingenau & Icognito',
+ 7: 'Tornupto, Scherox, Despotar',
+ 8: 'Johto-Champion Lance',
+ 9: 'Raikou, Entei, Suicune',
+ 10: 'Lugia, Ho-Oh, Celebi',
+ 11: 'Team Magma & Team Aqua',
+ 12: 'The Regis',
+ 13: 'Hoenn-Champion Troy',
+ 14: 'Latias, Latios, Groudon, Kyogre, Rayquaza',
+ 15: 'Deoxys & Outer Space',
+ 16: 'Manaphy, Phione, Shaymin & Knospi-Schwarm',
+ 17: 'Darkrai, Heatran & Cresselia',
+ 18: 'Sinnoh-Champion Cynthia',
+ 19: 'See-Trio, Dialga, Palkia,
+ 20: 'Giratina & Zobiris',
+ 21: 'Einall-Starter & Victini',
+ 22: 'Ritter der Redlichkeit',
+ 23: 'Unova-Champion Alder',
+ 24: 'Genesect, Meloetta & Tiergeist-Formen',
+ 25: 'Reshiram, Zekrom, Kyurem & Frigometri',
+ 26: 'Ewigblüter Floette & Flabébé-Schwarm',
+ 27: 'Diancie, Volcanion & Rocara',
+ 28: 'Kalos-Champion Diantha',
+ 29: 'Xerneas, Yveltal & Zygarde',
+ 30: 'Hoopa',
+ 31: 'Ultrabestien',
+ 32: 'Kapu-Schutzpatrone',
+ 33: 'Alola-Champion Prof. Kukui',
+ 34: 'Magearna, Marshadow & Zeraora',
+ 35: 'Solgaleo, Lunala & Necrozma',
+ 36: 'Zwollock, Gortrom, Duraludon',
+ 37: 'Wulaosu & Zarude',
+ 38: 'Galar-Champion Leon',
+ 39: 'Zacian, Zamazenta & Endynalos',
+ 40: 'Polaross, Phantoross & Coronospa',
+ 41: 'Treasures of Ruin',
+ 42: 'Koraidon, Miraidon & Paradox-Pokémon',
+ 43: 'Paldea-Champion Geeta',
+ 44: 'Loyal Three, Infamomo & Ogerpon',
+ 45: 'Terapagos',
+ 46: 'Melmetal & Meltan-Schwarm',
+ 47: 'FS Special Squad',
+ 48: 'World-Champion Ash',
+ 49: 'Hisui-Swarm',
+ 50: 'Hall Of Origin'
+};
+ 
 const EN=ENEMIES;
 
 /* ================= HEX-GEOMETRIE ================= */
@@ -1724,7 +1778,7 @@ $('tokenBox').addEventListener('pointerdown',e=>{
 $('itemBox').addEventListener('pointerdown',e=>{
  if(S.phase!='prep'||!S.item)return;e.preventDefault();
  D={type:'item',x:e.clientX,y:e.clientY,moved:false};
- const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.innerHTML=itemIcon(S.item,'width:36px;height:36px').icon;document.body.appendChild(g);D.g=g;
+ const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.innerHTML=itemIcon(S.item,'width:36px;height:36px');document.body.appendChild(g);D.g=g;
 });
 
 /* ===== Items: Ziel prüfen & übergeben ===== */
@@ -1940,7 +1994,7 @@ function slotInfo(){const T=CFG.slotAfter.find(t=>t>=S.round);
 function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().length;
  $('tr').innerHTML=`Runde <b>${S.round}/${EN.length}</b>`;
  $('tl').innerHTML=`❤️ <b>${S.lives}</b>`;
- $('tn').innerHTML=S.phase=='done'?(S.lives<=0?'💀 <b>Game Over</b>':'🏆 <b>Gewonnen!</b> <button onclick="renderVictory();$(\'vicModal\').classList.add(\'open\')" style="padding:2px 8px;font-size:12px">Ergebnis</button>'):`Nächster Gegner: <b>${EN[Math.min(S.round,EN.length)-1].map(e=>e.name).join(', ')}</b>`;
+ $('tn').innerHTML=S.phase=='done'?(S.lives<=0?'💀 <b>Game Over</b>':'🏆 <b>Gewonnen!</b> <button onclick="renderVictory();$(\'vicModal\').classList.add(\'open\')" style="padding:2px 8px;font-size:12px">Ergebnis</button>'):`Nächster Gegner: <b>${ROUND_LABEL[S.round]||EN[Math.min(S.round,EN.length)-1].map(e=>e.name).join(', ')}</b>`;
  $('gold').innerHTML=`💰 <b>${S.gold}</b> (+${income()} nächste Runde)`;
  $('plc').innerHTML=`Verfügbar: <b>${pl}/${limit()}</b>`;$('plc').title=slotInfo();$('plc').style.color=(S.phase=='prep'&&pl<limit())?'#ff5555':'';
  $('bBattle').disabled=S.phase=='battle';$('bBattle').textContent=S.phase=='done'?'🔄 Neues Spiel':'⚔️ Kampf!';$('bRoll').disabled=!act()||S.gold<CFG.reroll;

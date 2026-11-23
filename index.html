@@ -119,9 +119,9 @@ h4{margin:8px 0 2px;color:#9ab}
 .dps-bar{height:100%;background:linear-gradient(90deg,#4a9eff,#6ce5ff);border-radius:3px;transition:width .12s}
 
 
-/* ================= ITEMS (Runde 40) ================= */
-#itemBox{display:inline-flex;align-items:center;gap:6px;background:#2a1d10;border:2px solid #ff9f43;border-radius:8px;padding:8px 12px;cursor:grab;user-select:none;touch-action:none;font-size:26px;line-height:1;box-shadow:0 0 8px #ff9f4388}
-#itemBox b{font-size:13px;color:#ffd9a8}#itemBox.hidden{display:none}
+/* ================= ITEMS (Runde 35) ================= */
+#itemBox{display:inline-flex;align-items:center;justify-content:center;background:#2a1d10;border:2px solid #ff9f43;border-radius:8px;padding:8px 12px;cursor:grab;user-select:none;touch-action:none;font-size:26px;line-height:1;box-shadow:0 0 8px #ff9f4388}
+#itemBox.hidden{display:none}
 .ibadge{position:absolute;top:1px;right:2px;font-size:13px;line-height:1;filter:drop-shadow(0 0 2px #000);pointer-events:none}
 #itemModal{position:fixed;inset:0;z-index:105;background:rgba(6,8,14,.9);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:12px}
 #itemModal.open{display:flex}
@@ -140,12 +140,19 @@ h4{margin:8px 0 2px;color:#9ab}
 .it-car{display:flex;flex-wrap:wrap;gap:3px;justify-content:center}
 .it-chip{display:flex;align-items:center;gap:2px;font-size:10px;background:#131620;border:1px solid #2e3856;border-radius:6px;padding:0 5px 0 0}
 .it-chip img{width:24px;height:24px;image-rendering:pixelated}
-.it-hint{font-size:11px;color:#f88;opacity:0;transition:.15s}
-.it-card.pick{cursor:pointer}
-.it-card.pick:hover{border-color:#f55;transform:translateY(-3px);box-shadow:0 0 14px #f554}
-.it-card.pick:hover .it-hint{opacity:1}
-.it-card.out{opacity:.3;filter:grayscale(1);pointer-events:none}
-.it-card.out::after{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:96px;color:#f44}
+.it-prio{display:flex;flex-direction:column;align-items:center;gap:1px;font-weight:bold}
+.it-prio b{font-size:15px;color:#ffd56b}.it-prio span{font-size:12px;color:#9fe6a0}
+.it-mv{display:flex;justify-content:center;gap:8px}
+.it-mv button{padding:2px 12px;font-size:15px}
+.it-card.prio{cursor:grab}
+.it-card.prio:hover{transform:translateY(-3px);box-shadow:0 0 14px #ffd70055}
+.it-card.dragging{opacity:.35}
+.it-card.dropt{border-style:dashed;box-shadow:0 0 16px #ffd700aa}
+.slot-odds{font-size:12px;color:#aab3d6;text-align:center;padding:0 14px 6px}
+#tip .it-tip-h{color:#ffb86b;font-weight:bold;margin-bottom:3px}
+#tip .it-tip-l{margin-top:5px;color:#9aa4c8;font-size:11px}
+#tip .it-car{justify-content:flex-start}
+#tip .it-chip.dim{opacity:.45}
 .slot-wrap{padding:4px 14px 18px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .slot-win{position:relative;width:min(420px,92%);height:288px;overflow:hidden;background:#0e1119;border:3px solid #ffd700;border-radius:12px;box-shadow:inset 0 0 24px #000,0 0 18px #ffd70044}
 .slot-win::before,.slot-win::after{content:'';position:absolute;left:0;right:0;height:70px;z-index:2;pointer-events:none}
@@ -234,18 +241,19 @@ h4{margin:8px 0 2px;color:#9ab}
 </div>
 <div id="tip"></div><div id="toast"></div>
 
-<!-- ITEM MODAL (Runde 40) -->
+<!-- ITEM MODAL (Runde 35) -->
 <div id="itemModal">
  <div class="it-box">
-  <div class="it-head"><h2>🎁 Belohnung nach Runde 40</h2><small id="itemSub"></small></div>
+  <div class="it-head"><h2>🎁 Belohnung nach Runde 35</h2><small id="itemSub"></small></div>
   <div class="it-scroll">
    <div class="it-grid" id="itemGrid"></div>
    <div class="slot-wrap" id="itemSlot" style="display:none">
+    <div class="slot-odds" id="slotOdds"></div>
     <div class="slot-win"><div class="slot-strip" id="slotStrip"></div><div class="slot-line"></div></div>
     <div id="slotRes"></div>
    </div>
   </div>
-  <div class="it-foot" id="itemFoot" style="display:none"><button onclick="closeItemOffer()">Item übernehmen ✓</button></div>
+  <div class="it-foot" id="itemFoot" style="display:none"><button id="itemConfirm" onclick="confirmPrio()">🎰 Priorisierung bestätigen &amp; Slot-Maschine starten</button><button id="itemTake" onclick="closeItemOffer()" style="display:none">Item übernehmen ✓</button></div>
  </div>
 </div>
 <!-- TUTORIAL MODAL -->
@@ -371,23 +379,24 @@ const typeIcon=t=>{const T=TYPES[t];return`<span class="ti" style="background:${
 const typeBadge=t=>{const T=TYPES[t];return`<span class="tb" style="background:${T[2]}"><img src="${TYPE_URL[t]}" onerror="this.remove()">${T[1]}</span>`};
 const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000">${'★'.repeat(n)}</span>`;
 
-/* ================= ITEMS (ab Runde 40) ================= */
-const ITEM_KEYS=['mega','zcrystal','dyna','scarf','leftovers'];
+/* ================= ITEMS (ab Runde 35) ================= */
+const ITEM_KEYS=['mega','zcrystal','dyna','scarf','candy'];
+const PRIO_W=[8,6,4,2,1];
 const ITEM_IMGS={
  mega:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/venusaurite.png',
  zcrystal:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/normalium-z--bag.png',
  dyna:'https://archives.bulbagarden.net/media/upload/thumb/a/a7/GO_Max_Mushroom.png/120px-GO_Max_Mushroom.png',
  scarf:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png',
- leftovers:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png'
+ candy:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png'
 };
-const ITEM_FALLBACK={mega:'🧿',zcrystal:'💠',dyna:'🍄',scarf:'🧣',leftovers:'🥡'};
+const ITEM_FALLBACK={mega:'🧿',zcrystal:'💠',dyna:'🍄',scarf:'🧣',candy:'🍬'};
 const itemIcon=(k,st='')=>`<img class="it-ic" src="${ITEM_IMGS[k]}" alt="" ${st?`style="${st}"`:''} onerror="this.replaceWith(document.createTextNode('${ITEM_FALLBACK[k]}'))">`;
 
 const ITEMS={
  mega:{icon:itemIcon('mega'),name:'Mega-Stein',col:'#7fe9ff',
   short:'Entwicklung zu Stufe 4 (💎 Diamant) mit neuem Aussehen: 4× HP & 4× ATK.',
   desc:'Das Pokémon entwickelt sich zur <b>Stufe 4</b> (diamantfarbene ★★★★) und verändert sein Aussehen. Als 4★-Einheit hat es <b>4× HP und 4× ATK</b> (statt 3×).',
-  carriers:['Rexblisar','Gengar','Stolloss','Brigaron']},
+  carriers:['Rexblisar','Gengar','Stolloss','Brigaron','Impi']},
  zcrystal:{icon:itemIcon('zcrystal'),name:'Z-Kristall',col:'#ffb347',
   short:'Close Combat, Snipe Shot & Bulldoze: doppelter Schaden. Weather Ball & Reflect: 75 % statt 50 %.',
   desc:'Der Schaden von <b>Close Combat, Snipe Shot und Bulldoze</b> wird <b>verdoppelt</b>. <b>Weather Ball</b> (−DEF & −Mana Gain beim Gegner) und <b>Reflect</b> (−eingehender Schaden & +Attack Speed) wirken mit <b>75 % statt 50 %</b>.',
@@ -395,15 +404,15 @@ const ITEMS={
  dyna:{icon:itemIcon('dyna'),name:'Dyna-Pilz',col:'#ff6b81',
   short:'Neues Aussehen (Gigadynamax). +25 % DEF & +25 % Mana pro ATK.',
   desc:'Das Pokémon verändert sein Aussehen (<b>Gigadynamax</b>). Verstärkt <b>DEF und Mana pro ATK um 25 %</b>.',
-  carriers:['Krarmor','Olangaar','Maritellit']},
+  carriers:['Krarmor','Olangaar','Maritellit','Gengar','Pikachu']},
  scarf:{icon:itemIcon('scarf'),name:'Wahlschal',col:'#7aa2ff',
   short:'+30 % Attack Speed.',
   desc:'Steigert den <b>Attack Speed um 30 %</b>.',
-  carriers:['Panferno','Tengulist','Rabigator','Fiaro','Elezard']},
- leftovers:{icon:itemIcon('leftovers'),name:'Überreste',col:'#8fe388',
-  short:'Beim 1. Tod (mit Drachen-Bonus: beim 2.) Wiederbelebung mit 50 % HP. Das 1. Bank-Pokémon kämpft bis Rundenende mit.',
-  desc:'Stirbt der Träger zum ersten Mal, wird er mit <b>50 % HP wiederbelebt</b> und zieht dabei das <b>erste Pokémon auf der Bank</b> bis zum Ende der Runde mit aufs Spielfeld. <i>Mit Drachen-Bonus greift das Item erst beim zweiten Tod</i> (der erste Tod wird vom Drachen-Bonus abgefangen).',
-  carriers:['Rotom','Katapuldra','Pamomamo','Eisenbündel','Ursaluna']}
+  carriers:[]}, /* alle außer Mega-/Z-/Dyna-Träger – wird nach SP berechnet */
+ candy:{icon:itemIcon('candy'),name:'Sonderbonbon',col:'#ff8ad8',
+  short:'Solange ein Pokémon es trägt: +1 Platz auf dem Spielfeld (bis max. 9).',
+  desc:'Solange ein Pokémon das Sonderbonbon trägt, wird <b>1 zusätzlicher Platz auf dem Spielfeld</b> freigeschaltet (insgesamt bis zu <b>9 Plätze</b>). Verkaufst du den Träger, geht der Platz verloren.',
+  carriers:[]}
 };
 /* Neues Aussehen je Träger (Schlüssel = Name der 3★-Form). id = PokeAPI-Sprite-ID oder komplette Bild-URL */
 const ITEM_FORMS={
@@ -411,12 +420,15 @@ const ITEM_FORMS={
   Rexblisar:{n:'Mega-Rexblisar',id:10060},
   Gengar:{n:'Mega-Gengar',id:10038},
   Stolloss:{n:'Mega-Stolloss',id:10053},
-  Brigaron:{n:'Mega-Brigaron',id:'https://play.pokemonshowdown.com/sprites/ani/chesnaught-mega.gif'}
+  Brigaron:{n:'Mega-Brigaron',id:'https://play.pokemonshowdown.com/sprites/ani/chesnaught-mega.gif'},
+  Impi:{n:'Mega-Impi',id:'https://play.pokemonshowdown.com/sprites/ani/feraligatr-mega.gif'}
  },
  dyna:{
   Krarmor:{n:'Gigadynamax-Krarmor',id:10212},
   Olangaar:{n:'Gigadynamax-Olangaar',id:10222},
-  Maritellit:{n:'Gigadynamax-Maritellit',id:10213}
+  Maritellit:{n:'Gigadynamax-Maritellit',id:10213},
+  Gengar:{n:'Gigadynamax-Gengar',id:10202},
+  Pikachu:{n:'Gigadynamax-Pikachu',id:10199}
  }
 };
 const itemChips=k=>ITEMS[k].carriers.map(n=>{const s=SP.find(x=>x.n[2]===n);
@@ -467,7 +479,7 @@ const TUT_PAGES=[
    <div class="tut-card"><b class="t-ttl" style="color:#c0c0c0">★★ 2-Sterne (1. Entwicklung)</b>3 × 1-Stern<br>Werte: <b>175% (1,75x)</b> HP & DMG</div>
    <div class="tut-card"><b class="t-ttl" style="color:#ffd700">★★★ 3-Sterne (Finale Form)</b>3 × 2-Sterne (= 9 Basiskarten)<br>Werte: <b>300% (3,0x)</b> HP & DMG</div>
   </div>
-  <div class="tut-note">✨ <b>Wichtig:</b> Während eines laufenden Kampfes verschmelzen nur Einheiten auf der <b>Bank</b>. Befindet sich eine Kopie auf dem Feld, findet der Merge direkt nach Kampfende statt. Eine 3-Sterne-Einheit taucht danach nicht mehr im Shop auf.<br>🧿 Ab Runde 40 ist über den <b>Mega-Stein</b> sogar eine <b>4★-Stufe</b> möglich (siehe Seite 9).</div>`
+  <div class="tut-note">✨ <b>Wichtig:</b> Während eines laufenden Kampfes verschmelzen nur Einheiten auf der <b>Bank</b>. Befindet sich eine Kopie auf dem Feld, findet der Merge direkt nach Kampfende statt. Eine 3-Sterne-Einheit taucht danach nicht mehr im Shop auf.<br>🧿 Ab Runde 36 ist über den <b>Mega-Stein</b> sogar eine <b>4★-Stufe</b> möglich (siehe Seite 9).</div>`
  },
  {
   tab:'4. Typen & Typ-Boni',
@@ -519,7 +531,7 @@ const TUT_PAGES=[
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">🛡️ Frontlinie (Reihe 4–5)</b>Stelle <b>Tanks</b> und robuste <b>Fighter</b> nach vorne, damit sie zuerst angegriffen werden und deine Fernkämpfer schützen.</div>
    <div class="tut-card"><b class="t-ttl">🎯 Backline (Reihe 6–7)</b>Stelle <b>Sniper</b> und <b>Caster</b> ganz nach hinten. Dank ihrer hohen Reichweite (3–5 Felder) greifen sie sicher aus der Distanz an.</div>
-   <div class="tut-card"><b class="t-ttl">📈 Team-Plätze (bis zu 8)</b>Du startest mit <b>1 Platz</b>. Nach den Runden <b>2, 4, 8, 14, 22, 30 und 40</b> wird jeweils ein weiterer Platz freigeschaltet (max. 8 Einheiten gleichzeitig).</div>
+   <div class="tut-card"><b class="t-ttl">📈 Team-Plätze (bis zu 9)</b>Du startest mit <b>1 Platz</b>. Nach den Runden <b>2, 4, 8, 14, 22, 30 und 40</b> wird jeweils ein weiterer Platz freigeschaltet (max. 8 Einheiten gleichzeitig). Trägt eines deiner Pokémon das <b>🍬 Sonderbonbon</b> (Item ab Runde 36), kommt ein <b>zusätzlicher Platz</b> dazu – bis zu <b>9 Einheiten</b> gleichzeitig.</div>
    <div class="tut-card"><b class="t-ttl">📊 DPS-Chart nutzen</b>Prüfe rechts im <b>DMG / DPS-Chart</b>, welche Einheiten am meisten Schaden machen, und schütze deinen Haupt-Carry besonders gut!</div>
   </div>`
  },
@@ -533,27 +545,30 @@ const TUT_PAGES=[
   </div>
   <div class="tut-warn">⚠️ <b>Regeln für Terastallize:</b><br>
   • Funktioniert <b>nur bei Pokémon, die bisher genau 1 Typ besitzen</b> (z. B. Arceus, Pikachu, Relaxo, Nachtara, Monozyto).<br>
-  • Die Wahl ist <b>endgültig</b> – der Tera-Typ bleibt auch beim Entwickeln erhalten und zählt voll für alle Typ-Boni mit!</div>`
+  • Die Wahl ist <b>endgültig</b> – der Tera-Typ bleibt auch beim Entwickeln erhalten und zählt voll für alle Typ-Boni mit!<br>
+  • Tera-Typ und Item-Form lassen sich <b>kombinieren</b>: <b>Impi</b> (Mega-Stein) und <b>Pikachu</b> (Dyna-Pilz) können zusätzlich zum Tera-Typ eine neue Form erhalten.</div>`
  },
  {
-  tab:'9. Items (Runde 40)',
-  title:()=>`🎁 Items ab Runde 40`,
-  html:()=>`<p>Wenn du <b>Runde 40 erfolgreich meisterst</b>, wartet eine besondere Belohnung: <b>1 Item</b> (einmalig pro Spiel).</p>
+  tab:'9. Items (Runde 35)',
+  title:()=>`🎁 Items ab Runde 35`,
+  html:()=>`<p>Wenn du <b>Runde 35 erfolgreich meisterst</b>, wartet eine besondere Belohnung: <b>1 Item</b> (einmalig pro Spiel).</p>
   <div class="tut-grid">
-   <div class="tut-card"><b class="t-ttl">1. Ausschließen</b>Es öffnet sich ein Fenster mit <b>5 Items</b>, ihren Effekten und den möglichen Trägern. Mit <b>einem Klick</b> schließt du eines davon aus.</div>
-   <div class="tut-card"><b class="t-ttl">2. Slot-Maschine</b>Unter den <b>übrigen 4 Items</b> entscheidet eine Slot-Maschine per Zufall, welches du erhältst.</div>
-   <div class="tut-card"><b class="t-ttl">3. Item vergeben</b>Das Item erscheint oben neben dem Kampf-Button (in der Reihe von 👑 Käfer-Krone und Terastallize). Ziehe es in der Vorbereitungsphase per Drag & Drop auf eine passende Einheit – auf dem Feld oder auf der Bank.</div>
+   <div class="tut-card"><b class="t-ttl">1. Priorisieren</b>Es öffnet sich ein Fenster mit <b>5 Items</b>, ihren Effekten und den möglichen Trägern. Ordne die Item-Boxen per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach deiner Priorität.</div>
+   <div class="tut-card"><b class="t-ttl">2. Slot-Maschine</b>Die Priorität bestimmt, wie oft ein Item in der Slot-Maschine vorkommt: <b>Prio 1 = 8×, Prio 2 = 6×, Prio 3 = 4×, Prio 4 = 2×, Prio 5 = 1×</b> (21 Felder). Die Maschine entscheidet dann per Zufall, welches Item du erhältst.</div>
+   <div class="tut-card"><b class="t-ttl">3. Item vergeben</b>Das Item erscheint oben neben dem Kampf-Button (in der Reihe von 👑 Käfer-Krone und Terastallize) – nur als <b>Icon</b>. Fährst du mit der Maus darüber, siehst du, <b>welche deiner Pokémon auf dem Feld</b> das Item tragen können. Ziehe es in der Vorbereitungsphase per Drag &amp; Drop auf eine passende Einheit – auf dem Feld oder auf der Bank.</div>
   </div>
   <div class="tut-warn">⚠️ <b>Regeln für Items:</b><br>
   • Nur <b>3★-Einheiten</b> können Items tragen (1★ und 2★ nicht).<br>
-  • Jedes Item passt nur zu <b>bestimmten Pokémon</b> (siehe unten).<br>
+  • <b>Mega-Stein, Z-Kristall und Dyna-Pilz</b> passen nur zu den jeweils genannten Pokémon. <b>Wahlschal und Sonderbonbon</b> können alle übrigen Pokémon tragen (also alle, die weder Mega-Stein, Z-Kristall noch Dyna-Pilz tragen können).<br>
   • Die Übergabe ist <b>einmalig und endgültig</b>. Verkaufst du den Träger, geht das Item verloren.<br>
-  • Eine Einheit kann nur <b>ein</b> Item tragen.</div>
-  <h4 style="margin-top:14px;font-size:15px">🧰 Die 5 Items & ihre Träger</h4>
+  • Eine Einheit kann nur <b>ein</b> Item tragen.<br>
+  • 🍬 <b>Sonderbonbon:</b> Solange ein Pokémon es trägt (auf dem Feld oder der Bank), wird <b>1 zusätzlicher Platz</b> auf dem Spielfeld freigeschaltet (bis zu 9). Verkaufst du den Träger, fällt der Platz weg.<br>
+  • Item-Form und <b>Tera-Typ</b> sind kombinierbar (z. B. Impi mit Mega-Stein, Pikachu mit Dyna-Pilz).</div>
+  <h4 style="margin-top:14px;font-size:15px">🧰 Die 5 Items &amp; ihre Träger</h4>
   <div class="tut-grid" style="grid-template-columns:1fr">
   ${ITEM_KEYS.map(k=>`<div class="tut-card" style="border-color:${ITEMS[k].col}"><b class="t-ttl" style="color:${ITEMS[k].col};font-size:14px">${ITEMS[k].icon} ${ITEMS[k].name}</b>${ITEMS[k].desc}<div class="it-car" style="justify-content:flex-start;margin-top:6px">${itemChips(k)}</div></div>`).join('')}
   </div>
-  <div class="tut-note">💡 <b>Tipp:</b> Schließe das Item aus, das du am wenigsten gebrauchen kannst – so steigt die Chance auf ein passendes Item für dein Team.</div>`
+  <div class="tut-note">💡 <b>Tipp:</b> Setze das Item, das du am dringendsten brauchst, auf Prio 1 – so ist die Chance am größten, dass die Slot-Maschine es dir gibt.</div>`
  }
 ];
 
@@ -625,6 +640,11 @@ const SP=RAW.map(r=>({
  sh:!!r[6],
  s:r[7]||{}
 }));
+
+/* Wahlschal & Sonderbonbon: alle Pokémon außer Mega-/Z-Kristall-/Dyna-Trägern */
+(()=>{const ex=new Set([...ITEMS.mega.carriers,...ITEMS.zcrystal.carriers,...ITEMS.dyna.carriers]);
+ const all=SP.map(x=>x.n[2]).filter(n=>!ex.has(n));
+ ITEMS.scarf.carriers=all.slice();ITEMS.candy.carriers=all.slice()})();
 
 /* ================= GEGNER ================= */
 const E=(name,sprite,o={})=>({name,sprite,...o});
@@ -756,11 +776,11 @@ const SPAWN_ARCEUS_AFTER_SILVALLY=(u,A)=>{
   B.flag.arceusSpawned=1;
   const ref=B.units.find(x=>x.team=='e')||{max:2500,atk:220};
   const arc=mk('e',2,4,'Arceus',493,false,{
-   hp:ref.max*4.5,
+   hp:ref.max*4.5*4,
    atk:ref.atk*1.6,
    aspd:1.15,def:55,crit:0.25,range:3,mg:18,skill:2.2,big:true
   });
-  arc.t=[];
+  arc.t=[];arc.scale=2;
   B.units.push(arc);
   B.waves.push({x:arc.x,y:arc.y,r:12,maxR:85,col:'#ffd700',t:.65,maxT:.65,fill:true});
   say(arc,'✨ Arceus!','#ffd700');
@@ -860,7 +880,7 @@ const ENEMIES=[
   E('Mega-Brutalanda',10089,{pos:[1,5],fb:373,range:6}),
   E('Mega-Skaraborn',10047,{pos:[2,4],fb:214,range:6}),
   E('Mega-Despotar',10049,{pos:[2,5],fb:248,range:6})],
- [E('Pikachu',25,{pos:[0,2]}),E('Gengar',94,{pos:[0,3]}),E('Pescragon',882,{pos:[0,4]}),E('Lauchzelot',865,{pos:[0,5]}),E('Lucario',448,{pos:[0,6]}),E('Dragoran',149,{pos:[0,7]}),
+ [E('Pikachu',25,{pos:[0,2],range:5}),E('Gengar',94,{pos:[0,3],range:5}),E('Pescragon',882,{pos:[0,4],range:5}),E('Lauchzelot',865,{pos:[0,5],range:5}),E('Lucario',448,{pos:[0,6],range:5}),E('Dragoran',149,{pos:[0,7],range:5}),
   E('Tauros',128,{pos:[1,2]}),E('Tauros',128,{pos:[1,3]}),E('Tauros',128,{pos:[1,4]}),E('Tauros',128,{pos:[1,5]}),
   E('Tauros',128,{pos:[1,6]}),E('Tauros',128,{pos:[2,3]}),E('Tauros',128,{pos:[2,4]}),E('Tauros',128,{pos:[2,5]}),
   E('Tauros',128,{pos:[2,6]}),E('Tauros',128,{pos:[3,3]}),E('Tauros',128,{pos:[3,4]}),E('Tauros',128,{pos:[3,5]})],
@@ -963,9 +983,13 @@ const cardsEq=u=>Math.pow(CFG.mergeNeeded,u.star-1);
 const placed=()=>S.units.filter(u=>u.pos);
 const benchCount=()=>S.units.filter(u=>!u.pos).length;
 const limitFor=r=>Math.min(CFG.maxUnits,1+CFG.slotAfter.filter(t=>r>t).length);
-const limit=()=>limitFor(S.round);
+const candyOn=()=>!!S&&S.units.some(u=>u.item==='candy');
+const limit=()=>Math.min(9,limitFor(S.round)+(candyOn()?1:0));
+function enforceLimit(){let ex=placed().length-limit();if(ex<=0)return;
+ for(const o of placed().slice().reverse()){if(ex<=0)break;if(S.crownOn===o.id)S.crownOn=null;o.pos=null;o.slot=freeSlot();ex--}
+ toast('Das Sonderbonbon fehlt – überzählige Pokémon wurden auf die Bank gestellt.')}
 const income=()=>CFG.income;
-const TOKEN_ROUND=25;const ITEM_ROUND=40;
+const TOKEN_ROUND=25;const ITEM_ROUND=35;
 const act=()=>!!S&&(S.phase=='prep'||S.phase=='battle');
 function freeSlot(){for(let k=0;k<CFG.benchMax;k++)if(!S.units.some(u=>!u.pos&&u.slot===k))return k;return null}
 function fixSlots(){const used=new Set();S.units.forEach(u=>{if(u.pos){u.slot=null;return}
@@ -979,13 +1003,19 @@ function formOf(o){
  return f}
 
 function newGame(){
- S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0,item:null,itemOffer:false,stats:{}};
+ S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0,item:null,itemOffer:false,itemDone:false,stats:{}};
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
 function save(){try{localStorage.setItem('pab7',JSON.stringify(S))}catch(e){}}
 function clearSave(){try{localStorage.removeItem('pab7')}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;fixSlots();return true}}catch(e){}return false}
+function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;migrateItems();fixSlots();return true}}catch(e){}return false}
+
+function migrateItems(){
+ if(S.item==='leftovers')S.item='candy';
+ S.units.forEach(u=>{if(u.item==='leftovers')u.item='candy'});
+ if(S.itemDone===undefined)S.itemDone=!!(S.item||S.round>40||S.units.some(u=>u.item));
+ if(!S.itemDone&&!S.itemOffer&&S.round>ITEM_ROUND)S.itemOffer=true}
 
 function roll(){S.shop=[];const tier=CFG.odds.find(o=>S.round<=o[0])[1];
  for(let k=0;k<5;k++){
@@ -1031,9 +1061,14 @@ function buy(k){if(!act())return;const i=S.shop[k];if(i==null)return;const s=SP[
  render()}
 
 function sell(id){const u=unitById(id);if(!u)return;
+ if(u.item==='candy'){const after=placed().length-(u.pos?1:0),lim=limitFor(S.round);
+  if(after>lim){
+   if(S.phase=='battle'){toast('Das Sonderbonbon-Träger kann im Kampf nicht verkauft werden, solange das 🍬-Feldplatz-Limit überschritten würde.');return}
+   const free=CFG.benchMax-benchCount()+(u.pos?0:1);
+   if(free<after-lim){toast('Nicht genug Bankplätze: Ohne Sonderbonbon müssten überzählige Pokémon auf die Bank wechseln.');return}}}
  if(u.item&&!confirm(`${SP[u.sp].n[2]} trägt ${ITEMS[u.item].name}. Beim Verkaufen geht das Item verloren. Wirklich verkaufen?`))return;const n=cardsEq(u),g=SP[u.sp].c*n;
  if(S.crownOn===id)S.crownOn=null;
- S.gold+=g;S.pool[u.sp]+=n;S.units=S.units.filter(x=>x!==u)}
+ S.gold+=g;S.pool[u.sp]+=n;S.units=S.units.filter(x=>x!==u);enforceLimit()}
 function trashClick(){if(!act()||S.sel==null)return;const u=unitById(S.sel);if(S.phase=='battle'&&u&&u.pos)return;sell(S.sel);S.sel=null;render()}
 
 /* ================= EINHEITEN & STATS ================= */
@@ -1116,7 +1151,6 @@ function buildUnit(o,pos){
   case'dyna':u.def*=1.25;u.mg*=1.25;break;
   case'scarf':u.aspd*=1.3;break;
   case'zcrystal':u.zc=1;break;
-  case'leftovers':u.left=1;break;
  }
  return u;
 }
@@ -1334,11 +1368,6 @@ function dealDmg(t, d, col, pre, attacker){
   t.rev=1;const rv=t.reviveTo;t.hp=t.max*(rv?rv.hp:t.dragon);
   if(rv)morph(t,rv);
   else{B.waves.push({x:t.x,y:t.y,r:6,maxR:55,col:'#6f35fc',t:.5,maxT:.5});say(t,'🐉 Revive','#a98ff3')}
- }else if(t.hp<=0&&t.left&&!t.leftUsed){
-  t.leftUsed=1;t.hp=t.max*0.5;
-  B.waves.push({x:t.x,y:t.y,r:6,maxR:60,col:'#8fe388',t:.5,maxT:.5,fill:true});
-  say(t,'🥡 Überreste','#8fe388');
-  leftoverPull(t);
  }else if(t.hp<=0&&!t.dead){
   t.dead=1;
   if(t.decoy&&t.decoyDmg>0&&attacker&&attacker.hp>0){
@@ -1386,21 +1415,6 @@ function segDist(px0,py0,x1,y1,x2,y2){
 function wMul(u){let m=0;for(const f of B.fields)if(f.type==='weather'&&dist(u,f)<=1){const v=f.pw||.5;if(v>m)m=v}return 1-m}
 /* Reflect-Zone: Schadensreduktion & ASPD-Bonus (50 %, mit Z-Kristall 75 %) */
 function reflectPw(team,r,c){let m=0;for(const b of B.barriers)if(b.team==team&&b.type=='reflectZone'&&b.r==r&&b.c==c){const v=b.pw||.5;if(v>m)m=v}return m}
-/* Überreste: erstes Bank-Pokémon kämpft bis Rundenende mit */
-function leftoverPull(holder){
- const o=S.units.filter(x=>!x.pos).sort((a,b)=>(a.slot??99)-(b.slot??99))[0];
- if(!o){say(holder,'(Bank leer)','#8fe388');return}
- const occ=new Set(B.units.filter(x=>x.hp>0).map(x=>x.r*100+x.c));
- let cell=null,bd=1e9;
- for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(occ.has(r*100+c))continue;const d=dist({r,c},holder);if(d<bd){bd=d;cell={r,c}}}
- if(!cell)return;
- const u=buildUnit(o,cell);applyBonuses(u,B.cnt||{});u.ground=0;
- u.x=holder.x;u.y=holder.y;
- B.units.push(u);
- B.dps.push({uid:o.id,name:u.name,spriteId:u.id,sh:u.sh,star:u.star,t:u.t||[],dmg:0,heal:0,blk:0,casts:0});
- B.waves.push({x:u.x,y:u.y,r:6,maxR:50,col:'#8fe388',t:.45,maxT:.45,fill:true});
- say(u,'✨ Bank!','#8fe388');
-}
 function isInWeatherField(u){
  return B.fields.some(f=>f.type==='weather'&&dist(u,f)<=1);
 }
@@ -1718,7 +1732,7 @@ S.phase='prep';B.barriers=[];B.fields=[];B.proj=[];B.waves=[];B.fx=[];B.txt=[];c
  if(win&&last){S.phase='done';clearSave();showVictory();B.units=[];render();return}
  S.gold+=income();tryMerge();
  if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1;
- if(win&&S.round===ITEM_ROUND)S.itemOffer=true;
+ if(win&&S.round===ITEM_ROUND&&!S.itemDone)S.itemOffer=true;
  if(win)S.round++;
  else{S.lives--;if(S.lives<=0){S.phase='done';clearSave();render();return}}
  roll();save();render();if(S.itemOffer)showItemOffer()}
@@ -1775,7 +1789,23 @@ $('tokenBox').addEventListener('pointerdown',e=>{
  const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.innerHTML=teraImg('teraI').replace('class="teraI"','class="teraI" style="width:36px;height:36px"');document.body.appendChild(g);D.g=g;
 });
 
+function itemTip(e){
+ if(!S||!S.item||S.phase!='prep')return;
+ const it=ITEMS[S.item];
+ const cand=placed().filter(o=>it.carriers.includes(SP[o.sp].n[2])&&!o.item);
+ const chip=(o,dim)=>{const sp=SP[o.sp];return`<span class="it-chip ${dim?'dim':''}"><img src="${url(sp.id[o.star-1],sp.sh)}" onerror="this.style.opacity=.2">${sp.n[o.star-1]} ${starsHtml(o.star)}</span>`};
+ const ok=cand.filter(o=>o.star>=3),low=cand.filter(o=>o.star<3);
+ let h=`<div class="it-tip-h">${it.icon} ${it.name}</div><div style="max-width:300px">${it.short}</div>
+  <div class="it-tip-l">Kann von diesen Pokémon auf dem Feld getragen werden:</div>`;
+ h+=ok.length?`<div class="it-car">${ok.map(o=>chip(o,false)).join('')}</div>`:`<div style="color:#f99">Aktuell keins (nur 3★-Pokémon können Items tragen).</div>`;
+ if(low.length)h+=`<div class="it-tip-l">Passend, aber noch keine 3★:</div><div class="it-car">${low.map(o=>chip(o,true)).join('')}</div>`;
+ const el=$('tip');el.innerHTML=h;el.style.display='block';tipMove(e);
+}
+$('itemBox').addEventListener('mouseenter',itemTip);
+$('itemBox').addEventListener('mousemove',e=>{if($('tip').style.display==='block')tipMove(e)});
+$('itemBox').addEventListener('mouseleave',()=>tipHide());
 $('itemBox').addEventListener('pointerdown',e=>{
+ tipHide();
  if(S.phase!='prep'||!S.item)return;e.preventDefault();
  D={type:'item',x:e.clientX,y:e.clientY,moved:false};
  const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.innerHTML=itemIcon(S.item,'width:36px;height:36px');document.body.appendChild(g);D.g=g;
@@ -1793,50 +1823,69 @@ function useItem(o){
  o.item=S.item;S.item=null;save();render();
 }
 
-/* ===== Item-Auswahlfenster (Ausschließen + Slot-Maschine) ===== */
-let itemBusy=false;
-function renderItemOffer(banned){
- $('itemGrid').innerHTML=ITEM_KEYS.map(k=>{const it=ITEMS[k];
-  return`<div class="it-card ${banned?(k===banned?'out':''):'pick'}" style="--c:${it.col}" ${banned?'':`onclick="banItem('${k}')"`}>
+/* ===== Item-Auswahlfenster (Priorisieren + Slot-Maschine) ===== */
+let itemBusy=false,itemOrder=ITEM_KEYS.slice(),itemDragK=null;
+function renderItemOffer(){
+ const lock=itemBusy;
+ $('itemGrid').innerHTML=itemOrder.map((k,i)=>{const it=ITEMS[k];
+  return`<div class="it-card ${lock?'':'prio'}" data-k="${k}" ${lock?'':'draggable="true"'} style="--c:${it.col}">
+   <div class="it-prio"><b>Prio ${i+1}</b><span>${PRIO_W[i]}× in der Slot-Maschine</span></div>
    <div class="ic">${it.icon}</div><div class="nm" style="color:${it.col}">${it.name}</div>
    <div class="it-eff">${it.short}</div>
    <div class="it-lbl">Mögliche Träger (nur 3★)</div>
    <div class="it-car">${itemChips(k)}</div>
-   ${banned?'':'<div class="it-hint">Klicken = ausschließen</div>'}</div>`}).join('');
+   ${lock?'':`<div class="it-mv"><button onclick="moveItemPrio(${i},-1)" ${i==0?'disabled':''}>◀</button><button onclick="moveItemPrio(${i},1)" ${i==itemOrder.length-1?'disabled':''}>▶</button></div>`}</div>`}).join('');
 }
+function moveItemPrio(i,d){if(itemBusy)return;const j=i+d;if(j<0||j>=itemOrder.length)return;
+ const k=itemOrder.splice(i,1)[0];itemOrder.splice(j,0,k);renderItemOffer()}
+(()=>{const g=$('itemGrid');
+ g.addEventListener('dragstart',e=>{const c=e.target.closest('.it-card');if(!c||itemBusy)return;itemDragK=c.dataset.k;c.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',itemDragK)}catch(_){}});
+ g.addEventListener('dragover',e=>{if(itemDragK==null)return;e.preventDefault();const c=e.target.closest('.it-card');g.querySelectorAll('.dropt').forEach(x=>x.classList.remove('dropt'));if(c&&c.dataset.k!==itemDragK)c.classList.add('dropt')});
+ g.addEventListener('drop',e=>{if(itemDragK==null)return;e.preventDefault();const c=e.target.closest('.it-card');
+  if(c&&c.dataset.k!==itemDragK){const from=itemOrder.indexOf(itemDragK),to=itemOrder.indexOf(c.dataset.k);itemOrder.splice(from,1);itemOrder.splice(to,0,itemDragK)}
+  itemDragK=null;renderItemOffer()});
+ g.addEventListener('dragend',()=>{itemDragK=null;renderItemOffer()});
+})();
 function showItemOffer(){
- itemBusy=false;
- $('itemSub').innerHTML='Klicke auf <b>ein Item, das ausgeschlossen wird</b>. Unter den übrigen 4 entscheidet danach die Slot-Maschine.';
- $('itemSlot').style.display='none';$('itemFoot').style.display='none';
- renderItemOffer(null);$('itemModal').classList.add('open');
+ itemBusy=false;itemOrder=ITEM_KEYS.slice();
+ $('itemSub').innerHTML='Ordne die 5 Items per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach Priorität. Prio 1 = 8×, Prio 2 = 6×, Prio 3 = 4×, Prio 4 = 2×, Prio 5 = 1× in der Slot-Maschine.';
+ $('itemSlot').style.display='none';$('itemFoot').style.display='flex';
+ $('itemConfirm').style.display='';$('itemTake').style.display='none';
+ renderItemOffer();$('itemModal').classList.add('open');
 }
-function banItem(k){
+function shufflePool(pool){
+ let best=null;
+ for(let t=0;t<300;t++){const a=pool.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  best=a;let ok=true;for(let i=0;i<a.length;i++)if(a[i]===a[(i+1)%a.length]){ok=false;break}
+  if(ok)break}
+ return best}
+function confirmPrio(){
  if(!S||!S.itemOffer||itemBusy)return;
  itemBusy=true;
- const rest=ITEM_KEYS.filter(x=>x!==k),win=rest[Math.floor(Math.random()*rest.length)];
- S.itemOffer=false;S.item=win;save();
- renderItemOffer(k);
- $('itemSub').innerHTML=`<b>${ITEMS[k].name}</b> wurde ausgeschlossen – die Slot-Maschine läuft …`;
- spinSlot(rest,win);
+ const pool=[];itemOrder.forEach((k,i)=>{for(let n=0;n<PRIO_W[i];n++)pool.push(k)});
+ const cells=shufflePool(pool),w=Math.floor(Math.random()*cells.length),win=cells[w];
+ S.itemOffer=false;S.item=win;S.itemDone=true;save();
+ renderItemOffer();
+ $('itemConfirm').style.display='none';$('itemFoot').style.display='none';
+ $('itemSub').innerHTML='Priorisierung bestätigt – die Slot-Maschine läuft …';
+ $('slotOdds').innerHTML=itemOrder.map((k,i)=>`<span style="color:${ITEMS[k].col}">${ITEMS[k].icon} ${ITEMS[k].name}: <b>${PRIO_W[i]}×</b></span>`).join(' &nbsp;·&nbsp; ')+` &nbsp;(${pool.length} Felder)`;
+ spinSlot(cells,w);
 }
-function spinSlot(rest,win){
- const H=96,N=36,T=N-8,strip=[];let prev=null;
- for(let i=0;i<N;i++){let k;do{k=rest[Math.floor(Math.random()*rest.length)]}while(k===prev);strip.push(k);prev=k}
- strip[T]=win;
- for(const j of [T-1,T+1]){const o=j<T?T-2:T+2;if(strip[j]===win)strip[j]=rest.find(x=>x!==win&&x!==strip[o])}
+function spinSlot(cells,w){
+ const H=96,n=cells.length,strip=[...cells,...cells,...cells],T=n+w;
  const st=$('slotStrip');
  st.style.transition='none';st.style.transform='translateY(0)';
  st.innerHTML=strip.map(k=>`<div class="slot-cell" style="color:${ITEMS[k].col}"><span class="ic">${ITEMS[k].icon}</span>${ITEMS[k].name}</div>`).join('');
  $('slotRes').innerHTML='';$('itemSlot').style.display='flex';
  void st.offsetHeight;
- const dur=5;
+ const dur=6;
  st.style.transition=`transform ${dur}s cubic-bezier(.12,.6,.1,1)`;
  st.style.transform=`translateY(${-(T-1)*H}px)`;
  setTimeout(()=>{
-  const it=ITEMS[win];
+  const it=ITEMS[strip[T]];
   $('itemSub').innerHTML='Die Slot-Maschine hat entschieden!';
-  $('slotRes').innerHTML=`🎉 Du erhältst: <b style="color:${it.col};font-size:17px">${it.icon} ${it.name}</b><br>${it.desc}<br><small style="color:#9aa4c8">Ziehe das Item in der Vorbereitungsphase auf: ${it.carriers.join(', ')} (jeweils 3★).</small>`;
-  $('itemFoot').style.display='flex';
+  $('slotRes').innerHTML=`🎉 Du erhältst: <b style="color:${it.col};font-size:17px">${it.icon} ${it.name}</b><br>${it.desc}<br><small style="color:#9aa4c8">Ziehe das Item in der Vorbereitungsphase auf ein passendes 3★-Pokémon. Fahre mit der Maus über den Item-Button, um zu sehen, welche deiner Pokémon auf dem Feld es tragen können.</small>`;
+  $('itemFoot').style.display='flex';$('itemTake').style.display='';
  },dur*1000+250);
 }
 function closeItemOffer(){$('itemModal').classList.remove('open');itemBusy=false;render()}
@@ -1957,7 +2006,7 @@ function unitAtPoint(cx,cy){
  let best=null,bd=Infinity;
  for(const u of B.units){
   if(u.hp<=0)continue;
-  const d=Math.hypot(u.x+u.lx-mx,u.y+u.ly-8-my),rad=u.big?44:36;
+  const d=Math.hypot(u.x+u.lx-mx,u.y+u.ly-8-my),rad=(u.big?44:36)*(u.scale||1);
   if(d<rad&&d<bd){bd=d;best=u}
  }
  return best;
@@ -1987,9 +2036,9 @@ $('cv').addEventListener('mousemove',e=>{
 $('cv').addEventListener('mouseleave',tipHide);
 
 /* ================= ANZEIGE ================= */
-function slotInfo(){const T=CFG.slotAfter.find(t=>t>=S.round);
- if(limit()>=CFG.maxUnits||T==null)return`Alle ${CFG.maxUnits} Plätze freigeschaltet.`;
- const k=T-S.round+1;return`Nächster Platz (${limit()+1}.) nach Runde ${T} – noch ${k} Runde${k==1?'':'n'} (inkl. dieser).`}
+function slotInfo(){const T=CFG.slotAfter.find(t=>t>=S.round),b=limitFor(S.round),cx=candyOn()?' 🍬 Sonderbonbon: +1 Platz aktiv.':'';
+ if(b>=CFG.maxUnits||T==null)return`Alle ${CFG.maxUnits} Plätze freigeschaltet.${cx}`;
+ const k=T-S.round+1;return`Nächster Platz (${b+1}.) nach Runde ${T} – noch ${k} Runde${k==1?'':'n'} (inkl. dieser).${cx}`}
 
 function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().length;
  $('tr').innerHTML=`Runde <b>${S.round}/${EN.length}</b>`;
@@ -2003,7 +2052,7 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
  $('crownBox').classList.toggle('hidden',!(S.phase=='prep'&&(cnt.Bug||0)>=1));
  $('tokenBox').classList.toggle('hidden',!(S.phase=='prep'&&(S.tokens||0)>0));$('tokenN').textContent=(S.tokens||0)>1?'×'+S.tokens:'';
  const ib=$('itemBox');
- if(S.item&&S.phase=='prep'){const it=ITEMS[S.item];ib.innerHTML=`${it.icon}<b>${it.name}</b>`;ib.title=`${it.name}: ${it.desc.replace(/<[^>]+>/g,'')} – In der Vorbereitungsphase auf eine passende 3★-Einheit ziehen (einmalig, endgültig).`;ib.classList.remove('hidden')}
+ if(S.item&&S.phase=='prep'){const it=ITEMS[S.item];ib.innerHTML=it.icon;ib.removeAttribute('title');ib.classList.remove('hidden')}
  else ib.classList.add('hidden');
 
  $('shop').innerHTML=S.shop.map((i,k)=>{if(i==null)return`<div class="card sold">–</div>`;const s=SP[i],cl=CLASSES[s.cls];
@@ -2064,8 +2113,8 @@ function draw(t){ctx.clearRect(0,0,720,514);
 
  const us=[...B.units].filter(u=>u.hp>0).sort((a,b)=>a.y-b.y);
  for(const u of us){const[tx,ty]=px(u.r,u.c);u.x+=(tx-u.x)*.18;u.y+=(ty-u.y)*.18;u.lx*=.85;u.ly*=.85;
-  const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=u.big?96:80;
-  ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(u.x,u.y+22,22,8,0,0,7);ctx.fill();
+  const bob=Math.sin(t/220+u.r*3+u.c)*2,x=u.x+u.lx,y=u.y+u.ly-8+bob,sz=(u.big?96:80)*(u.scale||1),sc=u.scale||1;
+  ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(u.x,u.y+22*sc,22*sc,8*sc,0,0,7);ctx.fill();
   if(u.decoy){
    const sim=imgOf(SUB_URL,false);
    if(sim.complete&&sim.naturalWidth&&!sim.bad){const sw=sim.naturalWidth*1.3,sh2=sim.naturalHeight*1.3;ctx.drawImage(sim,x-sw/2,u.y+20-sh2+bob,sw,sh2)}
@@ -2079,7 +2128,7 @@ function draw(t){ctx.clearRect(0,0,720,514);
    if(im.complete&&im.naturalWidth&&!im.bad)ctx.drawImage(im,x-sz/2,y-sz/2,sz,sz);
    else{ctx.fillStyle=u.team=='p'?'#4a8':'#a54';ctx.beginPath();ctx.arc(x,y,24,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText(u.name.slice(0,7),x,y+4)}
   }
-  const bw=50,by=u.y-46;ctx.fillStyle='#000';ctx.fillRect(u.x-bw/2,by,bw,6);
+  const bw=50,by=u.y-46-(sc>1?(sz-96)/2:0);ctx.fillStyle='#000';ctx.fillRect(u.x-bw/2,by,bw,6);
   ctx.fillStyle=u.team=='p'?'#4d4':'#d44';ctx.fillRect(u.x-bw/2,by,bw*Math.max(0,u.hp/u.max),6);
   if(u.shield>0){ctx.fillStyle='#9df';ctx.fillRect(u.x-bw/2,by-3,bw*Math.min(1,u.shield/u.max),3)}
   if(!u.decoy){ctx.fillStyle='#38f';ctx.fillRect(u.x-bw/2,by+7,bw*Math.min(1,u.mana/u.mmax),3)}

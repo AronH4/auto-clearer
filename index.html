@@ -90,9 +90,16 @@ h4{margin:8px 0 2px;color:#9ab}
 #tip .pc img{width:28px;height:28px;image-rendering:pixelated}
 #crownBox{display:inline-flex;align-items:center;justify-content:center;background:#2a2414;border:2px solid #ffd700;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1}
 #crownBox.hidden{display:none}
-#tokenBox{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#1f1a30;border:2px solid #b07cff;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1;touch-action:none;box-shadow:0 0 8px #b07cff88}
-#tokenBox img{width:34px;height:34px;object-fit:contain}.teraI{height:1.25em;width:1.25em;vertical-align:-.25em;object-fit:contain}
-#tokenBox b{font-size:14px;color:#d9c2ff}#tokenBox.hidden{display:none}
+#tokenBox{display:inline-flex;align-items:center;justify-content:center;gap:4px;background:#1f1a30;border:2px solid #b07cff;border-radius:6px;padding:4px 10px;margin:2px;cursor:grab;user-select:none;font-size:16px;line-height:1;touch-action:none;box-shadow:0 0 8px #b07cff88;box-sizing:border-box}
+#tokenBox img{width:21px;height:21px;object-fit:contain}.teraI{height:1.25em;width:1.25em;vertical-align:-.25em;object-fit:contain}
+#tokenBox b{font-size:13px;color:#d9c2ff}#tokenBox.hidden{display:none}
+.it-ic{width:1.35em;height:1.35em;vertical-align:-.3em;object-fit:contain;image-rendering:auto}
+#itemBox .it-ic{width:24px;height:24px}
+.ibadge .it-ic{width:18px;height:18px}
+.it-card .ic{height:44px;display:flex;align-items:center;justify-content:center}
+.it-card .ic .it-ic{width:42px;height:42px}
+.slot-cell .ic{display:inline-flex;align-items:center;justify-content:center}
+.slot-cell .ic .it-ic{width:44px;height:44px}
 .ti.xt{outline:2px solid #ffd700;outline-offset:1px}
 #tmenu{position:fixed;inset:0;z-index:70;background:rgba(8,10,16,.55)}
 #tmenu .tm-c{position:absolute;width:150px;transform:translate(-50%,-50%);text-align:center;font-size:12px;pointer-events:none;color:#ddd}
@@ -166,6 +173,7 @@ h4{margin:8px 0 2px;color:#9ab}
 .vic-card.mvp{border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.35)}
 .vic-card .mvpTag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#ffd700;color:#000;font-size:10px;font-weight:bold;border-radius:8px;padding:1px 8px;white-space:nowrap}
 .vic-card img{width:112px;height:112px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+.vic-card .ti img{width:18px;height:18px;filter:none}
 .vic-nm{font-weight:bold;font-size:13px;line-height:1.1;min-height:28px;display:flex;align-items:center;justify-content:center}
 .vic-lv{font-size:12px;font-weight:bold;padding:1px 8px;border-radius:10px;background:#0e1119;border:1px solid #42507a}
 .vic-ty{display:flex;gap:2px;justify-content:center;min-height:18px}
@@ -365,24 +373,34 @@ const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000
 
 /* ================= ITEMS (ab Runde 40) ================= */
 const ITEM_KEYS=['mega','zcrystal','dyna','scarf','leftovers'];
+const ITEM_IMGS={
+ mega:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/venusaurite.png',
+ zcrystal:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/normalium-z--bag.png',
+ dyna:'https://archives.bulbagarden.net/media/upload/thumb/a/a7/GO_Max_Mushroom.png/120px-GO_Max_Mushroom.png',
+ scarf:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png',
+ leftovers:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png'
+};
+const ITEM_FALLBACK={mega:'🧿',zcrystal:'💠',dyna:'🍄',scarf:'🧣',leftovers:'🥡'};
+const itemIcon=(k,st='')=>`<img class="it-ic" src="${ITEM_IMGS[k]}" alt="" ${st?`style="${st}"`:''} onerror="this.replaceWith(document.createTextNode('${ITEM_FALLBACK[k]}'))">`;
+
 const ITEMS={
- mega:{icon:'🧿',name:'Mega-Stein',col:'#7fe9ff',
+ mega:{icon:itemIcon('mega'),name:'Mega-Stein',col:'#7fe9ff',
   short:'Entwicklung zu Stufe 4 (💎 Diamant) mit neuem Aussehen: 4× HP & 4× ATK.',
   desc:'Das Pokémon entwickelt sich zur <b>Stufe 4</b> (diamantfarbene ★★★★) und verändert sein Aussehen. Als 4★-Einheit hat es <b>4× HP und 4× ATK</b> (statt 3×).',
   carriers:['Rexblisar','Gengar','Stolloss','Brigaron']},
- zcrystal:{icon:'💠',name:'Z-Kristall',col:'#ffb347',
+ zcrystal:{icon:itemIcon('zcrystal'),name:'Z-Kristall',col:'#ffb347',
   short:'Close Combat, Snipe Shot & Bulldoze: doppelter Schaden. Weather Ball & Reflect: 75 % statt 50 %.',
   desc:'Der Schaden von <b>Close Combat, Snipe Shot und Bulldoze</b> wird <b>verdoppelt</b>. <b>Weather Ball</b> (−DEF & −Mana Gain beim Gegner) und <b>Reflect</b> (−eingehender Schaden & +Attack Speed) wirken mit <b>75 % statt 50 %</b>.',
   carriers:['Pelipper','Fermicula','Durengard','Silvarro','Sandamer','Agoyon']},
- dyna:{icon:'🍄',name:'Dyna-Pilz',col:'#ff6b81',
+ dyna:{icon:itemIcon('dyna'),name:'Dyna-Pilz',col:'#ff6b81',
   short:'Neues Aussehen (Gigadynamax). +25 % DEF & +25 % Mana pro ATK.',
   desc:'Das Pokémon verändert sein Aussehen (<b>Gigadynamax</b>). Verstärkt <b>DEF und Mana pro ATK um 25 %</b>.',
   carriers:['Krarmor','Olangaar','Maritellit']},
- scarf:{icon:'🧣',name:'Wahlschal',col:'#7aa2ff',
+ scarf:{icon:itemIcon('scarf'),name:'Wahlschal',col:'#7aa2ff',
   short:'+30 % Attack Speed.',
   desc:'Steigert den <b>Attack Speed um 30 %</b>.',
   carriers:['Panferno','Tengulist','Rabigator','Fiaro','Elezard']},
- leftovers:{icon:'🥡',name:'Überreste',col:'#8fe388',
+ leftovers:{icon:itemIcon('leftovers'),name:'Überreste',col:'#8fe388',
   short:'Beim 1. Tod (mit Drachen-Bonus: beim 2.) Wiederbelebung mit 50 % HP. Das 1. Bank-Pokémon kämpft bis Rundenende mit.',
   desc:'Stirbt der Träger zum ersten Mal, wird er mit <b>50 % HP wiederbelebt</b> und zieht dabei das <b>erste Pokémon auf der Bank</b> bis zum Ende der Runde mit aufs Spielfeld. <i>Mit Drachen-Bonus greift das Item erst beim zweiten Tod</i> (der erste Tod wird vom Drachen-Bonus abgefangen).',
   carriers:['Rotom','Katapuldra','Pamomamo','Eisenbündel','Ursaluna']}
@@ -1628,7 +1646,7 @@ function renderVictory(){
   return`<div class="vic-card">
    <img src="${url(e.spriteId,e.sh)}" onerror="if('${fb}'&&this.src!=='${fb}')this.src='${fb}';else this.style.opacity=.2">
    <div class="vic-nm">${e.name}</div>
-   <div class="vic-lv" style="color:${STAR_COL[Math.max(0,(e.star||1)-1)]}">${'★'.repeat(e.star||1)} Stufe ${e.star||1}</div>
+   <div class="vic-lv">${starsHtml(e.star||1)}</div>
    <div class="tys">${(e.bt||[]).map(typeIcon).join('')}${e.xt?typeIcon(e.xt).replace('class="ti"','class="ti xt"'):''}</div>
    <div class="vic-st">
     <div><span>⚔️ Schaden</span><b>${fmt(e.dmg)}</b></div>
@@ -1706,7 +1724,7 @@ $('tokenBox').addEventListener('pointerdown',e=>{
 $('itemBox').addEventListener('pointerdown',e=>{
  if(S.phase!='prep'||!S.item)return;e.preventDefault();
  D={type:'item',x:e.clientX,y:e.clientY,moved:false};
- const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.textContent=ITEMS[S.item].icon;document.body.appendChild(g);D.g=g;
+ const g=document.createElement('div');g.id='ghost';g.style.fontSize='36px';g.innerHTML=itemIcon(S.item,'width:36px;height:36px').icon;document.body.appendChild(g);D.g=g;
 });
 
 /* ===== Items: Ziel prüfen & übergeben ===== */
@@ -2019,7 +2037,13 @@ function draw(t){ctx.clearRect(0,0,720,514);
    ctx.fillStyle='#fff';ctx.fillText(CLASSES[u.cls].icon,u.x-bw/2-9,by+5.5);
    ctx.restore();
   }
-  if(u.item&&ITEMS[u.item]){ctx.save();ctx.fillStyle='rgba(14,16,22,0.85)';ctx.beginPath();ctx.arc(u.x-bw/2-9,by+19,7,0,Math.PI*2);ctx.fill();ctx.font='9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.fillText(ITEMS[u.item].icon,u.x-bw/2-9,by+19.5);ctx.restore()}
+  if(u.item&&ITEMS[u.item]){
+   ctx.save();ctx.fillStyle='rgba(14,16,22,0.85)';ctx.beginPath();ctx.arc(u.x-bw/2-9,by+19,8,0,Math.PI*2);ctx.fill();
+   const iim=imgOf(ITEM_IMGS[u.item],false);
+   if(iim.complete&&iim.naturalWidth&&!iim.bad)ctx.drawImage(iim,u.x-bw/2-16,by+12,14,14);
+   else{ctx.font='9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.fillText(ITEM_FALLBACK[u.item],u.x-bw/2-9,by+19.5)}
+   ctx.restore();
+  }
   if(u.xt&&TYPES[u.xt]){ctx.save();ctx.fillStyle=TYPES[u.xt][2];ctx.strokeStyle='#ffd700';ctx.lineWidth=2;ctx.beginPath();ctx.arc(u.x+bw/2+9,by+5,6,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore()}
   if(u.star){ctx.save();ctx.fillStyle=STAR_COL[u.star-1];ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.font='bold 12px sans-serif';ctx.textAlign='center';
    if(u.star>=4){ctx.shadowColor='#8fe9ff';ctx.shadowBlur=10}

@@ -250,7 +250,7 @@ h4{margin:8px 0 2px;color:#9ab}
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
-   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+25% ATK, ASPD & Mana/ATK; bei 3 Käfern 2 Kronen – erneutes Ziehen verschiebt die älteste)">👑</span>
+   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+25% ATK, ASPD & Mana/ATK)">👑</span>
    <span id="tokenBox" class="hidden" title="Terastallize: Auf ein Pokémon mit nur einem Typ ziehen, um einen Tera-Typ zu wählen (einmalig, dauerhaft)"><img id="teraBoxImg" alt="Tera" src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e8ddc4da-23dd-4502-b65b-378c9cfe5efa/dffvs1r-f0988057-cf62-4bd7-b837-6bd4444ba4e8.png/v1/fill/w_1280,h_1280/terastal_phenomenon_icon_by_jormxdos_dffvs1r-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI4MCIsInBhdGgiOiIvZi9lOGRkYzRkYS0yM2RkLTQ1MDItYjY1Yi0zNzhjOWNmZTVlZmEvZGZmdnMxci1mMDk4ODA1Ny1jZjYyLTRiZDctYjgzNy02YmQ0NDQ0YmE0ZTgucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.DW8w4JOMFTYz3rC0LFgf0yzgactmgBPENIWprFgK198" onerror="this.replaceWith(document.createTextNode('💎'))"><b id="tokenN"></b></span>
    <span id="itemBox" class="hidden"></span></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
@@ -392,18 +392,18 @@ const p=v=>Math.round(v*100)+'%';
 const DECOY_HP=[150,450,1000];
 const CROWN_BUFF=.25;
 const TB={
- Normal:  {th:[2,3,5], v:[1.2,1.5,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
+ Normal:  {th:[2,4],   v:[1.2,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
  Grass:   {th:[2,4],  v:[.25,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
  Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
  Electric:{th:[2,4],  v:[.25,.60],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
- Bug:     {th:[2,3],  v:[1,2],        d:v=>`${v} Käfer-Krone${v>1?'n':''} erscheint! Jeder Träger erhält +${p(CROWN_BUFF)} ATK, Attack Speed und Mana pro ATK`},
+ Bug:     {th:[2],    v:[1],           d:v=>`${v} Käfer-Krone${v>1?'n':''} erscheint! Jeder Träger erhält +${p(CROWN_BUFF)} ATK, Attack Speed und Mana pro ATK`},
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
- Rock:    {th:[2,3],  v:[.6,.9],        d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
+ Rock:    {th:[2],    v:[.9],            d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
  Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Danach sind sie 2 Sekunden lang unverwundbar, können aber sofort angreifen`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[2,3],  v:[.8,1.5],      d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${String(v).replace('.',',')} Sekunden`},
+ Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${v} Sekunde${v>1?'n':''}`},
  Ghost:   {th:[2,3,5],v:DECOY_HP,d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
  Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
@@ -475,7 +475,7 @@ const PROF_ROUND=15,RUSH_ROUND=45,GEN_BONUS=0.10;
 const TR='https://play.pokemonshowdown.com/sprites/trainers/';
 const PROFS=[
  {k:'eich',name:'Prof. Eich',gen:1,img:TR+'oak.png',em:'🧪',mons:['Pichu','Nebulak','Fukano','Mampfaxo']},
- {k:'lind',name:'Prof. Lind',gen:2,img:TR+'elm.png',em:'🔬',mons:['Karnimani','Evoli','Ursaluna','Damythir','Pottrott']},
+ {k:'lind',name:'Prof. Lind',gen:2,img:TR+'elm.png',em:'🔬',mons:['Karnimani','Evoli','Ursaluna']},
  {k:'birk',name:'Prof. Birk',gen:3,img:TR+'birch.png',em:'🌿',mons:['Samurzel','Stollunior','Wingull']},
  {k:'eibe',name:'Prof. Eibe',gen:4,img:TR+'rowan.png',em:'📚',mons:['Panflam','Rotom','Shnebedeck','Arceus']},
  {k:'esche',name:'Prof. Esche',gen:5,img:TR+'juniper.png',em:'🧬',mons:['Ganovil','Monozyto','Fermicula']},
@@ -546,7 +546,7 @@ const TUT_PAGES=[
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">Nur unterschiedliche Arten zählen!</b>Zwei gleiche Pokémon (z. B. 2× Nebulak) zählen für den Typ-Bonus nur als <b>1 Geist-Pokémon</b>. Kombiniere verschiedene Spezies!</div>
    <div class="tut-card"><b class="t-ttl">Spezial-Items durch Typen</b>
-    • <b>Käfer (ab 2):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+25% ATK, ASPD & Mana/ATK</b>. Bei <b>3 Käfern</b> bekommst du <b>2 Kronen</b> (auf zwei verschiedene Pokémon).<br>
+    • <b>Käfer (ab 2):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+25% ATK, ASPD & Mana/ATK</b>.<br>
     • <b>Geist (ab 2):</b> Ein <b>Delegator</b> erscheint auf dem Feld, den du frei als Blocker platzieren kannst.
    </div>
   </div>
@@ -687,7 +687,6 @@ const RAW=[
 [2,'Gramokles,Duokles,Durengard','679,680,681','Steel,Ghost','Tank','Reflect'],
 [2,'Porenta,Porenta,Lauchzelot','10166,10166,865','Fighting','Fighter','Bulldoze'],
 [2,'Bähmon,Pelzebub,Olangaar','859,860,861','Dark,Fairy','Fighter','Reflect'],
-[2,'Damhirplex,Damhirplex,Damythir','234,234,899','Normal,Psychic','Fighter','Reflect'],
 [3,'Panflam,Panpyro,Panferno','390,391,392','Fire,Fighting','Fighter','Close Combat'],
 [3,'Karnimani,Tyracroc,Impi','158,159,160','Water','Fighter','Weather Ball'],
 [3,'Evoli,Evoli,Nachtara','133,133,197','Dark','Caster','Reflect'],
@@ -698,7 +697,6 @@ const RAW=[
 [4,'Fermicula,Fermicula,Fermicula','632,632,632','Bug,Steel','Fighter','Close Combat'],
 [4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Weather Ball'],
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
-[4,'Pottrott,Pottrott,Pottrott','213,213,213','Rock,Bug','Tank','Close Combat'],
 [3,'Teddiursa,Ursaring,Ursaluna','216,217,901','Normal,Ground','Tank','Bulldoze'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Bulldoze'],
 [5,'Venicro,Venicro,Agoyon','803,803,804','Poison,Dragon','Sniper','Snipe Shot'],

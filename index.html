@@ -250,7 +250,7 @@ h4{margin:8px 0 2px;color:#9ab}
   <div id="ctrl">
    <div id="btns"><button id="bBattle" onclick="startBattle()">⚔️ Kampf!</button>
    <button id="bRoll" onclick="reroll()" title="Neu würfeln (2 Gold)">🎲</button>
-   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+20% ATK, ASPD & Mana/ATK)">👑</span>
+   <span id="crownBox" class="hidden" title="Käfer-Krone: Auf ein aufgestelltes Pokémon ziehen (+25% ATK, ASPD & Mana/ATK; bei 3 Käfern 2 Kronen – erneutes Ziehen verschiebt die älteste)">👑</span>
    <span id="tokenBox" class="hidden" title="Terastallize: Auf ein Pokémon mit nur einem Typ ziehen, um einen Tera-Typ zu wählen (einmalig, dauerhaft)"><img id="teraBoxImg" alt="Tera" src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e8ddc4da-23dd-4502-b65b-378c9cfe5efa/dffvs1r-f0988057-cf62-4bd7-b837-6bd4444ba4e8.png/v1/fill/w_1280,h_1280/terastal_phenomenon_icon_by_jormxdos_dffvs1r-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI4MCIsInBhdGgiOiIvZi9lOGRkYzRkYS0yM2RkLTQ1MDItYjY1Yi0zNzhjOWNmZTVlZmEvZGZmdnMxci1mMDk4ODA1Ny1jZjYyLTRiZDctYjgzNy02YmQ0NDQ0YmE0ZTgucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.DW8w4JOMFTYz3rC0LFgf0yzgactmgBPENIWprFgK198" onerror="this.replaceWith(document.createTextNode('💎'))"><b id="tokenN"></b></span>
    <span id="itemBox" class="hidden"></span></div>
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
@@ -390,19 +390,20 @@ const p=v=>Math.round(v*100)+'%';
 
 /* ================= TYP-BONI ================= */
 const DECOY_HP=[150,450,1000];
+const CROWN_BUFF=.25;
 const TB={
- Normal:  {th:[2,4],   v:[1.2,1.8],   d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
+ Normal:  {th:[2,3,5], v:[1.2,1.5,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
  Grass:   {th:[2,4],  v:[.25,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
  Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
  Electric:{th:[2,4],  v:[.25,.60],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
- Bug:     {th:[2],    v:[.20],        d:v=>`Käfer-Krone erscheint! Träger erhält +20% ATK, Attack Speed und Mana pro ATK`},
+ Bug:     {th:[2,3],  v:[1,2],        d:v=>`${v} Käfer-Krone${v>1?'n':''} erscheint! Jeder Träger erhält +${p(CROWN_BUFF)} ATK, Attack Speed und Mana pro ATK`},
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
- Rock:    {th:[2],    v:[.9],         d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
+ Rock:    {th:[2,3],  v:[.6,.9],        d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
  Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Danach sind sie 2 Sekunden lang unverwundbar, können aber sofort angreifen`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für 1 Sekunde`},
+ Psychic: {th:[2,3],  v:[.8,1.5],      d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${String(v).replace('.',',')} Sekunden`},
  Ghost:   {th:[2,3,5],v:DECOY_HP,d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
  Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
@@ -545,7 +546,7 @@ const TUT_PAGES=[
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">Nur unterschiedliche Arten zählen!</b>Zwei gleiche Pokémon (z. B. 2× Nebulak) zählen für den Typ-Bonus nur als <b>1 Geist-Pokémon</b>. Kombiniere verschiedene Spezies!</div>
    <div class="tut-card"><b class="t-ttl">Spezial-Items durch Typen</b>
-    • <b>Käfer (ab 2):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+20% ATK, ASPD & Mana/ATK</b>.<br>
+    • <b>Käfer (ab 2):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+25% ATK, ASPD & Mana/ATK</b>. Bei <b>3 Käfern</b> bekommst du <b>2 Kronen</b> (auf zwei verschiedene Pokémon).<br>
     • <b>Geist (ab 2):</b> Ein <b>Delegator</b> erscheint auf dem Feld, den du frei als Blocker platzieren kannst.
    </div>
   </div>
@@ -686,6 +687,7 @@ const RAW=[
 [2,'Gramokles,Duokles,Durengard','679,680,681','Steel,Ghost','Tank','Reflect'],
 [2,'Porenta,Porenta,Lauchzelot','10166,10166,865','Fighting','Fighter','Bulldoze'],
 [2,'Bähmon,Pelzebub,Olangaar','859,860,861','Dark,Fairy','Fighter','Reflect'],
+[2,'Damhirplex,Damhirplex,Damythir','234,234,899','Normal,Psychic','Fighter','Reflect'],
 [3,'Panflam,Panpyro,Panferno','390,391,392','Fire,Fighting','Fighter','Close Combat'],
 [3,'Karnimani,Tyracroc,Impi','158,159,160','Water','Fighter','Weather Ball'],
 [3,'Evoli,Evoli,Nachtara','133,133,197','Dark','Caster','Reflect'],
@@ -696,6 +698,7 @@ const RAW=[
 [4,'Fermicula,Fermicula,Fermicula','632,632,632','Bug,Steel','Fighter','Close Combat'],
 [4,'Curelei,Curelei,Curelei','764,764,764','Fairy','Caster','Weather Ball'],
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
+[4,'Pottrott,Pottrott,Pottrott','213,213,213','Rock,Bug','Tank','Close Combat'],
 [3,'Teddiursa,Ursaring,Ursaluna','216,217,901','Normal,Ground','Tank','Bulldoze'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Bulldoze'],
 [5,'Venicro,Venicro,Agoyon','803,803,804','Poison,Dragon','Sniper','Snipe Shot'],
@@ -1058,7 +1061,7 @@ const limitFor=r=>Math.min(CFG.maxUnits,1+CFG.slotAfter.filter(t=>r>t).length);
 const candyOn=()=>!!S&&S.units.some(u=>u.item==='candy');
 const limit=()=>Math.min(9,limitFor(S.round)+(candyOn()?1:0));
 function enforceLimit(){let ex=placed().length-limit();if(ex<=0)return;
- for(const o of placed().slice().reverse()){if(ex<=0)break;if(S.crownOn===o.id)S.crownOn=null;o.pos=null;o.slot=freeSlot();ex--}
+ for(const o of placed().slice().reverse()){if(ex<=0)break;dropCrown(o.id);o.pos=null;o.slot=freeSlot();ex--}
  toast('Das Sonderbonbon fehlt – überzählige Pokémon wurden auf die Bank gestellt.')}
 const income=()=>CFG.income;
 const TOKEN_ROUND=25;const ITEM_ROUND=35;
@@ -1075,13 +1078,13 @@ function formOf(o){
  return f}
 
 function newGame(){
- S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crownOn:null,tokens:0,item:null,itemOffer:false,itemDone:false,gen:null,profOffer:false,profDone:false,rushOffer:false,rushDone:false,stats:{}};
+ S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crowns:[],tokens:0,item:null,itemOffer:false,itemDone:false,gen:null,profOffer:false,profDone:false,rushOffer:false,rushDone:false,stats:{}};
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
 function save(){try{localStorage.setItem('pab7',JSON.stringify(S))}catch(e){}}
 function clearSave(){try{localStorage.removeItem('pab7')}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;migrateItems();fixSlots();return true}}catch(e){}return false}
+function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;if(!Array.isArray(S.crowns))S.crowns=(S.crownOn!=null?[S.crownOn]:[]);delete S.crownOn;migrateItems();fixSlots();return true}}catch(e){}return false}
 
 function migrateItems(){
  /* Gengar kann keinen Dyna-Pilz mehr tragen -> Item zurück in die Item-Box */
@@ -1116,7 +1119,7 @@ function tryMerge(){let again=true;const bat=S.phase=='battle';
   for(let sp=0;sp<SP.length&&!again;sp++)for(let st=1;st<=2&&!again;st++){
    const L=S.units.filter(u=>u.sp==sp&&u.star==st&&(!bat||!u.pos)).sort((a,b)=>(b.pos?1:0)-(a.pos?1:0));
    if(L.length>=CFG.mergeNeeded){const t=L.slice(0,CFG.mergeNeeded),pos=t[0].pos,keep=t.find(x=>!x.pos&&x.slot!=null);
-    const hadCrown=t.some(x=>S.crownOn===x.id);
+    const hadCrown=t.some(x=>S.crowns.includes(x.id));
     const xt=(t.find(x=>x.xt)||{}).xt;
     const nid=S.nextId++;
     S.stats=S.stats||{};const ns={dmg:0,heal:0,blk:0,casts:0};
@@ -1124,7 +1127,7 @@ function tryMerge(){let again=true;const bat=S.phase=='battle';
     S.stats[nid]=ns;
     S.units=S.units.filter(u=>!t.includes(u));
     S.units.push({id:nid,sp,star:st+1,pos,slot:pos?null:(keep?keep.slot:freeSlot()),...(xt?{xt}:{})});
-    if(hadCrown)S.crownOn=nid;
+    if(hadCrown){S.crowns=S.crowns.filter(c=>!t.some(x=>x.id===c));S.crowns.push(nid)}
     again=true}}}}
 
 function buy(k){if(!act())return;const i=S.shop[k];if(i==null)return;const s=SP[i];
@@ -1148,7 +1151,7 @@ function sell(id){const u=unitById(id);if(!u)return;
    const free=CFG.benchMax-benchCount()+(u.pos?0:1);
    if(free<after-lim){toast('Nicht genug Bankplätze: Ohne Sonderbonbon müssten überzählige Pokémon auf die Bank wechseln.');return}}}
  if(u.item&&!confirm(`${SP[u.sp].n[2]} trägt ${ITEMS[u.item].name}. Beim Verkaufen geht das Item verloren. Wirklich verkaufen?`))return;const n=cardsEq(u),g=SP[u.sp].c*n;
- if(S.crownOn===id)S.crownOn=null;
+ dropCrown(id);
  S.gold+=g;S.pool[u.sp]+=n;S.units=S.units.filter(x=>x!==u);enforceLimit()}
 function trashClick(){if(!act()||S.sel==null)return;const u=unitById(S.sel);if(S.phase=='battle'&&u&&u.pos)return;sell(S.sel);S.sel=null;render()}
 
@@ -1173,16 +1176,15 @@ function ensureSpecials(){
  }else{
   S.decoyPos=null;
  }
- if((cnt.Bug||0)>=2){
-  if(S.crownOn!=null){
-   const u=unitById(S.crownOn);
-   if(!u||!u.pos)S.crownOn=null;
-  }
- }else{
-  S.crownOn=null;
+ {
+  const n=crownCount(cnt);
+  S.crowns=S.crowns.filter(id=>{const u=unitById(id);return u&&u.pos});
+  if(S.crowns.length>n)S.crowns=S.crowns.slice(S.crowns.length-n);
  }
 }
 
+const crownCount=cnt=>(cnt.Bug||0)>=2?bonusVal('Bug',cnt.Bug):0;
+const dropCrown=id=>{if(S&&S.crowns)S.crowns=S.crowns.filter(c=>c!==id)};
 function applyBonus(u,t,v,tier){
  switch(t){
   case'Steel':u.shield=u.max*v;break;
@@ -1199,7 +1201,7 @@ function applyBonus(u,t,v,tier){
   case'Fairy':u.fairy=v;break;
   case'Ground':u.ground=v*S.round;break;
   case'Poison':u.pois=v;break;
-  case'Psychic':u.psy=1;break;
+  case'Psychic':u.psy=v;break;
   case'Dragon':u.dragon=v;break;
  }
 }
@@ -1243,11 +1245,11 @@ function buildPlayer(bat){
  const L=placed().map(o=>{
   const u=buildUnit(o,o.pos);
   if(spInGen(o.sp,genActive())){u.atk*=1+GEN_BONUS;u.genB=1}
-  if(S.crownOn===o.id&&(cnt.Bug||0)>=2){
+  if(S.crowns.includes(o.id)&&crownCount(cnt)>0){
    u.crowned=true;
-   u.atk*=1.20;
-   u.aspd*=1.20;
-   u.mg*=1.20;
+   u.atk*=1+CROWN_BUFF;
+   u.aspd*=1+CROWN_BUFF;
+   u.mg*=1+CROWN_BUFF;
   }
   return u;
  });
@@ -1638,7 +1640,7 @@ function hit(u,t,A){
    if(foes.length){
     let near=foes[0],bd=1e9;
     for(const f of foes){const dd=dist(u,f);if(dd<bd){bd=dd;near=f}}
-    near.stun=Math.max(near.stun,2);
+    near.stun=Math.max(near.stun,u.psy);
     say(near,'💫 Stun','#f95587');
    }
   }
@@ -1860,8 +1862,8 @@ function moveTo(id,tgt){const o=unitById(id);if(!o)return;const bat=S.phase=='ba
   if(tgt.slot==null||(bat&&o.pos))return;
   const occ=S.units.find(u=>!u.pos&&u.slot===tgt.slot);
   if(occ===o)return;
-  if(!occ){if(S.crownOn===o.id)S.crownOn=null;o.pos=null;o.slot=tgt.slot;return}
-  if(o.pos){occ.pos=o.pos;occ.slot=null;o.pos=null;o.slot=tgt.slot;if(S.crownOn===o.id)S.crownOn=null}
+  if(!occ){dropCrown(o.id);o.pos=null;o.slot=tgt.slot;return}
+  if(o.pos){occ.pos=o.pos;occ.slot=null;o.pos=null;o.slot=tgt.slot;dropCrown(o.id)}
   else{occ.slot=o.slot;o.slot=tgt.slot}
   return}
  if(bat)return;
@@ -1873,7 +1875,7 @@ function moveTo(id,tgt){const o=unitById(id);if(!o)return;const bat=S.phase=='ba
  }
  const occ=occAt(tgt);
  if(occ===o)return;
- if(occ){const op=o.pos,os=o.slot;occ.pos=op;occ.slot=op?null:os;o.pos={r:tgt.r,c:tgt.c};o.slot=null;if(!op&&S.crownOn===occ.id)S.crownOn=null;return}
+ if(occ){const op=o.pos,os=o.slot;occ.pos=op;occ.slot=op?null:os;o.pos={r:tgt.r,c:tgt.c};o.slot=null;if(!op)dropCrown(occ.id);return}
  if(!o.pos&&placed().length>=limit())return;
  o.pos={r:tgt.r,c:tgt.c};o.slot=null}
 
@@ -2119,7 +2121,7 @@ window.addEventListener('pointermove',e=>{if(!D)return;
 window.addEventListener('pointerup',e=>{if(!D)return;const d=D;D=null;if(d.g)d.g.remove();$('trash').classList.remove('over');
  if(d.type==='crown'){
   const el=document.elementFromPoint(e.clientX,e.clientY);
-  if(el===$('cv')){const c=cellAt(e.clientX,e.clientY);const o=c?occAt(c):null;if(o)S.crownOn=o.id}
+  if(el===$('cv')){const c=cellAt(e.clientX,e.clientY);const o=c?occAt(c):null;if(o&&!S.crowns.includes(o.id)){S.crowns.push(o.id);const n=crownCount(typeCounts());while(S.crowns.length>n)S.crowns.shift()}}
   render();return;
  }
  if(d.type==='token'){
@@ -2200,7 +2202,7 @@ function liveBlock(c,o){
  }
  const cnt=typeCounts(),ef=[];
  if(v.genB)ef.push(`🎓 Generational Run: +${Math.round(GEN_BONUS*100)} % ATK`);
- if(v.crowned)ef.push('👑 Käfer-Krone: +20 % ATK, Attack Speed & Mana');
+ if(v.crowned)ef.push(`👑 Käfer-Krone: +${Math.round(CROWN_BUFF*100)} % ATK, Attack Speed & Mana`);
  if(v.item&&ITEMS[v.item])ef.push(`${ITEMS[v.item].icon} ${ITEMS[v.item].name}: ${ITEMS[v.item].short}`);
  for(const t of (v.t||[])){const k=tierIdx(t,cnt[t]||0);if(k>=0)ef.push(`${typeBadge(t)} ${TB[t].d(TB[t].v[k],k)}`)}
  if(fb>0)ef.push(`🥊 Angrenzende Kampf-Pokémon: +${p(fb)} Schaden`);
@@ -2275,7 +2277,7 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
  $('bBattle').disabled=S.phase=='battle';$('bBattle').textContent=S.phase=='done'?'🔄 Neues Spiel':'⚔️ Kampf!';$('bRoll').disabled=!act()||S.gold<CFG.reroll;
 
  const cnt=typeCounts();
- $('crownBox').classList.toggle('hidden',!(S.phase=='prep'&&(cnt.Bug||0)>=2));
+ {const cn=crownCount(cnt);$('crownBox').classList.toggle('hidden',!(S.phase=='prep'&&cn>=1));$('crownBox').textContent='👑'.repeat(Math.max(1,cn))}
  $('tokenBox').classList.toggle('hidden',!(S.phase=='prep'&&(S.tokens||0)>0));$('tokenN').textContent=(S.tokens||0)>1?'×'+S.tokens:'';
  const ib=$('itemBox');
  if(S.item&&S.phase=='prep'){const it=ITEMS[S.item];ib.innerHTML=it.icon;ib.removeAttribute('title');ib.classList.remove('hidden')}

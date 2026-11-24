@@ -88,7 +88,7 @@ h4{margin:8px 0 2px;color:#9ab}
 #tip .pc{display:flex;align-items:center;width:102px;font-size:10px;border:1px solid #333;border-radius:6px;padding:1px;opacity:.3}
 #tip .pc.own{opacity:.7}#tip .pc.on{opacity:1;border-color:#5c5;background:#1c2b1c}
 #tip .pc img{width:28px;height:28px;image-rendering:pixelated}
-#crownBox{display:inline-flex;align-items:center;justify-content:center;background:#2a2414;border:2px solid #ffd700;border-radius:8px;padding:8px 14px;cursor:grab;user-select:none;font-size:26px;line-height:1}
+#crownBox{display:inline-flex;align-items:center;justify-content:center;background:#2a2414;border:2px solid #ffd700;border-radius:8px;padding:5px 9px;margin:2px;cursor:grab;user-select:none;font-size:16px;line-height:normal}
 #crownBox.hidden{display:none}
 #tokenBox{display:inline-flex;align-items:center;justify-content:center;gap:4px;background:#1f1a30;border:2px solid #b07cff;border-radius:6px;padding:4px 10px;margin:2px;cursor:grab;user-select:none;font-size:16px;line-height:1;touch-action:none;box-shadow:0 0 8px #b07cff88;box-sizing:border-box}
 #tokenBox img{width:21px;height:21px;object-fit:contain}.teraI{height:1.25em;width:1.25em;vertical-align:-.25em;object-fit:contain}
@@ -2275,7 +2275,7 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
  $('bBattle').disabled=S.phase=='battle';$('bBattle').textContent=S.phase=='done'?'🔄 Neues Spiel':'⚔️ Kampf!';$('bRoll').disabled=!act()||S.gold<CFG.reroll;
 
  const cnt=typeCounts();
- $('crownBox').classList.toggle('hidden',!(S.phase=='prep'&&(cnt.Bug||0)>=1));
+ $('crownBox').classList.toggle('hidden',!(S.phase=='prep'&&(cnt.Bug||0)>=2));
  $('tokenBox').classList.toggle('hidden',!(S.phase=='prep'&&(S.tokens||0)>0));$('tokenN').textContent=(S.tokens||0)>1?'×'+S.tokens:'';
  const ib=$('itemBox');
  if(S.item&&S.phase=='prep'){const it=ITEMS[S.item];ib.innerHTML=it.icon;ib.removeAttribute('title');ib.classList.remove('hidden')}

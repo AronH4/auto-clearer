@@ -322,7 +322,7 @@ h4{margin:8px 0 2px;color:#9ab}
 const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
  maxUnits:8,slotAfter:[2,4,8,14,22,30,40],benchMax:12,
- speedUpAfter:20,speedUpTo:3,
+ speedUpAfter:20,speedUpTo:3,noSpeedRound:50,
  hpMul:[1,1.75,3,4],atkMul:[1,1.75,3,4],
  costMul:{1:1,2:1.1,3:1.15,4:1.2,5:1.25},
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
@@ -435,12 +435,12 @@ const ITEMS={
   desc:'Das Pokémon entwickelt sich zur <b>Stufe 4</b> (★★★★) und verändert sein Aussehen. Als Mega-Pokémon hat es <b>4× HP und 4× ATK</b> (statt 3×) – die <b>Ability Power</b> erhält <b>keinen</b> Mega-Bonus.',
   carriers:['Rexblisar','Gengar','Stolloss','Brigaron','Impi']},
  zcrystal:{icon:itemIcon('zcrystal'),name:'Z-Kristall',col:'#ffb347',
-  short:'Close Combat, Snipe Shot & Bulldoze: doppelter Schaden. Weather Ball & Reflect: 75 % statt 50 %.',
-  desc:'Der Schaden von <b>Close Combat, Snipe Shot und Bulldoze</b> wird <b>verdoppelt</b>. <b>Weather Ball</b> (−DEF & −Mana Gain beim Gegner) und <b>Reflect</b> (−eingehender Schaden & +Attack Speed) wirken mit <b>75 % statt 50 %</b>.',
+  short:'Close Combat, Snipe Shot, Bulldoze & Weather Ball: doppelter Schaden. Weather Ball & Reflect: 75 % statt 50 %.',
+  desc:'Der Schaden von <b>Close Combat, Snipe Shot, Bulldoze und Weather Ball</b> wird <b>verdoppelt</b>. Zusätzlich wirken <b>Weather Ball</b> (−DEF & −Mana Gain beim Gegner) und <b>Reflect</b> (−eingehender Schaden & +Attack Speed) mit <b>75 % statt 50 %</b>.',
   carriers:['Pelipper','Fermicula','Durengard','Silvarro','Sandamer']},
  dyna:{icon:itemIcon('dyna'),name:'Dyna-Pilz',col:'#ff6b81',
-  short:'Neues Aussehen (Gigadynamax). +25 % DEF & +25 % Mana pro ATK.',
-  desc:'Das Pokémon verändert sein Aussehen (<b>Gigadynamax</b>). Verstärkt <b>DEF und Mana pro ATK um 25 %</b>.',
+  short:'Neues Aussehen (Gigadynamax). +30 % DEF & +30 % Mana pro ATK.',
+  desc:'Das Pokémon verändert sein Aussehen (<b>Gigadynamax</b>). Verstärkt <b>DEF und Mana pro ATK um 30 %</b>.',
   carriers:['Krarmor','Olangaar','Maritellit','Relaxo','Pikachu']},
  scarf:{icon:itemIcon('scarf'),name:'Wahlschal',col:'#7aa2ff',
   short:'+50 % Attack Speed.',
@@ -525,7 +525,7 @@ const TUT_PAGES=[
    <div class="tut-card"><b class="t-ttl">Stärkere Basiswerte</b>Höhere Cost-Einheiten besitzen bessere Multiplikatoren auf HP, ATK & Ability-Schaden (von <b>1,0x</b> bei 1-Cost bis <b>1,25x</b> bei 5-Cost), erscheinen aber erst in späteren Runden häufiger im Shop.</div>
    <div class="tut-card"><b class="t-ttl">Geteilter Karten-Pool</b>Jedes Pokémon existiert nur begrenzt oft im Pool (z. B. 25x bei 1-Cost, 12x bei 5-Cost). Verkaufst du eine Einheit, kehren ihre Kopien in den Pool zurück.</div>
   </div>
-  <div class="tut-note">💡 <b>Tipp:</b> Fahre mit der Maus über eine beliebige Einheit im Shop, auf der Bank oder auf dem Feld, um alle Live-Werte, Typen und Fähigkeiten einzusehen.</div>`
+  <div class="tut-note">💡 <b>Tipp:</b> Fahre mit der Maus über eine beliebige Einheit im Shop, auf der Bank oder auf dem Feld, um alle Live-Werte, Typen und Fähigkeiten einzusehen. Auf dem <b>Feld</b> siehst du zusätzlich einen Block <b>📊 Live-Werte</b> mit allen Boni (Typ-Boni, Items, Generational Run, Käfer-Krone, angrenzende Kampf-Pokémon) bereits eingerechnet.</div>`
  },
  {
   tab:'3. Entwickeln',
@@ -593,7 +593,14 @@ const TUT_PAGES=[
   </div>`
  },
  {
-  tab:'8. Terastallize (Runde 25)',
+  tab:'8. Generational Run (Runde 15)',
+  title:()=>'🎓 Generational Run ab Runde 15',
+  html:()=>`<p>Wenn du <b>Runde 15 erfolgreich meisterst</b>, öffnet sich ein Auswahlfenster: Du entscheidest dich für einen <b>Pokémon-Professor</b> (einmalig pro Spiel). Alle Pokémon seiner Generation erhalten dauerhaft <b>+10 % ATK</b> – das nennt sich <b>Generational Run</b>.</p>
+  <div class="tut-grid" style="grid-template-columns:1fr 1fr">${PROFS.map(pr=>`<div class="tut-card"><b class="t-ttl">${pr.name} · Gen ${pr.gen}</b>${pr.mons.join(', ')}</div>`).join('')}</div>
+  <div class="tut-note">💡 Pokémon, die vom Bonus profitieren, zeigen das im Tooltip an (🎓). Der Bonus gilt für alle Entwicklungsstufen des jeweiligen Pokémon.</div>`
+ },
+ {
+  tab:'9. Terastallize (Runde 25)',
   title:`${teraImg()} Was ist Terastallize ab Runde 25?`,
   html:`<p>Wenn du <b>Runde 25 erfolgreich meisterst</b>, erhältst du als besondere Belohnung einen <b>${teraImg()} Terastallize</b>-Token (erscheint oben neben dem Kampf-Button).</p>
   <div class="tut-grid">
@@ -606,7 +613,7 @@ const TUT_PAGES=[
   • Tera-Typ und Item-Form lassen sich <b>kombinieren</b>: <b>Impi</b> (Mega-Stein) und <b>Pikachu</b> (Dyna-Pilz) können zusätzlich zum Tera-Typ eine neue Form erhalten.</div>`
  },
  {
-  tab:'9. Items (Runde 35)',
+  tab:'10. Items (Runde 35)',
   title:()=>`🎁 Items ab Runde 35`,
   html:()=>`<p>Wenn du <b>Runde 35 erfolgreich meisterst</b>, wartet eine besondere Belohnung: <b>1 Item</b> (einmalig pro Spiel).</p>
   <div class="tut-grid">
@@ -626,14 +633,8 @@ const TUT_PAGES=[
   ${ITEM_KEYS.map(k=>`<div class="tut-card" style="border-color:${ITEMS[k].col}"><b class="t-ttl" style="color:${ITEMS[k].col};font-size:14px">${ITEMS[k].icon} ${ITEMS[k].name}</b>${ITEMS[k].desc}<div class="it-car" style="justify-content:flex-start;margin-top:6px">${itemChips(k)}</div></div>`).join('')}
   </div>
   <div class="tut-note">💡 <b>Tipp:</b> Setze das Item, das du am dringendsten brauchst, auf Prio 1 – so ist die Chance am größten, dass die Slot-Maschine es dir gibt.</div>`
- }
- ,{
-  tab:'10. Generational Run (Runde 15)',
-  title:()=>'🎓 Generational Run ab Runde 15',
-  html:()=>`<p>Wenn du <b>Runde 15 erfolgreich meisterst</b>, öffnet sich ein Auswahlfenster: Du entscheidest dich für einen <b>Pokémon-Professor</b> (einmalig pro Spiel). Alle Pokémon seiner Generation erhalten dauerhaft <b>+10 % ATK</b> – das nennt sich <b>Generational Run</b>.</p>
-  <div class="tut-grid" style="grid-template-columns:1fr 1fr">${PROFS.map(pr=>`<div class="tut-card"><b class="t-ttl">${pr.name} · Gen ${pr.gen}</b>${pr.mons.join(', ')}</div>`).join('')}</div>
-  <div class="tut-note">💡 Pokémon, die vom Bonus profitieren, zeigen das im Tooltip an (🎓). Der Bonus gilt für alle Entwicklungsstufen des jeweiligen Pokémon.</div>`
- },{
+ },
+ {
   tab:'11. Gold Rush (Runde 45)',
   title:()=>'💰 Gold Rush ab Runde 45',
   html:()=>`<p>Wenn du <b>Runde 45 erfolgreich meisterst</b>, startet das <b>Gold-Rush-Event</b>: Du hast <b>5 Sekunden</b> Zeit, so schnell wie möglich auf einen Kreis zu tippen. Danach werden deine Klicks gezählt.</p>
@@ -1228,7 +1229,7 @@ function buildUnit(o,pos){
  u.t=o.xt?s.t.concat(o.xt):s.t;u.xt=o.xt||null;
  u.item=o.item||null;
  switch(o.item){
-  case'dyna':u.def*=1.25;u.mg*=1.25;break;
+  case'dyna':u.def*=1.30;u.mg*=1.30;break;
   case'scarf':u.aspd*=1.5;break;
   case'zcrystal':u.zc=1;break;
  }
@@ -1583,7 +1584,7 @@ function castPlayerSkill(u,t,A){
      B.fields.push({r:centerR,c:centerC,rad:1.3,t:2,maxT:2,type:'weather',pw:u.zc?0.75:0.5});
      B.waves.push({x:bx,y:by,r:10,maxR:W*1.5,col:'#ffffff',t:.42,maxT:.42,fill:true});
      const effDef=boss.def*(u.zc?0.25:0.5);
-     dealDmg(boss,rawAb*100/(100+effDef),'#ffffff','❄️',u);
+     dealDmg(boss,rawAb*(u.zc?2:1)*100/(100+effDef),'#ffffff','❄️',u);
     }
    });
    break;
@@ -1662,7 +1663,7 @@ function hit(u,t,A){
  const crit=Math.random()<u.crit;
  if(crit)baseD*=(u.critMult||2);
 
- u.lx=(t.x-u.x)*.18;u.ly=(t.y-u.y)*.18;
+ {const lf=u.team=='p'?(u.cls==='Tank'?.32:u.cls==='Fighter'?.24:.18):.18;u.lx=(t.x-u.x)*lf;u.ly=(t.y-u.y)*lf}
 
  if(u.team=='e'){
   B.fx.push({x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.18,maxT:.18,col:'#ff3838',w:cast?5:2.5,glow:'#aa0000'});
@@ -1672,27 +1673,53 @@ function hit(u,t,A){
   applyOnHitEffects(u,t,d);
   if(cast&&u.onCast)u.onCast(u,t,A);
  }else{
-  const isRanged=u.range>=2;
-  if(isRanged){
+  const cls=u.cls||'Fighter';
+  const dx0=t.x-u.x,dy0=t.y-u.y,len0=Math.hypot(dx0,dy0)||1;
+  const applyHit=(useMit)=>{
+   if(!t||t.hp<=0)return;
+   const mit=useMit?checkBarrierMitigation(u.x,u.y,t.x,t.y,t.team):1;
+   const effDef=t.def*wMul(t);
+   const d=Math.max(1,Math.round(baseD*mit*100/(100+effDef)));
+   dealDmg(t,d,crit?'#ffe066':'#ffffff',crit?'!':'',u);
+   applyOnHitEffects(u,t,d);
+  };
+  if(cls==='Tank'){
+   /* Tank: keine Linie/kein Projektil - nur wuchtiger Rammstoss (Bewegung) + wenige Staubpartikel */
+   const cx=t.x-dx0/len0*20,cy=t.y-dy0/len0*20;
+   B.fx.push({kind:'burst',x:cx,y:cy,t:.28,maxT:.28,parts:Array.from({length:6},(_,i)=>({a:i*Math.PI/3+Math.random()*.6,d:16+Math.random()*10}))});
+   applyHit(false);
+  }else if(cls==='Fighter'){
+   /* Fighter: weisse Klauen-/Schlitz-Animation am Ziel (Krit = Kreuz-Schlitz) */
+   const sgn=(u.atkN%2)?1:-1;
    B.proj.push({
     x:u.x,y:u.y,sx:u.x,sy:u.y,tx:t.x,ty:t.y,target:t,
-    t:0,dur:.16,col:'#ffffff',glow:'#cfe8ff',r:5.5,team:u.team,
+    t:0,dur:.07,kind:'hidden',r:0,team:u.team,
     onHit:(bx,by)=>{
-     if(!t||t.hp<=0)return;
-     const mit=checkBarrierMitigation(u.x,u.y,t.x,t.y,t.team);
-     const effDef=t.def*wMul(t);
-     const d=Math.max(1,Math.round(baseD*mit*100/(100+effDef)));
-     dealDmg(t,d,crit?'#ffe066':'#ffffff',crit?'!':'',u);
-     applyOnHitEffects(u,t,d);
+     const ang=Math.atan2(dy0,dx0)+sgn*0.95;
+     B.fx.push({kind:'slash',x:bx,y:by,ang,len:52,w:6,t:.26,maxT:.26});
+     if(crit)B.fx.push({kind:'slash',x:bx,y:by,ang:ang+Math.PI/2,len:52,w:6,t:.26,maxT:.26});
+     applyHit(true);
+    }
+   });
+  }else if(cls==='Sniper'){
+   /* Sniper: schneller weisser Leuchtstreifen + duenne Nachgluehlinie, Muendungsblitz & Einschlagfunke */
+   B.fx.push({kind:'tracer',x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.2,maxT:.2});
+   B.waves.push({x:u.x+dx0/len0*18,y:u.y+dy0/len0*18,r:3,maxR:16,col:'#ffffff',t:.12,maxT:.12});
+   B.proj.push({
+    x:u.x,y:u.y,sx:u.x,sy:u.y,tx:t.x,ty:t.y,target:t,
+    t:0,dur:.1,kind:'bolt',r:2.5,team:u.team,
+    onHit:(bx,by)=>{
+     B.fx.push({kind:'spark',x:bx,y:by,t:.2,maxT:.2});
+     applyHit(true);
     }
    });
   }else{
-   B.fx.push({x1:u.x,y1:u.y,x2:t.x,y2:t.y,t:.14,maxT:.14,col:'#ffffff',w:3,glow:'#cfe8ff'});
-   B.waves.push({x:t.x,y:t.y,r:4,maxR:24,col:'#ffffff',t:.2,maxT:.2});
-   const effDef=t.def*wMul(t);
-   const d=Math.max(1,Math.round(baseD*100/(100+effDef)));
-   dealDmg(t,d,crit?'#ffe066':'#ffffff',crit?'!':'',u);
-   applyOnHitEffects(u,t,d);
+   /* Caster: weisser Ball (wie bisher) */
+   B.proj.push({
+    x:u.x,y:u.y,sx:u.x,sy:u.y,tx:t.x,ty:t.y,target:t,
+    t:0,dur:.16,col:'#ffffff',glow:'#cfe8ff',r:5.5,team:u.team,
+    onHit:()=>applyHit(true)
+   });
   }
  }
 }
@@ -1712,7 +1739,7 @@ function step(dt){
  B.time+=dt;
  B.dpsTimer=(B.dpsTimer||0)+dt;
  if(B.dpsTimer>=0.25){B.dpsTimer=0;renderDpsChart();}
- if(B.time>=CFG.speedUpAfter&&S.speed<CFG.speedUpTo)S.speed=CFG.speedUpTo;
+ if(B.time>=CFG.speedUpAfter&&S.round!==CFG.noSpeedRound&&S.speed<CFG.speedUpTo)S.speed=CFG.speedUpTo;
  const A=B.units.filter(u=>u.hp>0);
 
  for(const u of A){
@@ -2145,7 +2172,58 @@ function tipPoke(spIdx,star,e,xt,item){
  const el=$('tip');el.innerHTML=h;el.style.display='block';tipMove(e);
 }
 function tipMove(e){const el=$('tip');el.style.left=Math.max(4,Math.min(e.clientX+16,innerWidth-el.offsetWidth-8))+'px';el.style.top=Math.max(4,Math.min(e.clientY+8,innerHeight-el.offsetHeight-8))+'px'}
-let tipU=null;
+let tipU=null,lastTipEv=null;
+const SKILL_MULT={'Close Combat':1.75,'Snipe Shot':2.5,'Bulldoze':1.75,'Weather Ball':1};
+function liveCtx(u){
+ if(S.phase==='battle'&&B.units.includes(u))return{v:u,A:B.units,battle:true};
+ if(u.uid==null)return null;
+ const list=buildPlayer(true),v=list.find(x=>x.uid===u.uid);
+ return v?{v,A:list,battle:false}:null;
+}
+function liveBlock(c,o){
+ const v=c.v,A=c.A,b=o?buildUnit(o,o.pos):null,fb=fightBuff(v,A);
+ const cmp=(live,base,fmt)=>{const f=fmt||(x=>Math.round(x));
+  return(b&&Math.abs(live-base)>Math.max(.005*Math.abs(base),.004))?`<b style="color:#7f7">${f(live)}</b> <small style="color:#9ab">(Basis ${f(base)})</small>`:`<b>${f(live)}</b>`};
+ const f2=x=>(+x).toFixed(2),f1=x=>(+x).toFixed(1);
+ const rp=c.battle?reflectPw(v.team,v.r,v.c):0;
+ const atk=effAtk(v)*v.dm*(1+fb),ab=v.abDmg*v.dm*(1+fb),as=asp(v)*(1+rp);
+ const hpTxt=c.battle?`<b>${Math.round(v.hp)}</b>/${cmp(v.max,b?b.max:0)}`:cmp(v.max,b?b.max:0);
+ let h=`<div style="margin-top:7px;padding-top:5px;border-top:1px solid #3a4258"><b style="color:#8fd">📊 Live-Werte ${c.battle?'(im Kampf)':'(inkl. aller Boni)'}</b></div>`;
+ h+=`<div style="color:#cde">HP: ${hpTxt} · ATK: ${cmp(atk,b?b.atk:0)} · Ability: ${cmp(ab,b?b.abDmg:0)}</div>`;
+ h+=`<div style="color:#cde">DEF: ${cmp(v.def,b?b.def:0)} · ASPD: ${cmp(as,b?b.aspd:0,f2)} · Range: ${cmp(v.range,b?b.range:0)}</div>`;
+ h+=`<div style="color:#cde">Crit: ${cmp(v.crit,b?b.crit:0,x=>p(x))} (×${v.critMult}) · Mana/ATK: ${cmp(v.mg,b?b.mg:0,f1)} / ${Math.round(v.mmax)}</div>`;
+ const m=SKILL_MULT[v.abName];
+ if(m){const z=v.zc?2:1;
+  h+=`<div style="color:#fd6">${v.abName}: ca. <b>${Math.round(ab*m*z)}</b> Schaden${v.abName==='Close Combat'?' (aufgeteilt auf alle Gegner)':v.abName==='Snipe Shot'?' (pro Gegner in der Linie)':''} <small style="color:#9ab">vor DEF${z>1?' · 💠 ×2':''}</small></div>`;
+ }else if(v.abName==='Reflect'){
+  h+=`<div style="color:#fd6">Reflect: −${v.zc?75:50} % Schaden & +${v.zc?75:50} % ASPD für Verbündete</div>`;
+ }
+ const cnt=typeCounts(),ef=[];
+ if(v.genB)ef.push(`🎓 Generational Run: +${Math.round(GEN_BONUS*100)} % ATK`);
+ if(v.crowned)ef.push('👑 Käfer-Krone: +20 % ATK, Attack Speed & Mana');
+ if(v.item&&ITEMS[v.item])ef.push(`${ITEMS[v.item].icon} ${ITEMS[v.item].name}: ${ITEMS[v.item].short}`);
+ for(const t of (v.t||[])){const k=tierIdx(t,cnt[t]||0);if(k>=0)ef.push(`${typeBadge(t)} ${TB[t].d(TB[t].v[k],k)}`)}
+ if(fb>0)ef.push(`🥊 Angrenzende Kampf-Pokémon: +${p(fb)} Schaden`);
+ if(rp>0)ef.push(`🛡️ Reflect-Zone: −${Math.round(rp*100)} % Schaden & +${Math.round(rp*100)} % ASPD`);
+ if(c.battle){
+  if(v.slowT>0)ef.push('❄️ verlangsamt');
+  if(v.atkDownT>0)ef.push('🔥 ATK-Malus');
+  if(v.poisT>0)ef.push('☠ vergiftet');
+  if(v.shield>0)ef.push(`🔰 Schild: ${Math.round(v.shield)}`);
+ }
+ if(ef.length)h+=`<div style="margin-top:4px;color:#ddd;font-size:12px">${ef.map(x=>'• '+x).join('<br>')}</div>`;
+ return h;
+}
+function showUnitTip(u,e){
+ const o=(u.team=='p'&&u.uid!=null)?unitById(u.uid):null;
+ if(o){
+  tipPoke(o.sp,o.star,e,o.xt,o.item);
+  const c=liveCtx(u);
+  if(c)$('tip').insertAdjacentHTML('beforeend',liveBlock(c,o));
+  tipMove(e);
+ }else tipLive(u,e);
+}
+setInterval(()=>{if(tipU&&lastTipEv&&S&&S.phase==='battle'){if(tipU.hp>0)showUnitTip(tipU,lastTipEv);else tipHide()}},250);
 function tipHide(){tipU=null;$('tip').style.display='none'}
 
 function unitAtPoint(cx,cy){
@@ -2171,14 +2249,13 @@ function tipLive(u,e){
 }
 
 $('cv').addEventListener('mousemove',e=>{
+ lastTipEv=e;
  if(typeof D!=='undefined'&&D&&D.moved)return;
  const u=unitAtPoint(e.clientX,e.clientY);
  if(!u){if(tipU)tipHide();return}
  if(u!==tipU){
   tipU=u;
-  const o=(u.team=='p'&&u.uid!=null)?unitById(u.uid):null;
-  if(o)tipPoke(o.sp,o.star,e,o.xt,o.item);
-  else tipLive(u,e);
+  showUnitTip(u,e);
  }
  tipMove(e);
 });
@@ -2229,6 +2306,44 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
 const ctx=$('cv').getContext('2d');ctx.imageSmoothingEnabled=false;
 function hexPath(x,y,r){ctx.beginPath();for(let k=0;k<6;k++){const a=Math.PI/180*(60*k-30);ctx[k?'lineTo':'moveTo'](x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
 
+function drawFxKind(f){
+ const p=1-Math.max(0,f.t/f.maxT);
+ ctx.save();ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineCap='round';
+ ctx.shadowColor='#cfe8ff';ctx.shadowBlur=10;
+ if(f.kind==='slash'){
+  const dx=Math.cos(f.ang),dy=Math.sin(f.ang),h=f.len/2;
+  const head=Math.min(1,p*2.4),tail=Math.max(0,(p-.2)*1.25);
+  ctx.globalAlpha=Math.max(0,1-p*p);
+  for(const o of [[0,1],[9,.6]]){
+   const ox=-dy*o[0],oy=dx*o[0],sx=f.x+ox-dx*h,sy=f.y+oy-dy*h;
+   const a0=tail*f.len,a1=head*f.len;
+   if(a1-a0<2)continue;
+   const N=10,up=[],dn=[];
+   for(let i=0;i<=N;i++){const s=i/N,d=a0+(a1-a0)*s,w=f.w*o[1]*Math.sin(Math.PI*s)*.5+.2;
+    const cx=sx+dx*d,cy=sy+dy*d;up.push([cx-dy*w,cy+dx*w]);dn.push([cx+dy*w,cy-dx*w])}
+   ctx.beginPath();up.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));
+   for(let i=N;i>=0;i--)ctx.lineTo(dn[i][0],dn[i][1]);
+   ctx.closePath();ctx.fill();
+  }
+ }else if(f.kind==='tracer'){
+  ctx.globalAlpha=Math.max(0,1-p)*.4;ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(f.x1,f.y1);ctx.lineTo(f.x2,f.y2);ctx.stroke();
+ }else if(f.kind==='spark'){
+  ctx.globalAlpha=1-p;ctx.lineWidth=2;const r0=3+p*4,r1=6+p*10;
+  for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;ctx.beginPath();ctx.moveTo(f.x+Math.cos(a)*r0,f.y+Math.sin(a)*r0);ctx.lineTo(f.x+Math.cos(a)*r1,f.y+Math.sin(a)*r1);ctx.stroke()}
+ }else if(f.kind==='burst'){
+  for(const q of f.parts){const d=q.d*Math.sqrt(p);ctx.globalAlpha=Math.max(0,1-p);ctx.beginPath();ctx.arc(f.x+Math.cos(q.a)*d,f.y+Math.sin(q.a)*d,3*(1-p*.7),0,Math.PI*2);ctx.fill()}
+ }
+ ctx.restore();
+}
+function drawBolt(pr){
+ const dx=pr.x-pr.sx,dy=pr.y-pr.sy,tr=Math.hypot(dx,dy);if(tr<1)return;
+ const ux=dx/tr,uy=dy/tr,Ln=Math.min(tr,70),tx=pr.x-ux*Ln,ty=pr.y-uy*Ln;
+ ctx.save();ctx.lineCap='round';ctx.shadowColor='#cfe8ff';ctx.shadowBlur=12;
+ const g=ctx.createLinearGradient(tx,ty,pr.x,pr.y);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(255,255,255,1)');
+ ctx.strokeStyle=g;ctx.lineWidth=3.2;ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(pr.x,pr.y);ctx.stroke();
+ ctx.restore();
+}
 function draw(t){ctx.clearRect(0,0,720,514);
  const su=S&&S.sel!=null?unitById(S.sel):null,selPos=su?su.pos:null;
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const[x,y]=px(r,c);hexPath(x,y,R-1.5);
@@ -2318,6 +2433,7 @@ function draw(t){ctx.clearRect(0,0,720,514);
  }
 
  for(const f of B.fx){
+  if(f.kind){drawFxKind(f);continue}
   const a=Math.min(1,(f.t/(f.maxT||0.15))*1.4);
   ctx.save();
   ctx.globalAlpha=a;
@@ -2328,6 +2444,8 @@ function draw(t){ctx.clearRect(0,0,720,514);
  }
 
  for(const pr of B.proj){
+  if(pr.kind==='hidden')continue;
+  if(pr.kind==='bolt'){drawBolt(pr);continue}
   ctx.save();
   if(pr.glow){ctx.shadowColor=pr.glow;ctx.shadowBlur=12}
   ctx.fillStyle=pr.col;

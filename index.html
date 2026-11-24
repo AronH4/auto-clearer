@@ -210,10 +210,14 @@ h4{margin:8px 0 2px;color:#9ab}
 .tut-foot{background:#0e1119;padding:11px 18px;border-top:1px solid #2c3556;display:flex;align-items:center;justify-content:space-between}
 .tut-step{font-size:12px;color:#889}
 
-/* ===== Professor-Wahl & Gold Rush ===== */
-#profModal,#rushModal{position:fixed;inset:0;z-index:108;background:rgba(6,8,14,.92);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:12px}
-#profModal.open,#rushModal.open{display:flex}
-.pf-box,.rs-box{background:#151924;border:2px solid #5cd6a0;border-radius:14px;max-width:1180px;width:100%;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 40px rgba(92,214,160,.22),0 16px 48px rgba(0,0,0,.7)}
+/* ===== Professor-Wahl, Tera-Info & Gold Rush ===== */
+#profModal,#rushModal,#teraModal{position:fixed;inset:0;z-index:108;background:rgba(6,8,14,.92);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:12px}
+#profModal.open,#rushModal.open,#teraModal.open{display:flex}
+.pf-box,.rs-box,.tr-box{background:#151924;border:2px solid #5cd6a0;border-radius:14px;max-width:1180px;width:100%;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 40px rgba(92,214,160,.22),0 16px 48px rgba(0,0,0,.7)}
+.tr-box{max-width:560px;border-color:#b07cff;box-shadow:0 0 40px rgba(176,124,255,.25),0 16px 48px rgba(0,0,0,.7)}
+.tr-head{background:linear-gradient(180deg,#231838,#151924);padding:14px 18px 10px;text-align:center;border-bottom:1px solid #482e7a}
+.tr-head h2{margin:0 0 4px;font-size:22px;color:#dfb8ff}
+.tr-body{padding:18px 20px;overflow-y:auto;line-height:1.55;font-size:14px;color:#dce2f2}
 .pf-head,.rs-head{background:linear-gradient(180deg,#14281f,#151924);padding:14px 18px 10px;text-align:center;border-bottom:1px solid #26503e}
 .pf-head h2,.rs-head h2{margin:0 0 4px;font-size:22px;color:#7ef0b8}.pf-head small,.rs-head small{color:#b9c6e8;font-size:13px;line-height:1.5}
 .pf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:14px;overflow:auto}
@@ -265,6 +269,21 @@ h4{margin:8px 0 2px;color:#9ab}
 </div>
 <div id="tip"></div><div id="toast"></div>
 
+<!-- TERA INFO MODAL (Runde 25) -->
+<div id="teraModal">
+ <div class="tr-box">
+  <div class="tr-head"><h2>💎 Terastallize freigeschaltet!</h2></div>
+  <div class="tr-body">
+   <p>Du hast <b>Runde 25</b> gemeistert und einen <b>Terastallize-Token</b> erhalten!</p>
+   <div class="tut-grid" style="grid-template-columns:1fr">
+    <div class="tut-card"><b class="t-ttl">Anwendung</b>Ziehe den <b>Terastallize-Token</b> in der Vorbereitungsphase per Drag &amp; Drop auf ein Pokémon (auf dem Feld oder auf der Bank), das <b>genau 1 Typ</b> besitzt, und wähle im Kreis-Menü dauerhaft einen zweiten <b>Tera-Typ</b>.</div>
+    <div class="tut-card"><b class="t-ttl">Wirkung</b>Der gewählte Tera-Typ bleibt dauerhaft erhalten (auch nach Entwicklungen) und zählt voll für alle Typ-Boni.</div>
+   </div>
+  </div>
+  <div class="it-foot"><button onclick="closeTeraInfo()">Verstanden ✓</button></div>
+ </div>
+</div>
+
 <!-- ITEM MODAL (Runde 35) -->
 <div id="itemModal">
  <div class="it-box">
@@ -282,7 +301,7 @@ h4{margin:8px 0 2px;color:#9ab}
 </div>
 <!-- PROFESSOR MODAL (Runde 15) -->
 <div id="profModal"><div class="pf-box">
- <div class="pf-head"><h2>🎓 Generational Run</h2><small>Wähle einen Pokémon-Professor! Alle Pokémon der zugehörigen Generation erhalten dauerhaft <b>+10 % ATK</b>.</small></div>
+ <div class="pf-head"><h2>🎓 Generational Run</h2><small>Wähle einen Pokémon-Professor! Alle Pokémon der zugehörigen Generation erhalten dauerhaft <b>+5 % auf alle Stats</b>.</small></div>
  <div class="pf-grid" id="profGrid"></div>
 </div></div>
 <!-- GOLD RUSH MODAL (Runde 45) -->
@@ -323,7 +342,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
  maxUnits:8,slotAfter:[2,4,8,14,22,30,40],benchMax:12,
  speedUpAfter:20,speedUpTo:3,noSpeedRound:50,
- hpMul:[1,1.75,3,4],atkMul:[1,1.75,3,4],
+ hpMul:[1,1.75,3,3],atkMul:[1,1.75,3,12],
  costMul:{1:1,2:1.1,3:1.15,4:1.2,5:1.25},
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
  copies:{1:25,2:20,3:18,4:15,5:12},
@@ -369,10 +388,10 @@ const CLASSES={
 /* ================= FÄHIGKEITEN-BESCHREIBUNGEN ================= */
 const SKILLS={
  'Close Combat':{col:'#ff3b3b',desc:'Rote Explosion: Verursacht insgesamt 1,75x Ability DMG aufgeteilt auf alle Gegner auf dem Feld.'},
- 'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 2,5x Ability DMG.'},
+ 'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 2x Ability DMG.'},
  'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 2s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
- 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den wenigsten HP und verursacht 1,75x Ability DMG.'},
- 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den meisten HP an und erzeugt für 2s ein weißes Feld (Ziel + umliegende Waben): Gegner dort verlieren 50% DEF & 50% Mana Gain. Nur das Ziel erleidet Ability DMG.'}
+ 'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den wenigsten HP und verursacht 2,25x Ability DMG.'},
+ 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den wenigsten HP an und erzeugt für 2s an allen umliegenden Waben ein weißes Feld. Gegner dort verlieren 50% DEF und erleiden 1x Ability Damage.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -389,27 +408,28 @@ const TYPES={Normal:[1,'Normal','#a8a77a'],Fighting:[2,'Kampf','#c22e28'],Flying
 const p=v=>Math.round(v*100)+'%';
 
 /* ================= TYP-BONI ================= */
-const DECOY_HP=[150,450,1000];
+const DECOY_HITS=[2,5,10];
+const DECOY_DMG=[100,450,1000];
 const CROWN_BUFF=.25;
 const TB={
- Normal:  {th:[2,4],   v:[1.2,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${v}x Schaden mit Attacks und Abilities`},
- Grass:   {th:[2,4],  v:[.25,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
- Fire:    {th:[2,3],  v:[.15,.25],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
- Water:   {th:[2,3],  v:[.50,.75],    d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
- Electric:{th:[2,4],  v:[.25,.60],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
+ Normal:  {th:[2,4],   v:[1.25,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${String(v).replace('.',',')}x Schaden mit Attacks und Abilities`},
+ Grass:   {th:[2,4],  v:[.30,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
+ Fire:    {th:[2,3],  v:[.20,.30],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
+ Water:   {th:[2,3],  v:[.50,1.00],  d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
+ Electric:{th:[2,4],  v:[.25,.75],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
  Bug:     {th:[2],    v:[1],           d:v=>`${v} Käfer-Krone${v>1?'n':''} erscheint! Jeder Träger erhält +${p(CROWN_BUFF)} ATK, Attack Speed und Mana pro ATK`},
- Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>k===1?`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +2 ATK je Distanz-Feld zum Gegner`:`Alle Flug-Pokémon erhalten +1 Feld Reichweite`},
+ Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +${v} ATK je Distanz-Feld zum Gegner`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
  Rock:    {th:[2],    v:[.9],            d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
  Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Danach sind sie 2 Sekunden lang unverwundbar, können aber sofort angreifen`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${v} Sekunde${v>1?'n':''}`},
- Ghost:   {th:[2,3,5],v:DECOY_HP,d:v=>`1 frei platzierbarer Delegator mit ${v} HP erscheint vor Rundenstart (verursacht beim Tod ${v} Schaden am Killer)`},
+ Ghost:   {th:[2,3,5],v:DECOY_HITS, d:(v,k)=>`1 frei platzierbarer Delegator erscheint vor Rundenstart, blockt ${v} ATKs und verursacht dann ${DECOY_DMG[k]} Schaden`},
  Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
- Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und 1,5-fachen Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance`},
- Ice:     {th:[2,3],  v:[.15,.25],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
- Dragon:  {th:[2],    v:[.60],        d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} Leben wiederbelebt`},
- Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Einsatz ihrer Ability alle umliegenden Allies (1 Feld) um ${p(v)} ihrer max. HP`}
+ Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +75 % verstärkten Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +50 % verstärkten Crit-Schaden`},
+ Ice:     {th:[2,3],  v:[.20,.30],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
+ Dragon:  {th:[2],    v:[1.00],       d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} HP wiederbelebt und sind anschließend für 3 Sekunden unverwundbar`},
+ Fairy:   {th:[2],    v:[.07],        d:v=>`Alle Feen-Pokémon erhalten +${p(v)} der maximalen HP – Overhealing generiert einen entsprechenden Schild`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
 const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};
@@ -432,16 +452,16 @@ const itemIcon=(k,st='')=>`<img class="it-ic" src="${ITEM_IMGS[k]}" alt="" ${st?
 
 const ITEMS={
  mega:{icon:itemIcon('mega'),name:'Mega-Stein',col:'#7fe9ff',
-  short:'Entwicklung zu Stufe 4 💎 mit neuem Aussehen: 4× HP & 4× ATK (kein Bonus auf Ability Power).',
-  desc:'Das Pokémon entwickelt sich zur <b>Stufe 4</b> (★★★★) und verändert sein Aussehen. Als Mega-Pokémon hat es <b>4× HP und 4× ATK</b> (statt 3×) – die <b>Ability Power</b> erhält <b>keinen</b> Mega-Bonus.',
+  short:'Werte wie 3★-Einheiten mit 4× ATK und +15 % Crit Chance.',
+  desc:'Besitzt die Werte einer <b>3★-Einheit</b> mit <b>4× ATK</b> und <b>+15 % Crit Chance</b> (ggf. mit neuer Mega-Form).',
   carriers:['Rexblisar','Gengar','Stolloss','Brigaron','Impi']},
  zcrystal:{icon:itemIcon('zcrystal'),name:'Z-Kristall',col:'#ffb347',
-  short:'Close Combat, Snipe Shot, Bulldoze & Weather Ball: doppelter Schaden. Weather Ball & Reflect: 75 % statt 50 %.',
-  desc:'Der Schaden von <b>Close Combat, Snipe Shot, Bulldoze und Weather Ball</b> wird <b>verdoppelt</b>. Zusätzlich wirken <b>Weather Ball</b> (−DEF & −Mana Gain beim Gegner) und <b>Reflect</b> (−eingehender Schaden & +Attack Speed) mit <b>75 % statt 50 %</b>.',
+  short:'Verdoppelt Schaden von Close Combat, Snipe Shot, Bulldoze & Weather Ball. Reflect auf 80 %, +30 % Mana/ATK.',
+  desc:'Verdoppelt den Schaden von <b>Close Combat, Snipe Shot, Bulldoze und Weather Ball</b>. Die Werte von <b>Reflect</b> werden von 50 % auf <b>80 %</b> erhöht und der Träger generiert <b>+30 % mehr Mana pro ATK</b>.',
   carriers:['Pelipper','Fermicula','Durengard','Silvarro','Sandamer']},
  dyna:{icon:itemIcon('dyna'),name:'Dyna-Pilz',col:'#ff6b81',
-  short:'Neues Aussehen (Gigadynamax). +30 % DEF & +30 % Mana pro ATK.',
-  desc:'Das Pokémon verändert sein Aussehen (<b>Gigadynamax</b>). Verstärkt <b>DEF und Mana pro ATK um 30 %</b>.',
+  short:'Rework: Verdoppelt die HP des Trägers und erhöht DEF um 30 % (Gigadynamax-Optik).',
+  desc:'<b>Reworked:</b> Verdoppelt die <b>HP</b> des Trägers und erhöht <b>DEF um 30 %</b> (mit Gigadynamax-Optik).',
   carriers:['Krarmor','Olangaar','Maritellit','Relaxo','Pikachu']},
  scarf:{icon:itemIcon('scarf'),name:'Wahlschal',col:'#7aa2ff',
   short:'+50 % Attack Speed.',
@@ -471,7 +491,7 @@ const ITEM_FORMS={
 };
 
 /* ================= GENERATIONAL RUN (Professor-Wahl nach Runde 15) ================= */
-const PROF_ROUND=15,RUSH_ROUND=45,GEN_BONUS=0.10;
+const PROF_ROUND=15,RUSH_ROUND=45,GEN_BONUS=0.05;
 const TR='https://play.pokemonshowdown.com/sprites/trainers/';
 const PROFS=[
  {k:'eich',name:'Prof. Eich',gen:1,img:TR+'oak.png',em:'🧪',mons:['Pichu','Nebulak','Fukano','Mampfaxo']},
@@ -576,10 +596,10 @@ const TUT_PAGES=[
   <h4 style="margin-top:12px;font-size:14px">✨ Die 5 Spezial-Abilities:</h4>
   <div style="font-size:13px;display:grid;gap:5px">
    <div><span class="tut-pill" style="color:#ff6b6b">🥊 Close Combat</span> Rote Explosion: 1,75× Ability-DMG aufgeteilt auf alle Gegner.</div>
-   <div><span class="tut-pill" style="color:#ffe63b">⚡ Snipe Shot</span> Gelber Laser: Durchschlägt alle Gegner in einer Linie für 2,5× Ability-DMG.</div>
+   <div><span class="tut-pill" style="color:#ffe63b">⚡ Snipe Shot</span> Gelber Laser: Durchschlägt alle Gegner in einer Linie für 2× Ability-DMG.</div>
    <div><span class="tut-pill" style="color:#ff85d8">🛡️ Reflect</span> Pinke Barriere (2s) für 3 Felder: -50% erlittener Schaden & +50% Attack Speed.</div>
-   <div><span class="tut-pill" style="color:#e09a48">🪨 Bulldoze</span> Brauner Ansturm: Springt zum Gegner mit den wenigsten HP (1,75× Ability-DMG).</div>
-   <div><span class="tut-pill" style="color:#ffffff">❄️ Weather Ball</span> Greift Gegner mit meisten HP an & erzeugt ein Feld (-50% DEF & Mana-Gain für Gegner).</div>
+   <div><span class="tut-pill" style="color:#e09a48">🪨 Bulldoze</span> Brauner Ansturm: Springt zum Gegner mit den wenigsten HP (2,25× Ability-DMG).</div>
+   <div><span class="tut-pill" style="color:#ffffff">❄️ Weather Ball</span> Greift Gegner mit wenigsten HP an & erzeugt ein weißes Feld (-50% DEF & 1× Ability DMG).</div>
   </div>`
  },
  {
@@ -596,14 +616,14 @@ const TUT_PAGES=[
  {
   tab:'8. Generational Run (Runde 15)',
   title:()=>'🎓 Generational Run ab Runde 15',
-  html:()=>`<p>Wenn du <b>Runde 15 erfolgreich meisterst</b>, öffnet sich ein Auswahlfenster: Du entscheidest dich für einen <b>Pokémon-Professor</b> (einmalig pro Spiel). Alle Pokémon seiner Generation erhalten dauerhaft <b>+10 % ATK</b> – das nennt sich <b>Generational Run</b>.</p>
+  html:()=>`<p>Wenn du <b>Runde 15 erfolgreich meisterst</b>, öffnet sich ein Auswahlfenster: Du entscheidest dich für einen <b>Pokémon-Professor</b> (einmalig pro Spiel). Alle Pokémon seiner Generation erhalten dauerhaft <b>+5 % auf alle Stats</b> – das nennt sich <b>Generational Run</b>.</p>
   <div class="tut-grid" style="grid-template-columns:1fr 1fr">${PROFS.map(pr=>`<div class="tut-card"><b class="t-ttl">${pr.name} · Gen ${pr.gen}</b>${pr.mons.join(', ')}</div>`).join('')}</div>
   <div class="tut-note">💡 Pokémon, die vom Bonus profitieren, zeigen das im Tooltip an (🎓). Der Bonus gilt für alle Entwicklungsstufen des jeweiligen Pokémon.</div>`
  },
  {
   tab:'9. Terastallize (Runde 25)',
   title:`${teraImg()} Was ist Terastallize ab Runde 25?`,
-  html:`<p>Wenn du <b>Runde 25 erfolgreich meisterst</b>, erhältst du als besondere Belohnung einen <b>${teraImg()} Terastallize</b>-Token (erscheint oben neben dem Kampf-Button).</p>
+  html:`<p>Wenn du <b>Runde 25 erfolgreich meisterst</b>, erhältst du als besondere Belohnung einen <b>${teraImg()} Terastallize</b>-Token (erscheint oben neben dem Kampf-Button) sowie ein Info-Fenster.</p>
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">Wie benutze ich ihn?</b>Ziehe den <b>${teraImg()} Terastallize</b>-Token in der Vorbereitungsphase per Drag & Drop auf eines deiner Pokémon (auf dem Feld oder auf der Bank).</div>
    <div class="tut-card"><b class="t-ttl">Was bewirkt er?</b>Es öffnet sich ein Auswahlrad mit allen 18 Typen. Du kannst deinem Pokémon <b>dauerhaft einen zweiten Tera-Typ</b> verleihen!</div>
@@ -640,8 +660,9 @@ const TUT_PAGES=[
   title:()=>'💰 Gold Rush ab Runde 45',
   html:()=>`<p>Wenn du <b>Runde 45 erfolgreich meisterst</b>, startet das <b>Gold-Rush-Event</b>: Du hast <b>5 Sekunden</b> Zeit, so schnell wie möglich auf einen Kreis zu tippen. Danach werden deine Klicks gezählt.</p>
   <div class="tut-grid" style="grid-template-columns:1fr 1fr">
-   <div class="tut-card"><b class="t-ttl">35+ Klicks</b>💰 50 Gold</div><div class="tut-card"><b class="t-ttl">33–34 Klicks</b>💰 40 Gold</div>
-   <div class="tut-card"><b class="t-ttl">30–32 Klicks</b>💰 30 Gold</div><div class="tut-card"><b class="t-ttl">unter 30 Klicks</b>💰 20 Gold</div></div>`
+   <div class="tut-card"><b class="t-ttl">40 Klicks</b>💰 70 Gold</div><div class="tut-card"><b class="t-ttl">36–39 Klicks</b>💰 50 Gold</div>
+   <div class="tut-card"><b class="t-ttl">35 Klicks</b>💰 40 Gold</div><div class="tut-card"><b class="t-ttl">34 Klicks</b>💰 30 Gold</div>
+   <div class="tut-card"><b class="t-ttl">33 Klicks</b>💰 20 Gold</div><div class="tut-card"><b class="t-ttl">alles darunter</b>💰 10 Gold</div></div>`
  }
 ];
 
@@ -1076,7 +1097,7 @@ function formOf(o){
  return f}
 
 function newGame(){
- S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crowns:[],tokens:0,item:null,itemOffer:false,itemDone:false,gen:null,profOffer:false,profDone:false,rushOffer:false,rushDone:false,stats:{}};
+ S={round:1,gold:CFG.startGold,lives:CFG.lives,units:[],nextId:1,shop:[],phase:'prep',sel:null,speed:1,pool:{},decoyPos:null,crowns:[],tokens:0,teraInfoOffer:false,teraInfoDone:false,item:null,itemOffer:false,itemDone:false,gen:null,profOffer:false,profDone:false,rushOffer:false,rushDone:false,stats:{}};
  SP.forEach((s,i)=>S.pool[i]=CFG.copies[s.c]);
  roll();render();
 }
@@ -1085,10 +1106,8 @@ function clearSave(){try{localStorage.removeItem('pab7')}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;if(!Array.isArray(S.crowns))S.crowns=(S.crownOn!=null?[S.crownOn]:[]);delete S.crownOn;migrateItems();fixSlots();return true}}catch(e){}return false}
 
 function migrateItems(){
- /* Gengar kann keinen Dyna-Pilz mehr tragen -> Item zurück in die Item-Box */
- S.units.forEach(u=>{if(u.item==='dyna'&&SP[u.sp]&&SP[u.sp].n[2]==='Gengar'){u.item=null;if(!S.item)S.item='dyna'}});
- /* Agoyon darf keinen Z-Kristall mehr tragen */
- S.units.forEach(u=>{if(u.item==='zcrystal'&&SP[u.sp]&&SP[u.sp].n[2]==='Agoyon'){u.item=null;if(!S.item)S.item='zcrystal'}});
+ if(S.teraInfoDone===undefined)S.teraInfoDone=!!(S.round>TOKEN_ROUND||(S.tokens||0)>0||S.units.some(u=>u.xt));
+ if(!S.teraInfoDone&&!S.teraInfoOffer&&S.round>TOKEN_ROUND)S.teraInfoOffer=true;
  if(S.gen===undefined)S.gen=null;
  if(S.profDone===undefined)S.profDone=!!S.gen||S.round<=PROF_ROUND;
  if(!S.profDone&&!S.gen&&S.round>PROF_ROUND)S.profOffer=true;
@@ -1160,7 +1179,7 @@ function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
   cd:Math.random()*.4,mv:0,star:st.star||0,big:!!st.big,
   dm:1,ls:0,shield:0,fight:0,fire:0,fireDotDone:0,ice:0,fairy:0,bug:0,ground:0,groundDone:0,invuln:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
   fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,
-  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyDmg:0,crowned:false}}
+  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyHitsLeft:0,decoyDmg:0,crowned:false}}
 
 function typeCounts(){const c={},seen=new Map();placed().forEach(u=>{const ts=seen.get(u.sp)||new Set();SP[u.sp].t.forEach(t=>ts.add(t));if(u.xt)ts.add(u.xt);seen.set(u.sp,ts)});seen.forEach(ts=>ts.forEach(t=>c[t]=(c[t]||0)+1));return c}
 
@@ -1189,11 +1208,11 @@ function applyBonus(u,t,v,tier){
   case'Grass':u.ls=v;break;
   case'Electric':u.aspd*=1+v;break;
   case'Fighting':u.fight=v;break;
-  case'Dark':u.crit=Math.max(u.crit,v);if(tier===1)u.critMult=1.5;break;
+  case'Dark':u.crit=Math.min(1,u.crit+v);u.critMult=2+(tier>=1?0.75:0.50);break;
   case'Normal':u.dm*=v;break;
   case'Fire':u.fire=v;break;
   case'Water':u.mg*=1+v;break;
-  case'Flying':u.range+=1;if(tier===1)u.flyBonus=2;break;
+  case'Flying':u.range+=1;u.flyBonus=v;break;
   case'Ice':u.ice=v;break;
   case'Rock':u.def+=v*S.round;break;
   case'Fairy':u.fairy=v;break;
@@ -1208,16 +1227,17 @@ function buildUnit(o,pos){
  const s=SP[o.sp],ov=s.s,f=formOf(o),st=f.star;
  const cl=CLASSES[s.cls]||CLASSES.Fighter;
  const cMul=CFG.costMul[s.c]||1;
- const sMulHp=CFG.hpMul[st-1]||1;
- const sMulAtk=CFG.atkMul[st-1]||1;
+ const isMega=o.item==='mega';
+ const sMulHp=isMega?CFG.hpMul[2]:(CFG.hpMul[st-1]||1);
+ const sMulAtk=isMega?CFG.atkMul[3]:(CFG.atkMul[st-1]||1);
  const hp=(ov.hp||cl.hp)*cMul*sMulHp;
  const atk=(ov.atk||cl.atk)*cMul*sMulAtk;
- const abDmg=(ov.abDmg||cl.abDmg)*cMul*(o.item==='mega'?CFG.atkMul[2]:sMulAtk); /* Mega: kein Ability-Power-Bonus (bleibt auf 3★-Niveau) */
+ const abDmg=(ov.abDmg||cl.abDmg)*cMul*(isMega?CFG.atkMul[2]:sMulAtk);
  const u=mk('p',pos.r,pos.c,f.name,f.id,f.sh,{
   hp,atk,abDmg,
   aspd:ov.aspd||cl.aspd,
   def:ov.def||cl.def,
-  crit:ov.crit??cl.crit,
+  crit:Math.min(1,(ov.crit??cl.crit)+(isMega?0.15:0)),
   range:ov.range||cl.range,
   mg:ov.mg||cl.mg,
   abName:s.ab,
@@ -1229,20 +1249,29 @@ function buildUnit(o,pos){
  u.t=o.xt?s.t.concat(o.xt):s.t;u.xt=o.xt||null;
  u.item=o.item||null;
  switch(o.item){
-  case'dyna':u.def*=1.30;u.mg*=1.30;break;
+  case'dyna':u.max*=2;u.hp=u.max;u.def*=1.30;break;
   case'scarf':u.aspd*=1.5;break;
-  case'zcrystal':u.zc=1;break;
+  case'zcrystal':u.zc=1;u.mg*=1.30;break;
  }
  return u;
 }
 function applyBonuses(u,cnt){
  for(const t of u.t){const k=tierIdx(t,cnt[t]);if(k>=0)applyBonus(u,t,TB[t].v[k],k)}
+ if(u.fairy>0){
+  const bonusHp=u.max*u.fairy;
+  u.max+=bonusHp;
+  u.hp=Math.min(u.max,u.hp+bonusHp);
+ }
 }
 function buildPlayer(bat){
  const cnt=typeCounts();
  const L=placed().map(o=>{
   const u=buildUnit(o,o.pos);
-  if(spInGen(o.sp,genActive())){u.atk*=1+GEN_BONUS;u.genB=1}
+  if(spInGen(o.sp,genActive())){
+   const gm=1+GEN_BONUS;
+   u.max*=gm;u.hp=u.max;u.atk*=gm;u.abDmg*=gm;u.def*=gm;u.aspd*=gm;u.mg*=gm;
+   u.genB=1;
+  }
   if(S.crowns.includes(o.id)&&crownCount(cnt)>0){
    u.crowned=true;
    u.atk*=1+CROWN_BUFF;
@@ -1292,17 +1321,22 @@ function buildEnemy(){
   u.onCast=d.cast||null;u.fb=d.fb??null;u.reviveTo=d.revive||null;u.split=d.split||null;u.die=d.die||null;return u});
 }
 
+function mkDecoy(pos,cnt){
+ const k=Math.max(0,tierIdx('Ghost',cnt));
+ const hits=DECOY_HITS[k]||2;
+ const dmg=DECOY_DMG[k]||100;
+ const d=mk('p',pos.r,pos.c,'Delegator',0,false,{hp:hits,atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});
+ d.decoy=true;d.decoyHitsLeft=hits;d.decoyDmg=dmg;
+ return d;
+}
+
 function refreshView(){
  if(S.phase=='prep'){
   ensureSpecials();
   const list=buildPlayer(false).concat(buildEnemy());
   const gc=typeCounts().Ghost||0;
   if(gc>=2&&S.decoyPos){
-   const k=tierIdx('Ghost',gc);
-   const dhp=DECOY_HP[k];
-   const d=mk('p',S.decoyPos.r,S.decoyPos.c,'Delegator',0,false,{hp:dhp,atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});
-   d.decoy=true;d.decoyDmg=dhp;
-   list.push(d);
+   list.push(mkDecoy(S.decoyPos,gc));
   }
   B.units=list;
  }
@@ -1371,11 +1405,7 @@ function startBattle(){
 
  const cnt=typeCounts();
  if((cnt.Ghost||0)>=2&&S.decoyPos){
-  const k=tierIdx('Ghost',cnt.Ghost);
-  const dhp=DECOY_HP[k];
-  const d=mk('p',S.decoyPos.r,S.decoyPos.c,'Delegator',0,false,{hp:dhp,atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});
-  d.decoy=true;d.decoyDmg=dhp;
-  B.units.push(d);
+  B.units.push(mkDecoy(S.decoyPos,cnt.Ghost));
  }
 
  const occ = new Set(B.units.filter(u => u.hp > 0).map(u => u.r + ',' + u.c));
@@ -1434,6 +1464,20 @@ const say=(t,s,col)=>B.txt.push({x:t.x,y:t.y-32,s,t:.75,col});
 
 function dealDmg(t, d, col, pre, attacker){
  if(!t||t.hp<=0)return 0;
+ if(t.decoy){
+  t.decoyHitsLeft=(t.decoyHitsLeft||1)-1;
+  t.hp=Math.max(0,t.decoyHitsLeft);
+  B.txt.push({x:t.x,y:t.y-30,s:'🛡 ATK ('+t.decoyHitsLeft+')',t:.65,col:'#d9c2ff'});
+  if(t.decoyHitsLeft<=0&&!t.dead){
+   t.dead=1;t.hp=0;
+   const killer=(attacker&&attacker.hp>0)?attacker:B.units.find(x=>x.team=='e'&&x.hp>0);
+   if(killer&&t.decoyDmg>0){
+    B.waves.push({x:t.x,y:t.y,r:6,maxR:52,col:'#735797',t:.45,maxT:.45,fill:true});
+    dealDmg(killer,t.decoyDmg,'#b894ff','👻',null);
+   }
+  }
+  return 0;
+ }
  if(t.invuln>0){stat(t,'blk',d);B.txt.push({x:t.x,y:t.y-30,s:'🛡 0',t:.5,col:'#c9a24a'});return 0}
   if(t.team=='p'){
   const rp=reflectPw(t.team,t.r,t.c);
@@ -1449,13 +1493,13 @@ function dealDmg(t, d, col, pre, attacker){
  if(t.hp<=0&&!t.rev&&(t.dragon||t.reviveTo)){
   t.rev=1;const rv=t.reviveTo;t.hp=t.max*(rv?rv.hp:t.dragon);
   if(rv)morph(t,rv);
-  else{B.waves.push({x:t.x,y:t.y,r:6,maxR:55,col:'#6f35fc',t:.5,maxT:.5});say(t,'🐉 Revive','#a98ff3')}
+  else{
+   if(t.dragon)t.invuln=3;
+   B.waves.push({x:t.x,y:t.y,r:6,maxR:55,col:'#6f35fc',t:.5,maxT:.5});
+   say(t,t.dragon?'🐉 Revive +3s':'🐉 Revive','#a98ff3');
+  }
  }else if(t.hp<=0&&!t.dead){
   t.dead=1;
-  if(t.decoy&&t.decoyDmg>0&&attacker&&attacker.hp>0){
-   B.waves.push({x:t.x,y:t.y,r:6,maxR:48,col:'#735797',t:.4,maxT:.4,fill:true});
-   dealDmg(attacker,t.decoyDmg,'#b894ff','👻',null);
-  }
   if(t.die)t.die(t,B.units.filter(x=>x.hp>0))
  }
  return dealt;
@@ -1471,7 +1515,7 @@ function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!
   const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:(u.atk*(k.atkX||1))/splitCount,aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
   n.hp=n.max*(k.hp!=null?k.hp:u.split.at);n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 
-const heal=(u,a)=>{if(u&&u.hp>0){const b=u.hp;u.hp=Math.min(u.max,u.hp+a);stat(u,'heal',u.hp-b)}};
+const heal=(u,a)=>{if(u&&u.hp>0&&a>0){const next=u.hp+a;const ov=Math.max(0,next-u.max);u.hp=Math.min(u.max,next);stat(u,'heal',a-ov);if(ov>0){u.shield=(u.shield||0)+ov;say(u,'🛡 +'+Math.round(ov),'#9df')}}};
 
 function checkBarrierMitigation(sx,sy,tx,ty,targetTeam){
  for(const b of B.barriers){
@@ -1493,13 +1537,10 @@ function segDist(px0,py0,x1,y1,x2,y2){
  return Math.hypot(px0-(x1+t*dx),py0-(y1+t*dy));
 }
 
-/* Wetter-Feld: DEF- & Mana-Malus (50 %, mit Z-Kristall 75 %) */
+/* Wetter-Feld: DEF-Malus (50 %, mit Z-Kristall 75 %) */
 function wMul(u){let m=0;for(const f of B.fields)if(f.type==='weather'&&dist(u,f)<=1){const v=f.pw||.5;if(v>m)m=v}return 1-m}
-/* Reflect-Zone: Schadensreduktion & ASPD-Bonus (50 %, mit Z-Kristall 75 %) */
+/* Reflect-Zone: Schadensreduktion & ASPD-Bonus (50 %, mit Z-Kristall 80 %) */
 function reflectPw(team,r,c){let m=0;for(const b of B.barriers)if(b.team==team&&b.type=='reflectZone'&&b.r==r&&b.c==c){const v=b.pw||.5;if(v>m)m=v}return m}
-function isInWeatherField(u){
- return B.fields.some(f=>f.type==='weather'&&dist(u,f)<=1);
-}
 
 /* ================= SPEZIAL-FÄHIGKEITEN DER SPIELER-POKÉMON ================= */
 function castPlayerSkill(u,t,A){
@@ -1527,7 +1568,7 @@ function castPlayerSkill(u,t,A){
    for(const f of foes){
     if(segDist(f.x,f.y,u.x,u.y,ex,ey)<=W*0.58){
      const effDef=f.def*wMul(f);
-     const d=(rawAb*2.5*(u.zc?2:1))*100/(100+effDef);
+     const d=(rawAb*2*(u.zc?2:1))*100/(100+effDef);
      dealDmg(f,d,'#ffe63b','⚡',u);
     }
    }
@@ -1535,6 +1576,7 @@ function castPlayerSkill(u,t,A){
   }
   case 'Reflect':{
    const targetCols=[u.c-1,u.c,u.c+1].filter(c=>c>=0&&c<COLS);
+   const rpw=u.zc?0.80:0.50;
    for(const c of targetCols){
     B.barriers.push({
      team:u.team,
@@ -1543,7 +1585,7 @@ function castPlayerSkill(u,t,A){
      t:2,
      maxT:2,
      type:'reflectZone',
-     pw:u.zc?0.75:0.5
+     pw:rpw
     });
     const[bx,by]=px(u.r,c);
     B.waves.push({x:bx,y:by,r:6,maxR:38,col:'#ff66cc',t:.4,maxT:.4,fill:true});
@@ -1567,13 +1609,13 @@ function castPlayerSkill(u,t,A){
    B.fx.push({x1:ox,y1:oy,x2:u.x,y2:u.y,t:.35,maxT:.35,col:'#c87d32',w:10,glow:'#8a4b14'});
    B.waves.push({x:boss.x,y:boss.y,r:8,maxR:W*1.1,col:'#c87d32',t:.4,maxT:.4,fill:true});
    const effDef=boss.def*wMul(boss);
-   const d=(rawAb*1.75*(u.zc?2:1))*100/(100+effDef);
+   const d=(rawAb*2.25*(u.zc?2:1))*100/(100+effDef);
    dealDmg(boss,d,'#e09a48','🪨',u);
    break;
   }
   case 'Weather Ball':{
    let boss=foes[0];
-   for(const f of foes)if(f.hp>boss.hp)boss=f;
+   for(const f of foes)if(f.hp<boss.hp)boss=f;
    if(!boss)break;
    B.proj.push({
     x:u.x,y:u.y,sx:u.x,sy:u.y,tx:boss.x,ty:boss.y,target:boss,
@@ -1581,10 +1623,20 @@ function castPlayerSkill(u,t,A){
     onHit:(bx,by)=>{
      const centerR=boss.hp>0?boss.r:Math.round((by-OY)/RH);
      const centerC=boss.hp>0?boss.c:Math.round((bx-OX)/W);
-     B.fields.push({r:centerR,c:centerC,rad:1.3,t:2,maxT:2,type:'weather',pw:u.zc?0.75:0.5});
+     const field={r:centerR,c:centerC,rad:1.3,t:2,maxT:2,type:'weather',pw:u.zc?0.75:0.5};
+     B.fields.push(field);
      B.waves.push({x:bx,y:by,r:10,maxR:W*1.5,col:'#ffffff',t:.42,maxT:.42,fill:true});
-     const effDef=boss.def*(u.zc?0.25:0.5);
-     dealDmg(boss,rawAb*(u.zc?2:1)*100/(100+effDef),'#ffffff','❄️',u);
+     const zMult=u.zc?2:1;
+     for(const f of foes){
+      if(f.hp>0&&dist(f,field)<=1&&dist(f,field)>=1){
+       const effDef=f.def*(1-field.pw);
+       dealDmg(f,rawAb*zMult*100/(100+effDef),'#ffffff','❄️',u);
+      }
+     }
+     if(boss.hp>0&&dist(boss,field)===0){
+      const effDef=boss.def*(1-field.pw);
+      dealDmg(boss,rawAb*zMult*100/(100+effDef),'#ffffff','❄️',u);
+     }
     }
    });
    break;
@@ -1626,8 +1678,7 @@ function applyOnHitEffects(u,t,d){
 function hit(u,t,A){
  const reflectAs=reflectPw(u.team,u.r,u.c);
  u.cd=1/(asp(u)*(1+reflectAs));
- const manaMult=u.team=='e'?wMul(u):1;
- u.mana+=u.mg*manaMult;
+ u.mana+=u.mg;
  u.atkN++;
 
  const cast=(u.mana>=u.mmax);
@@ -1839,7 +1890,7 @@ function finish(win){if(S.phase!='battle')return;renderDpsChart();
 S.phase='prep';B.barriers=[];B.fields=[];B.proj=[];B.waves=[];B.fx=[];B.txt=[];const last=S.round>=EN.length;
  if(win&&last){S.phase='done';clearSave();showVictory();B.units=[];render();return}
  S.gold+=income();tryMerge();
- if(win&&S.round===TOKEN_ROUND)S.tokens=(S.tokens||0)+1;
+ if(win&&S.round===TOKEN_ROUND){S.tokens=(S.tokens||0)+1;if(!S.teraInfoDone)S.teraInfoOffer=true}
  if(win&&S.round===ITEM_ROUND&&!S.itemDone)S.itemOffer=true;
  if(win&&S.round===PROF_ROUND&&!S.profDone)S.profOffer=true;
  if(win&&S.round===RUSH_ROUND&&!S.rushDone)S.rushOffer=true;
@@ -1998,14 +2049,21 @@ function spinSlot(cells,w){
   $('itemFoot').style.display='flex';$('itemTake').style.display='';
  },dur*1000+250);
 }
-function closeItemOffer(){$('itemModal').classList.remove('open');itemBusy=false;render();if(S&&(S.profOffer||S.rushOffer))showPendingEvents()}
+function closeItemOffer(){$('itemModal').classList.remove('open');itemBusy=false;render();if(S)showPendingEvents()}
 
-/* ================= EVENTS: Professor-Wahl & Gold Rush ================= */
+/* ================= EVENTS: Tera-Info, Professor-Wahl & Gold Rush ================= */
 function showPendingEvents(){
  if(!S)return;
- if(S.itemOffer)showItemOffer();
+ if(S.teraInfoOffer)showTeraInfo();
+ else if(S.itemOffer)showItemOffer();
  else if(S.profOffer)showProfOffer();
  else if(S.rushOffer)showRushOffer();
+}
+function showTeraInfo(){$('teraModal').classList.add('open')}
+function closeTeraInfo(){
+ if(S){S.teraInfoOffer=false;S.teraInfoDone=true;save()}
+ $('teraModal').classList.remove('open');
+ render();showPendingEvents();
 }
 function showProfOffer(){
  const own=new Set(S.units.map(u=>u.sp));
@@ -2015,21 +2073,21 @@ function showProfOffer(){
    <div class="pf-img">${profImg(pr,96)}</div>
    <b class="pf-n">${pr.name}</b><span class="pf-g">Generation ${pr.gen}</span>
    <div class="pf-m">${mons.map(o=>`<span class="pf-c ${own.has(o.i)?'own':''}" title="${o.x.n[0]}${own.has(o.i)?' (im Besitz)':''}"><img src="${url(o.x.id[0],o.x.sh)}" onerror="this.style.opacity=.2">${o.x.n[0]}</span>`).join('')}</div>
-   <span class="pf-b">+${Math.round(GEN_BONUS*100)} % ATK</span></div>`}).join('');
+   <span class="pf-b">+${Math.round(GEN_BONUS*100)} % alle Stats</span></div>`}).join('');
  $('profModal').classList.add('open');
 }
 function pickProf(k){
  const pr=profOf(k);if(!pr||!S||!S.profOffer)return;
  S.gen=k;S.profOffer=false;S.profDone=true;save();
  $('profModal').classList.remove('open');
- toast('🎓 Generational Run: '+pr.name+' – Generation '+pr.gen+' erhält +'+Math.round(GEN_BONUS*100)+' % ATK');
+ toast('🎓 Generational Run: '+pr.name+' – Generation '+pr.gen+' erhält +'+Math.round(GEN_BONUS*100)+' % auf alle Stats');
  render();showPendingEvents();
 }
 let rush={t:0,n:0,run:false,tm:null,end:0};
-function rushReward(n){return n>=35?50:n>=33?40:n>=30?30:20}
+function rushReward(n){return n>=40?70:n>=36?50:n>=35?40:n>=34?30:n>=33?20:10}
 function showRushOffer(){
  rush={t:0,n:0,run:false,tm:null,end:0};
- $('rushSub').innerHTML='Tippe <b>5 Sekunden</b> lang so schnell wie möglich auf den Kreis! Danach werden deine Klicks gezählt.<br><small>35+ Klicks = <b>50</b> Gold · 33–34 = <b>40</b> · 30–32 = <b>30</b> · unter 30 = <b>20</b></small>';
+ $('rushSub').innerHTML='Tippe <b>5 Sekunden</b> lang so schnell wie möglich auf den Kreis! Danach werden deine Klicks gezählt.<br><small>40 = <b>70</b> Gold · 36–39 = <b>50</b> · 35 = <b>40</b> · 34 = <b>30</b> · 33 = <b>20</b> · darunter = <b>10</b></small>';
  $('rushCircle').className='';$('rushCircle').innerHTML='<span>START</span>';
  $('rushInfo').innerHTML='Klicke auf den Kreis, um zu starten – der erste Klick zählt bereits mit.';
  $('rushTime').textContent='5,0 s';$('rushCnt').textContent='0';$('rushFoot').style.display='none';
@@ -2160,20 +2218,25 @@ function tip(t,e){const cnt=typeCounts()[t]||0,k=tierIdx(t,cnt),tb=TB[t];
 function tipPoke(spIdx,star,e,xt,item){
  const s=SP[spIdx],cl=CLASSES[s.cls],sk=SKILLS[s.ab];
  const f=formOf({sp:spIdx,star,item:item||null}),it=item&&ITEMS[item];
- const cMul=CFG.costMul[s.c]||1,sMul=CFG.hpMul[f.star-1]||1;
- const hp=Math.round(cl.hp*cMul*sMul),atk=Math.round(cl.atk*cMul*sMul),ab=Math.round(cl.abDmg*cMul*(item==='mega'?CFG.atkMul[2]:sMul));
+ const cMul=CFG.costMul[s.c]||1,isMega=item==='mega';
+ const sMulHp=isMega?CFG.hpMul[2]:(CFG.hpMul[f.star-1]||1);
+ const sMulAtk=isMega?CFG.atkMul[3]:(CFG.atkMul[f.star-1]||1);
+ const hp=Math.round(cl.hp*cMul*sMulHp*(item==='dyna'?2:1));
+ const atk=Math.round(cl.atk*cMul*sMulAtk);
+ const ab=Math.round(cl.abDmg*cMul*(isMega?CFG.atkMul[2]:(CFG.atkMul[f.star-1]||1)));
+ const critVal=Math.min(1,cl.crit+(isMega?0.15:0));
  const h=`<div><b>${f.name}</b> ${starsHtml(f.star)} (${s.c}-Cost · ${cl.icon} ${s.cls})</div>
   <div style="margin:3px 0">${s.t.map(typeBadge).join(' ')}${xt?` + ${typeBadge(xt)} <small style="color:#fd6">(Tera-Typ)</small>`:''}</div>
   <div style="color:#cde">HP: <b>${hp}</b> · ATK: <b>${atk}</b> · Ability DMG: <b>${ab}</b></div>
-  ${spInGen(spIdx,genActive())?`<div style="color:#8fd">🎓 Generational Run (${genActive().name}): +${Math.round(GEN_BONUS*100)} % ATK</div>`:''}
-  <div style="color:#cde">DEF: <b>${cl.def}</b> · ASPD: <b>${cl.aspd}</b> · Crit: <b>${p(cl.crit)}</b> · Range: <b>${cl.range}</b></div>
+  ${spInGen(spIdx,genActive())?`<div style="color:#8fd">🎓 Generational Run (${genActive().name}): +${Math.round(GEN_BONUS*100)} % alle Stats</div>`:''}
+  <div style="color:#cde">DEF: <b>${cl.def}</b> · ASPD: <b>${cl.aspd}</b> · Crit: <b>${p(critVal)}</b> · Range: <b>${cl.range}</b></div>
   <div style="margin-top:5px;color:#fd6"><b>Fähigkeit – ${s.ab}:</b></div>
   <div style="color:#ddd">${sk?sk.desc:''}</div>${it?`<div style="margin-top:5px;color:#ffb86b"><b>${it.icon} ${it.name}:</b> ${it.desc}</div>`:''}`;
  const el=$('tip');el.innerHTML=h;el.style.display='block';tipMove(e);
 }
 function tipMove(e){const el=$('tip');el.style.left=Math.max(4,Math.min(e.clientX+16,innerWidth-el.offsetWidth-8))+'px';el.style.top=Math.max(4,Math.min(e.clientY+8,innerHeight-el.offsetHeight-8))+'px'}
 let tipU=null,lastTipEv=null;
-const SKILL_MULT={'Close Combat':1.75,'Snipe Shot':2.5,'Bulldoze':1.75,'Weather Ball':1};
+const SKILL_MULT={'Close Combat':1.75,'Snipe Shot':2,'Bulldoze':2.25,'Weather Ball':1};
 function liveCtx(u){
  if(S.phase==='battle'&&B.units.includes(u))return{v:u,A:B.units,battle:true};
  if(u.uid==null)return null;
@@ -2196,10 +2259,10 @@ function liveBlock(c,o){
  if(m){const z=v.zc?2:1;
   h+=`<div style="color:#fd6">${v.abName}: ca. <b>${Math.round(ab*m*z)}</b> Schaden${v.abName==='Close Combat'?' (aufgeteilt auf alle Gegner)':v.abName==='Snipe Shot'?' (pro Gegner in der Linie)':''} <small style="color:#9ab">vor DEF${z>1?' · 💠 ×2':''}</small></div>`;
  }else if(v.abName==='Reflect'){
-  h+=`<div style="color:#fd6">Reflect: −${v.zc?75:50} % Schaden & +${v.zc?75:50} % ASPD für Verbündete</div>`;
+  h+=`<div style="color:#fd6">Reflect: −${v.zc?80:50} % Schaden & +${v.zc?80:50} % ASPD für Verbündete</div>`;
  }
  const cnt=typeCounts(),ef=[];
- if(v.genB)ef.push(`🎓 Generational Run: +${Math.round(GEN_BONUS*100)} % ATK`);
+ if(v.genB)ef.push(`🎓 Generational Run: +${Math.round(GEN_BONUS*100)} % auf alle Stats`);
  if(v.crowned)ef.push(`👑 Käfer-Krone: +${Math.round(CROWN_BUFF*100)} % ATK, Attack Speed & Mana`);
  if(v.item&&ITEMS[v.item])ef.push(`${ITEMS[v.item].icon} ${ITEMS[v.item].name}: ${ITEMS[v.item].short}`);
  for(const t of (v.t||[])){const k=tierIdx(t,cnt[t]||0);if(k>=0)ef.push(`${typeBadge(t)} ${TB[t].d(TB[t].v[k],k)}`)}
@@ -2268,7 +2331,7 @@ function slotInfo(){const T=CFG.slotAfter.find(t=>t>=S.round),b=limitFor(S.round
 
 function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().length;
  $('tr').innerHTML=`Runde <b>${S.round}/${EN.length}</b>`;
- {const g=genActive();$('tl').innerHTML=`❤️ <b>${S.lives}</b>`+(g?` <span title="Generational Run: Alle Pokémon der Generation ${g.gen} (${g.mons.join(', ')}) erhalten +10 % ATK" style="cursor:help;margin-left:10px;color:#7ef0b8">🎓 ${g.name} · Gen ${g.gen} (+10 % ATK)</span>`:'')}
+ {const g=genActive();$('tl').innerHTML=`❤️ <b>${S.lives}</b>`+(g?` <span title="Generational Run: Alle Pokémon der Generation ${g.gen} (${g.mons.join(', ')}) erhalten +5 % auf alle Stats" style="cursor:help;margin-left:10px;color:#7ef0b8">🎓 ${g.name} · Gen ${g.gen} (+5 % Stats)</span>`:'')}
  $('tn').innerHTML=S.phase=='done'?(S.lives<=0?'💀 <b>Game Over</b>':'🏆 <b>Gewonnen!</b> <button onclick="renderVictory();$(\'vicModal\').classList.add(\'open\')" style="padding:2px 8px;font-size:12px">Ergebnis</button>'):`Nächster Gegner: <b>${ROUND_LABEL[S.round]||EN[Math.min(S.round,EN.length)-1].map(e=>e.name).join(', ')}</b>`;
  $('gold').innerHTML=`💰 <b>${S.gold}</b> (+${income()} nächste Runde)`;
  $('plc').innerHTML=`Verfügbar: <b>${pl}/${limit()}</b>`;$('plc').title=slotInfo();$('plc').style.color=(S.phase=='prep'&&pl<limit())?'#ff5555':'';
@@ -2353,7 +2416,8 @@ function draw(t){ctx.clearRect(0,0,720,514);
  for(const f of B.fields){
   if(f.type==='weather'){
    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-    if(dist({r,c},f)<=1){
+    const d=dist({r,c},f);
+    if(d<=1&&d>=1){
      const[wx,wy]=px(r,c);
      ctx.save();
      ctx.strokeStyle='#ffffff';ctx.fillStyle='rgba(255,255,255,0.24)';ctx.lineWidth=2;

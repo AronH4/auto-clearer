@@ -1493,7 +1493,7 @@ function doSplit(u){u.splitDone=1;const occ=new Set(B.units.filter(o=>o.hp>0&&o!
   const n=mk('e',cell.r,cell.c,k.name,k.sprite,false,{hp:u.max*(k.hpX||1),atk:(u.atk*(k.atkX||1))/splitCount,aspd:u.aspd,def:u.def,crit:u.crit,range:u.range,mg:u.mg,mmax:u.mmax,skill:u.skill,big:k.big??true});
   n.hp=n.max*(k.hp!=null?k.hp:u.split.at);n.fb=k.fb??u.id;n.t=u.t;n.x=u.x;n.y=u.y;B.units.push(n);say(n,'✨')}}
 
-const heal=(u,a)=>{if(u&&u.hp>0&&a>0){const next=u.hp+a;const ov=Math.max(0,next-u.max);u.hp=Math.min(u.max,next);stat(u,'heal',a-ov);if(ov>0){u.shield=(u.shield||0)+ov;say(u,'🛡 +'+Math.round(ov),'#9df')}}};
+const heal=(u,a,shieldOverheal=false)=>{if(u&&u.hp>0&&a>0){const next=u.hp+a;const ov=Math.max(0,next-u.max);u.hp=Math.min(u.max,next);stat(u,'heal',a-ov);if(shieldOverheal&&ov>0){u.shield=(u.shield||0)+ov;say(u,'🛡 +'+Math.round(ov),'#9df')}}};
 
 function checkBarrierMitigation(sx,sy,tx,ty,targetTeam){
  for(const b of B.barriers){
@@ -1674,7 +1674,7 @@ function hit(u,t,A){
   if(u.fairy){
    for(const a of A){
     if(a.team==u.team&&!a.decoy&&a.hp>0&&dist(a,u)<=1){
-     heal(a,a.max*u.fairy);
+     heal(a,a.max*u.fairy,true);
      say(a,'💚','#d685ad');
     }
    }

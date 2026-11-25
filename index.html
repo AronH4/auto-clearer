@@ -177,13 +177,10 @@ h4{margin:8px 0 2px;color:#9ab}
 .vic-head small{color:#cdbf8a;font-size:13px}
 .vic-grid{padding:14px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
 .vic-card{position:relative;background:#1b2030;border:2px solid #2e3856;border-radius:10px;padding:8px 6px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
-.vic-card.mvp{border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.35)}
-.vic-card .mvpTag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#ffd700;color:#000;font-size:10px;font-weight:bold;border-radius:8px;padding:1px 8px;white-space:nowrap}
 .vic-card img{width:112px;height:112px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
 .vic-card .ti img{width:18px;height:18px;filter:none}
 .vic-nm{font-weight:bold;font-size:13px;line-height:1.1;min-height:28px;display:flex;align-items:center;justify-content:center}
 .vic-lv{font-size:12px;font-weight:bold;padding:1px 8px;border-radius:10px;background:#0e1119;border:1px solid #42507a}
-.vic-ty{display:flex;gap:2px;justify-content:center;min-height:18px}
 .vic-st{width:100%;margin-top:4px;display:grid;gap:3px;font-size:12px;text-align:left}
 .vic-st div{display:flex;justify-content:space-between;background:#131620;border-radius:5px;padding:3px 6px}
 .vic-st b{color:#fff}.vic-st span{color:#9aa4c8}
@@ -342,9 +339,9 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
  tempo:1.3,moveDelay:.3,
  maxUnits:8,slotAfter:[2,4,8,14,22,30,40],benchMax:12,
  speedUpAfter:20,speedUpTo:3,noSpeedRound:50,
- hpMul:[1,1.75,3,3],atkMul:[1,1.75,3,12],
+ hpMul:[1,1.75,3],atkMul:[1,1.75,3],
  costMul:{1:1,2:1.1,3:1.15,4:1.2,5:1.25},
- base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100,manaGain:15},
+ base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100},
  copies:{1:25,2:20,3:18,4:15,5:12},
  mergeNeeded:3,
  odds:[
@@ -412,24 +409,24 @@ const DECOY_HITS=[2,5,10];
 const DECOY_DMG=[100,450,1000];
 const CROWN_BUFF=.25;
 const TB={
- Normal:  {th:[2,4],   v:[1.25,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${String(v).replace('.',',')}x Schaden mit Attacks und Abilities`},
+ Normal:  {th:[2,4],   v:[1.25,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${String(v).replace('.',',')}x Schaden mit Angriffen und Abilities`},
  Grass:   {th:[2,4],  v:[.30,.50],    d:v=>`Alle Pflanzen-Pokémon heilen sich um ${p(v)} des verursachten Schadens`},
  Fire:    {th:[2,3],  v:[.20,.30],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
- Water:   {th:[2,3],  v:[.50,1.00],  d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} mehr Mana pro Attack`},
+ Water:   {th:[2,3],  v:[.50,1.00],  d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} Mana pro Angriff`},
  Electric:{th:[2,4],  v:[.25,.75],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
  Bug:     {th:[2],    v:[1],           d:v=>`${v} Käfer-Krone${v>1?'n':''} erscheint! Jeder Träger erhält +${p(CROWN_BUFF)} ATK, Attack Speed und Mana pro ATK`},
- Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>`Alle Flug-Pokémon erhalten +1 Feld Reichweite und +${v} ATK je Distanz-Feld zum Gegner`},
- Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon buffen den ATK-Stat umliegender Allies (1 Feld) um ${p(v)}`},
+ Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>`Alle Flug-Pokémon erhalten +${v} Feld${v>1?'er':''} Reichweite und +${v} ATK je Distanz-Feld zum Gegner`},
+ Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon erhöhen den ATK angrenzender Verbündeter (1 Feld Abstand) um ${p(v)}`},
  Rock:    {th:[2],    v:[.9],            d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
  Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Danach sind sie 2 Sekunden lang unverwundbar, können aber sofort angreifen`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${v} Sekunde${v>1?'n':''}`},
  Ghost:   {th:[2,3,5],v:DECOY_HITS, d:(v,k)=>`1 frei platzierbarer Delegator erscheint vor Rundenstart, blockt ${v} ATKs und verursacht dann ${DECOY_DMG[k]} Schaden`},
- Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften das Ziel für ${p(v)} Ability Damage pro Sekunde`},
+ Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften beim Casten ihrer Ability das Ziel: Es erleidet 5 Sekunden lang pro Sekunde ${p(v)} des Ability Damage`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +75 % verstärkten Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +50 % verstärkten Crit-Schaden`},
  Ice:     {th:[2,3],  v:[.20,.30],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
  Dragon:  {th:[2],    v:[1.00],       d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} HP wiederbelebt und sind anschließend für 3 Sekunden unverwundbar`},
- Fairy:   {th:[2],    v:[.07],        d:v=>`Alle Feen-Pokémon erhalten +${p(v)} der maximalen HP – Overhealing generiert einen entsprechenden Schild`}
+ Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Casten ihrer Ability alle umliegenden Verbündeten um ${p(v)} von deren max. HP – Überheilung wird zu einem entsprechenden Schild`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
 const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};
@@ -452,8 +449,8 @@ const itemIcon=(k,st='')=>`<img class="it-ic" src="${ITEM_IMGS[k]}" alt="" ${st?
 
 const ITEMS={
  mega:{icon:itemIcon('mega'),name:'Mega-Stein',col:'#7fe9ff',
-  short:'Werte wie 3★-Einheiten mit 4× ATK und +15 % Crit Chance.',
-  desc:'Besitzt die Werte einer <b>3★-Einheit</b> mit <b>4× ATK</b> und <b>+15 % Crit Chance</b> (ggf. mit neuer Mega-Form).',
+  short:'Werte wie 3★-Einheiten, aber 4× ATK einer 1★-Einheit und +15 % Crit Chance.',
+  desc:'Besitzt die Werte einer <b>3★-Einheit</b> mit <b>dem 4-fachen ATK einer 1★-Einheit</b> und <b>+15 % Crit Chance</b> (ggf. mit neuer Mega-Form).',
   carriers:['Rexblisar','Gengar','Stolloss','Brigaron','Impi']},
  zcrystal:{icon:itemIcon('zcrystal'),name:'Z-Kristall',col:'#ffb347',
   short:'Verdoppelt Schaden von Close Combat, Snipe Shot, Bulldoze & Weather Ball. Reflect auf 80 %, +30 % Mana/ATK.',
@@ -520,7 +517,7 @@ const TUT_PAGES=[
   html:`<p><b>Auto-Clearer</b> ist ein taktisches Pokémon-Autobattler-Spiel über <b>50 Runden</b> (von Kanto bis Hisui & Arceus). Jede Runde besteht aus zwei Phasen:</p>
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">1. Vorbereitungsphase</b>Kaufe Pokémon im Shop, entwickle sie durch Kombinieren, platziere dein Team auf den unteren vier Reihen des Hex-Feldes und optimiere deine Typ-Synergien.</div>
-   <div class="tut-card"><b class="t-ttl">2. Kampfphase (⚔️ Kampf!)</b>Sobald du auf <b>⚔️ Kampf!</b> klickst, kämpfen deine Pokémon vollautomatisch gegen die Gegnerwelle der aktuellen Runde. Dauert ein Kampf länger als 20s, wird automatisch auf <b>⏩ x3</b> beschleunigt.</div>
+   <div class="tut-card"><b class="t-ttl">2. Kampfphase (⚔️ Kampf!)</b>Sobald du auf <b>⚔️ Kampf!</b> klickst, kämpfen deine Pokémon vollautomatisch gegen die Gegnerwelle der aktuellen Runde. Dauert ein Kampf länger als 20 Sekunden, wird er automatisch auf <b>⏩ x3</b> beschleunigt (nicht im Endboss-Kampf in Runde 50).</div>
   </div>
   <h4 style="margin-top:14px;font-size:15px">🧭 Wo finde ich was in der oberen Leiste?</h4>
   <div class="tut-grid">
@@ -557,7 +554,7 @@ const TUT_PAGES=[
    <div class="tut-card"><b class="t-ttl" style="color:#c0c0c0">★★ 2-Sterne (1. Entwicklung)</b>3 × 1-Stern<br>Werte: <b>175% (1,75x)</b> HP & DMG</div>
    <div class="tut-card"><b class="t-ttl" style="color:#ffd700">★★★ 3-Sterne (Finale Form)</b>3 × 2-Sterne (= 9 Basiskarten)<br>Werte: <b>300% (3,0x)</b> HP & DMG</div>
   </div>
-  <div class="tut-note">✨ <b>Wichtig:</b> Während eines laufenden Kampfes verschmelzen nur Einheiten auf der <b>Bank</b>. Befindet sich eine Kopie auf dem Feld, findet der Merge direkt nach Kampfende statt. Eine 3-Sterne-Einheit taucht danach nicht mehr im Shop auf.<br>🧿 Ab Runde 36 ist über den <b>Mega-Stein</b> sogar eine <b>4★-Stufe</b> möglich (siehe Seite 9).</div>`
+  <div class="tut-note">✨ <b>Wichtig:</b> Während eines laufenden Kampfes verschmelzen nur Einheiten auf der <b>Bank</b>. Befindet sich eine Kopie auf dem Feld, findet der Merge direkt nach Kampfende statt. Hast du eine 3-Sterne-Einheit, taucht dieses Pokémon danach nicht mehr im Shop auf.<br>🧿 Ab Runde 36 ist über den <b>Mega-Stein</b> sogar eine <b>4★-Stufe</b> möglich (siehe Seite 10).</div>`
  },
  {
   tab:'4. Typen & Typ-Boni',
@@ -644,11 +641,11 @@ const TUT_PAGES=[
   </div>
   <div class="tut-warn">⚠️ <b>Regeln für Items:</b><br>
   • Nur <b>3★-Einheiten</b> können Items tragen (1★ und 2★ nicht).<br>
-  • <b>Mega-Stein, Z-Kristall und Dyna-Pilz</b> passen nur zu den jeweils genannten Pokémon. <b>Wahlschal und Sonderbonbon</b> können alle übrigen Pokémon tragen (also alle, die weder Mega-Stein, Z-Kristall noch Dyna-Pilz tragen können).<br>
+  • <b>Mega-Stein, Z-Kristall und Dyna-Pilz</b> passen nur zu den jeweils genannten Pokémon. <b>Wahlschal und Sonderbonbon</b> können dagegen alle übrigen Pokémon tragen.<br>
   • Die Übergabe ist <b>einmalig und endgültig</b>. Verkaufst du den Träger, geht das Item verloren.<br>
   • Eine Einheit kann nur <b>ein</b> Item tragen.<br>
   • 🍬 <b>Sonderbonbon:</b> Solange ein Pokémon es trägt (auf dem Feld oder der Bank), wird <b>1 zusätzlicher Platz</b> auf dem Spielfeld freigeschaltet (bis zu 9). Verkaufst du den Träger, fällt der Platz weg.<br>
-  • Item-Form und <b>Tera-Typ</b> sind kombinierbar (z. B. Impi mit Mega-Stein, Pikachu mit Dyna-Pilz, Relaxo mit Dyna-Pilz als Gigadynamax-Relaxo).</div>
+  • Item-Form und <b>Tera-Typ</b> lassen sich kombinieren (z. B. Impi mit Mega-Stein oder Relaxo mit Dyna-Pilz als Gigadynamax-Relaxo).</div>
   <h4 style="margin-top:14px;font-size:15px">🧰 Die 5 Items &amp; ihre Träger</h4>
   <div class="tut-grid" style="grid-template-columns:1fr">
   ${ITEM_KEYS.map(k=>`<div class="tut-card" style="border-color:${ITEMS[k].col}"><b class="t-ttl" style="color:${ITEMS[k].col};font-size:14px">${ITEMS[k].icon} ${ITEMS[k].name}</b>${ITEMS[k].desc}<div class="it-car" style="justify-content:flex-start;margin-top:6px">${itemChips(k)}</div></div>`).join('')}
@@ -742,20 +739,6 @@ const SP=RAW.map(r=>({
 
 /* ================= GEGNER ================= */
 const E=(name,sprite,o={})=>({name,sprite,...o});
-
-const ON_3_DOWN=(bossName,stat,mult)=> (u,A)=>{
- if(B.flag[bossName+'Buff'])return;
- const deadCount=B.units.filter(x=>x.team=='e'&&x.hp<=0).length;
- if(deadCount>=3){
-  const boss=A.find(x=>x.team=='e'&&x.name===bossName&&x.hp>0);
-  if(boss){
-   B.flag[bossName+'Buff']=1;
-   if(stat==='atk'){boss.atk*=mult;say(boss,'⚔️ ATK Boost!','#ff6644');}
-   if(stat==='def'){boss.def*=mult;say(boss,'🛡️ DEF Boost!','#66ccff');}
-   B.waves.push({x:boss.x,y:boss.y,r:8,maxR:55,col:'#ffcc33',t:.45,maxT:.45,fill:true});
-  }
- }
-};
 
 const ON_MEWTU_DOWN=(u,A)=>{
  if(B.flag.mewtuDownBuff)return;
@@ -1164,9 +1147,9 @@ function buy(k){if(!act())return;const i=S.shop[k];if(i==null)return;const s=SP[
 function sell(id){const u=unitById(id);if(!u)return;
  if(u.item==='candy'){const after=placed().length-(u.pos?1:0),lim=limitFor(S.round);
   if(after>lim){
-   if(S.phase=='battle'){toast('Das Sonderbonbon-Träger kann im Kampf nicht verkauft werden, solange das 🍬-Feldplatz-Limit überschritten würde.');return}
+   if(S.phase=='battle'){toast('Der Träger des Sonderbonbons kann im Kampf nicht verkauft werden, da sonst das Feldplatz-Limit überschritten würde.');return}
    const free=CFG.benchMax-benchCount()+(u.pos?0:1);
-   if(free<after-lim){toast('Nicht genug Bankplätze: Ohne Sonderbonbon müssten überzählige Pokémon auf die Bank wechseln.');return}}}
+   if(free<after-lim){toast('Nicht genug Platz auf der Bank: Ohne das Sonderbonbon müssten überzählige Pokémon dorthin wechseln.');return}}}
  if(u.item&&!confirm(`${SP[u.sp].n[2]} trägt ${ITEMS[u.item].name}. Beim Verkaufen geht das Item verloren. Wirklich verkaufen?`))return;const n=cardsEq(u),g=SP[u.sp].c*n;
  dropCrown(id);
  S.gold+=g;S.pool[u.sp]+=n;S.units=S.units.filter(x=>x!==u);enforceLimit()}
@@ -1177,7 +1160,7 @@ function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
  return{team,r,c,name,id,sh,x,y,lx:0,ly:0,hp:st.hp,max:st.hp,atk:st.atk,abDmg:st.abDmg||90,aspd:st.aspd,def:st.def,crit:st.crit,critMult:2,range:st.range,
   mana:0,mmax:st.mmax||CFG.base.mana,mg:st.mg,skill:st.skill||1,abName:st.abName||null,cls:st.cls||null,uid:st.uid||null,
   cd:Math.random()*.4,mv:0,star:st.star||0,big:!!st.big,
-  dm:1,ls:0,shield:0,fight:0,fire:0,fireDotDone:0,ice:0,fairy:0,bug:0,ground:0,groundDone:0,invuln:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
+  dm:1,ls:0,shield:0,fight:0,fire:0,ice:0,fairy:0,ground:0,groundDone:0,invuln:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
   fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,
   stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyHitsLeft:0,decoyDmg:0,crowned:false}}
 
@@ -1212,7 +1195,7 @@ function applyBonus(u,t,v,tier){
   case'Normal':u.dm*=v;break;
   case'Fire':u.fire=v;break;
   case'Water':u.mg*=1+v;break;
-  case'Flying':u.range+=1;u.flyBonus=v;break;
+  case'Flying':u.range+=v;u.flyBonus=v;break;
   case'Ice':u.ice=v;break;
   case'Rock':u.def+=v*S.round;break;
   case'Fairy':u.fairy=v;break;
@@ -1229,7 +1212,7 @@ function buildUnit(o,pos){
  const cMul=CFG.costMul[s.c]||1;
  const isMega=o.item==='mega';
  const sMulHp=isMega?CFG.hpMul[2]:(CFG.hpMul[st-1]||1);
- const sMulAtk=isMega?CFG.atkMul[3]:(CFG.atkMul[st-1]||1);
+ const sMulAtk=isMega?CFG.atkMul[0]*4:(CFG.atkMul[st-1]||1);
  const hp=(ov.hp||cl.hp)*cMul*sMulHp;
  const atk=(ov.atk||cl.atk)*cMul*sMulAtk;
  const abDmg=(ov.abDmg||cl.abDmg)*cMul*(isMega?CFG.atkMul[2]:sMulAtk);
@@ -1257,11 +1240,6 @@ function buildUnit(o,pos){
 }
 function applyBonuses(u,cnt){
  for(const t of u.t){const k=tierIdx(t,cnt[t]);if(k>=0)applyBonus(u,t,TB[t].v[k],k)}
- if(u.fairy>0){
-  const bonusHp=u.max*u.fairy;
-  u.max+=bonusHp;
-  u.hp=Math.min(u.max,u.hp+bonusHp);
- }
 }
 function buildPlayer(bat){
  const cnt=typeCounts();
@@ -1978,7 +1956,7 @@ function useItem(o){
  const it=ITEMS[S.item],nm=SP[o.sp].n[2];
  if(o.star<3){toast('Items können nur von 3★-Einheiten getragen werden.');return}
  if(o.item){toast('Diese Einheit trägt bereits ein Item.');return}
- if(!it.carriers.includes(nm)){toast(`${it.name} können nur diese Pokémon tragen: ${it.carriers.join(', ')}.`);return}
+ if(!it.carriers.includes(nm)){toast(`${it.name} kann nur von diesen Pokémon getragen werden: ${it.carriers.join(', ')}.`);return}
  if(!confirm(`${it.name} dauerhaft an ${nm} übergeben? Das ist endgültig.`))return;
  if(S.phase!='prep'||!S.item||o.item)return;
  o.item=S.item;S.item=null;save();render();
@@ -2220,7 +2198,7 @@ function tipPoke(spIdx,star,e,xt,item){
  const f=formOf({sp:spIdx,star,item:item||null}),it=item&&ITEMS[item];
  const cMul=CFG.costMul[s.c]||1,isMega=item==='mega';
  const sMulHp=isMega?CFG.hpMul[2]:(CFG.hpMul[f.star-1]||1);
- const sMulAtk=isMega?CFG.atkMul[3]:(CFG.atkMul[f.star-1]||1);
+ const sMulAtk=isMega?CFG.atkMul[0]*4:(CFG.atkMul[f.star-1]||1);
  const hp=Math.round(cl.hp*cMul*sMulHp*(item==='dyna'?2:1));
  const atk=Math.round(cl.atk*cMul*sMulAtk);
  const ab=Math.round(cl.abDmg*cMul*(isMega?CFG.atkMul[2]:(CFG.atkMul[f.star-1]||1)));

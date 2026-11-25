@@ -436,7 +436,7 @@ const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000
 
 /* ================= ITEMS (ab Runde 35) ================= */
 const ITEM_KEYS=['mega','zcrystal','dyna','scarf','candy'];
-const PRIO_W=[10,6,3,2,1];
+const PRIO_W=[20,8,4,2,1];
 const ITEM_IMGS={
  mega:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/venusaurite.png',
  zcrystal:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/normalium-z--bag.png',
@@ -636,7 +636,7 @@ const TUT_PAGES=[
   html:()=>`<p>Wenn du <b>Runde 35 erfolgreich meisterst</b>, wartet eine besondere Belohnung: <b>1 Item</b> (einmalig pro Spiel).</p>
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">1. Priorisieren</b>Es öffnet sich ein Fenster mit <b>5 Items</b>, ihren Effekten und den möglichen Trägern. Ordne die Item-Boxen per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach deiner Priorität.</div>
-   <div class="tut-card"><b class="t-ttl">2. Slot-Maschine</b>Die Priorität bestimmt, wie oft ein Item in der Slot-Maschine vorkommt: <b>Prio 1 = 10×, Prio 2 = 6×, Prio 3 = 3×, Prio 4 = 2×, Prio 5 = 1×</b> (22 Felder). Die Maschine entscheidet dann per Zufall, welches Item du erhältst.</div>
+   <div class="tut-card"><b class="t-ttl">2. Slot-Maschine</b>Die Priorität bestimmt, wie oft ein Item in der Slot-Maschine vorkommt: <b>Prio 1 = 20×, Prio 2 = 8×, Prio 3 = 4×, Prio 4 = 2×, Prio 5 = 1×</b> (35 Felder). Die Maschine entscheidet dann per Zufall, welches Item du erhältst.</div>
    <div class="tut-card"><b class="t-ttl">3. Item vergeben</b>Das Item erscheint oben neben dem Kampf-Button (in der Reihe von 👑 Käfer-Krone und Terastallize) – nur als <b>Icon</b>. Fährst du mit der Maus darüber, siehst du, <b>welche deiner Pokémon auf dem Feld</b> das Item tragen können. Ziehe es in der Vorbereitungsphase per Drag &amp; Drop auf eine passende Einheit – auf dem Feld oder auf der Bank.</div>
   </div>
   <div class="tut-warn">⚠️ <b>Regeln für Items:</b><br>
@@ -1983,7 +1983,7 @@ function moveItemPrio(i,d){if(itemBusy)return;const j=i+d;if(j<0||j>=itemOrder.l
 })();
 function showItemOffer(){
  itemBusy=false;itemOrder=ITEM_KEYS.slice();
- $('itemSub').innerHTML='Ordne die 5 Items per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach Priorität. Prio 1 = 10×, Prio 2 = 6×, Prio 3 = 3×, Prio 4 = 2×, Prio 5 = 1× in der Slot-Maschine.';
+ $('itemSub').innerHTML='Ordne die 5 Items per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach Priorität. Prio 1 = 20×, Prio 2 = 8×, Prio 3 = 4×, Prio 4 = 2×, Prio 5 = 1× in der Slot-Maschine.';
  $('itemSlot').style.display='none';$('itemFoot').style.display='flex';
  $('itemConfirm').style.display='';$('itemTake').style.display='none';
  renderItemOffer();$('itemModal').classList.add('open');

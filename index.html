@@ -388,7 +388,7 @@ const SKILLS={
  'Snipe Shot':  {col:'#ffe63b',desc:'Gelber Laserstrahl: Trifft alle Gegner auf der Linie zum Ziel für 2x Ability DMG.'},
  'Reflect':     {col:'#ff66cc',desc:'Pinke Barriere: Baut links, mittig und rechts für 2s eine Barriere auf (-50% eingehender Schaden & +50% Attack Speed für Verbündete auf diesen Feldern).'},
  'Bulldoze':    {col:'#c87d32',desc:'Brauner Ansturm: Dasht sofort zum Gegner mit den wenigsten HP und verursacht 2,25x Ability DMG.'},
- 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den wenigsten HP an und erzeugt für 2s an allen umliegenden Waben ein weißes Feld. Gegner dort verlieren 50% DEF und erleiden 1x Ability Damage.'}
+ 'Weather Ball':{col:'#ffffff',desc:'Weiße Energiekugel: Greift Gegner mit den wenigsten HP an und erzeugt für 2s ein weißes Feld auf der Wabe des Ziels und allen umliegenden Waben. Gegner dort verlieren 50% DEF und erleiden 1x Ability Damage.'}
 };
 
 const BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -405,8 +405,8 @@ const TYPES={Normal:[1,'Normal','#a8a77a'],Fighting:[2,'Kampf','#c22e28'],Flying
 const p=v=>Math.round(v*100)+'%';
 
 /* ================= TYP-BONI ================= */
-const DECOY_HITS=[2,5,10];
-const DECOY_DMG=[100,450,1000];
+const DECOY_HITS=[3,6,10];
+const DECOY_DMG=[150,500,1200];
 const CROWN_BUFF=.25;
 const TB={
  Normal:  {th:[2,4],   v:[1.25,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${String(v).replace('.',',')}x Schaden mit Angriffen und Abilities`},
@@ -425,8 +425,8 @@ const TB={
  Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften beim Casten ihrer Ability das Ziel: Es erleidet 5 Sekunden lang pro Sekunde ${p(v)} des Ability Damage`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +75 % verstärkten Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +50 % verstärkten Crit-Schaden`},
  Ice:     {th:[2,3],  v:[.20,.30],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
- Dragon:  {th:[2],    v:[1.00],       d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} HP wiederbelebt und sind anschließend für 3 Sekunden unverwundbar`},
- Fairy:   {th:[2],    v:[.60],        d:v=>`Alle Feen-Pokémon heilen beim Casten ihrer Ability alle umliegenden Verbündeten um ${p(v)} von deren max. HP – Überheilung wird zu einem entsprechenden Schild`}
+ Dragon:  {th:[2],    v:[1.00],       d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} HP wiederbelebt und sind anschließend für 2 Sekunden unverwundbar`},
+ Fairy:   {th:[2],    v:[.50],        d:v=>`Alle Feen-Pokémon heilen beim Casten ihrer Ability alle umliegenden Verbündeten um ${p(v)} von deren max. HP – Überheilung wird zu einem entsprechenden Schild`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
 const bonusVal=(t,c)=>{const k=tierIdx(t,c);return k<0?0:TB[t].v[k]};
@@ -436,7 +436,7 @@ const starsHtml=n=>`<span style="color:${STAR_COL[n-1]};text-shadow:0 0 2px #000
 
 /* ================= ITEMS (ab Runde 35) ================= */
 const ITEM_KEYS=['mega','zcrystal','dyna','scarf','candy'];
-const PRIO_W=[8,6,4,2,1];
+const PRIO_W=[10,6,3,2,1];
 const ITEM_IMGS={
  mega:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/venusaurite.png',
  zcrystal:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/normalium-z--bag.png',
@@ -596,7 +596,7 @@ const TUT_PAGES=[
    <div><span class="tut-pill" style="color:#ffe63b">⚡ Snipe Shot</span> Gelber Laser: Durchschlägt alle Gegner in einer Linie für 2× Ability-DMG.</div>
    <div><span class="tut-pill" style="color:#ff85d8">🛡️ Reflect</span> Pinke Barriere (2s) für 3 Felder: -50% erlittener Schaden & +50% Attack Speed.</div>
    <div><span class="tut-pill" style="color:#e09a48">🪨 Bulldoze</span> Brauner Ansturm: Springt zum Gegner mit den wenigsten HP (2,25× Ability-DMG).</div>
-   <div><span class="tut-pill" style="color:#ffffff">❄️ Weather Ball</span> Greift Gegner mit wenigsten HP an & erzeugt ein weißes Feld (-50% DEF & 1× Ability DMG).</div>
+   <div><span class="tut-pill" style="color:#ffffff">❄️ Weather Ball</span> Greift Gegner mit wenigsten HP an & erzeugt ein weißes Feld auf dem Ziel und allen umliegenden Waben (-50% DEF & 1× Ability DMG).</div>
   </div>`
  },
  {
@@ -636,7 +636,7 @@ const TUT_PAGES=[
   html:()=>`<p>Wenn du <b>Runde 35 erfolgreich meisterst</b>, wartet eine besondere Belohnung: <b>1 Item</b> (einmalig pro Spiel).</p>
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">1. Priorisieren</b>Es öffnet sich ein Fenster mit <b>5 Items</b>, ihren Effekten und den möglichen Trägern. Ordne die Item-Boxen per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach deiner Priorität.</div>
-   <div class="tut-card"><b class="t-ttl">2. Slot-Maschine</b>Die Priorität bestimmt, wie oft ein Item in der Slot-Maschine vorkommt: <b>Prio 1 = 8×, Prio 2 = 6×, Prio 3 = 4×, Prio 4 = 2×, Prio 5 = 1×</b> (21 Felder). Die Maschine entscheidet dann per Zufall, welches Item du erhältst.</div>
+   <div class="tut-card"><b class="t-ttl">2. Slot-Maschine</b>Die Priorität bestimmt, wie oft ein Item in der Slot-Maschine vorkommt: <b>Prio 1 = 10×, Prio 2 = 6×, Prio 3 = 3×, Prio 4 = 2×, Prio 5 = 1×</b> (22 Felder). Die Maschine entscheidet dann per Zufall, welches Item du erhältst.</div>
    <div class="tut-card"><b class="t-ttl">3. Item vergeben</b>Das Item erscheint oben neben dem Kampf-Button (in der Reihe von 👑 Käfer-Krone und Terastallize) – nur als <b>Icon</b>. Fährst du mit der Maus darüber, siehst du, <b>welche deiner Pokémon auf dem Feld</b> das Item tragen können. Ziehe es in der Vorbereitungsphase per Drag &amp; Drop auf eine passende Einheit – auf dem Feld oder auf der Bank.</div>
   </div>
   <div class="tut-warn">⚠️ <b>Regeln für Items:</b><br>
@@ -1301,8 +1301,8 @@ function buildEnemy(){
 
 function mkDecoy(pos,cnt){
  const k=Math.max(0,tierIdx('Ghost',cnt));
- const hits=DECOY_HITS[k]||2;
- const dmg=DECOY_DMG[k]||100;
+ const hits=DECOY_HITS[k]||3;
+ const dmg=DECOY_DMG[k]||150;
  const d=mk('p',pos.r,pos.c,'Delegator',0,false,{hp:hits,atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});
  d.decoy=true;d.decoyHitsLeft=hits;d.decoyDmg=dmg;
  return d;
@@ -1472,9 +1472,9 @@ function dealDmg(t, d, col, pre, attacker){
   t.rev=1;const rv=t.reviveTo;t.hp=t.max*(rv?rv.hp:t.dragon);
   if(rv)morph(t,rv);
   else{
-   if(t.dragon)t.invuln=3;
+   if(t.dragon)t.invuln=2;
    B.waves.push({x:t.x,y:t.y,r:6,maxR:55,col:'#6f35fc',t:.5,maxT:.5});
-   say(t,t.dragon?'🐉 Revive +3s':'🐉 Revive','#a98ff3');
+   say(t,t.dragon?'🐉 Revive +2s':'🐉 Revive','#a98ff3');
   }
  }else if(t.hp<=0&&!t.dead){
   t.dead=1;
@@ -1606,14 +1606,10 @@ function castPlayerSkill(u,t,A){
      B.waves.push({x:bx,y:by,r:10,maxR:W*1.5,col:'#ffffff',t:.42,maxT:.42,fill:true});
      const zMult=u.zc?2:1;
      for(const f of foes){
-      if(f.hp>0&&dist(f,field)<=1&&dist(f,field)>=1){
+      if(f.hp>0&&dist(f,field)<=1){
        const effDef=f.def*(1-field.pw);
        dealDmg(f,rawAb*zMult*100/(100+effDef),'#ffffff','❄️',u);
       }
-     }
-     if(boss.hp>0&&dist(boss,field)===0){
-      const effDef=boss.def*(1-field.pw);
-      dealDmg(boss,rawAb*zMult*100/(100+effDef),'#ffffff','❄️',u);
      }
     }
    });
@@ -1987,7 +1983,7 @@ function moveItemPrio(i,d){if(itemBusy)return;const j=i+d;if(j<0||j>=itemOrder.l
 })();
 function showItemOffer(){
  itemBusy=false;itemOrder=ITEM_KEYS.slice();
- $('itemSub').innerHTML='Ordne die 5 Items per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach Priorität. Prio 1 = 8×, Prio 2 = 6×, Prio 3 = 4×, Prio 4 = 2×, Prio 5 = 1× in der Slot-Maschine.';
+ $('itemSub').innerHTML='Ordne die 5 Items per <b>Drag &amp; Drop</b> (oder mit ◀ ▶) von <b>links nach rechts</b> nach Priorität. Prio 1 = 10×, Prio 2 = 6×, Prio 3 = 3×, Prio 4 = 2×, Prio 5 = 1× in der Slot-Maschine.';
  $('itemSlot').style.display='none';$('itemFoot').style.display='flex';
  $('itemConfirm').style.display='';$('itemTake').style.display='none';
  renderItemOffer();$('itemModal').classList.add('open');
@@ -2395,7 +2391,7 @@ function draw(t){ctx.clearRect(0,0,720,514);
   if(f.type==='weather'){
    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
     const d=dist({r,c},f);
-    if(d<=1&&d>=1){
+    if(d<=1){
      const[wx,wy]=px(r,c);
      ctx.save();
      ctx.strokeStyle='#ffffff';ctx.fillStyle='rgba(255,255,255,0.24)';ctx.lineWidth=2;

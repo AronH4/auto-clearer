@@ -406,7 +406,7 @@ const p=v=>Math.round(v*100)+'%';
 
 /* ================= TYP-BONI ================= */
 const DECOY_HITS=[3,6,10];
-const DECOY_DMG=[150,500,1200];
+const DECOY_PCT=[.30,.50,.70];
 const CROWN_BUFF=.25;
 const TB={
  Normal:  {th:[2,4],   v:[1.25,1.8],  d:v=>`Alle Normal-Pokémon verursachen ${String(v).replace('.',',')}x Schaden mit Angriffen und Abilities`},
@@ -421,7 +421,7 @@ const TB={
  Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Danach sind sie 2 Sekunden lang unverwundbar, können aber sofort angreifen`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
  Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${v} Sekunde${v>1?'n':''}`},
- Ghost:   {th:[2,3,5],v:DECOY_HITS,   d:(v,k)=>`1 frei platzierbarer Delegator erscheint vor Rundenstart, blockt ${v} ATKs und verursacht dann ${DECOY_DMG[k]} Schaden`},
+ Ghost:   {th:[2,3,5],v:DECOY_HITS,   d:(v,k)=>`1 frei platzierbarer Delegator erscheint vor Rundenstart, blockt ${v} ATKs und verursacht dann dem Killer Schaden in Höhe von ${p(DECOY_PCT[k])} seiner max. HP`},
  Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften beim Casten ihrer Ability das Ziel: Es erleidet 5 Sekunden lang pro Sekunde ${p(v)} des Ability Damage`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +75 % verstärkten Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +50 % verstärkten Crit-Schaden`},
  Ice:     {th:[2,3],  v:[.20,.30],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
@@ -1162,7 +1162,7 @@ function mk(team,r,c,name,id,sh,st){const[x,y]=px(r,c);
   cd:Math.random()*.4,mv:0,star:st.star||0,big:!!st.big,
   dm:1,ls:0,shield:0,fight:0,fire:0,ice:0,fairy:0,ground:0,groundDone:0,invuln:0,pois:0,psy:0,dragon:0,rev:0,flyBonus:0,
   fb:null,dead:0,reviveTo:null,split:null,splitDone:0,die:null,
-  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyHitsLeft:0,decoyDmg:0,crowned:false}}
+  stun:0,berserk:0,slow:0,slowT:0,atkDown:0,atkDownT:0,poisT:0,poisD:0,poisOwner:null,pAcc:0,atkN:0,spdBuff:0,decoy:false,decoyHitsLeft:0,decoyPct:0,crowned:false}}
 
 function typeCounts(){const c={},seen=new Map();placed().forEach(u=>{const ts=seen.get(u.sp)||new Set();SP[u.sp].t.forEach(t=>ts.add(t));if(u.xt)ts.add(u.xt);seen.set(u.sp,ts)});seen.forEach(ts=>ts.forEach(t=>c[t]=(c[t]||0)+1));return c}
 
@@ -1302,9 +1302,9 @@ function buildEnemy(){
 function mkDecoy(pos,cnt){
  const k=Math.max(0,tierIdx('Ghost',cnt));
  const hits=DECOY_HITS[k]||3;
- const dmg=DECOY_DMG[k]||150;
+ const pct=DECOY_PCT[k]||DECOY_PCT[0];
  const d=mk('p',pos.r,pos.c,'Delegator',0,false,{hp:hits,atk:0,aspd:1,def:0,crit:0,range:0,mg:0,skill:1});
- d.decoy=true;d.decoyHitsLeft=hits;d.decoyDmg=dmg;
+ d.decoy=true;d.decoyHitsLeft=hits;d.decoyPct=pct;
  return d;
 }
 
@@ -1449,9 +1449,9 @@ function dealDmg(t, d, col, pre, attacker){
   if(t.decoyHitsLeft<=0&&!t.dead){
    t.dead=1;t.hp=0;
    const killer=(attacker&&attacker.hp>0)?attacker:B.units.find(x=>x.team=='e'&&x.hp>0);
-   if(killer&&t.decoyDmg>0){
+   if(killer&&t.decoyPct>0){
     B.waves.push({x:t.x,y:t.y,r:6,maxR:52,col:'#735797',t:.45,maxT:.45,fill:true});
-    dealDmg(killer,t.decoyDmg,'#b894ff','👻',null);
+    dealDmg(killer,killer.max*t.decoyPct,'#b894ff','👻',null);
    }
   }
   return 0;

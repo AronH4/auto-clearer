@@ -2327,7 +2327,7 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
 
  {const OC=['#ddd','#4c4','#48f','#a5f','#f93'],od=CFG.odds,ci=od.findIndex(o=>S.round<=o[0]);
   $('oddsBox').innerHTML=od.slice(ci,ci+3).map((o,j)=>{const a=ci+j,from=a?od[a-1][0]+1:1,lb=o[0]>=999?`ab ${from}`:`${from}–${o[0]}`;
-   return`<div class="or${j?'':' cur'}"><small>R${lb}</small>${o[1].map((v,c)=>`<span class="${v?'':'z'}" style="color:${OC[c]}">${v}%</span>`).join(' ')}</div>`}).join('')}
+   return`<div class="or${j?'':' cur'}"><small>${lb}</small>${o[1].map((v,c)=>`<span class="${v?'':'z'}" style="color:${OC[c]}">${v}%</span>`).join(' ')}</div>`}).join('')}
  fixSlots();const bn=S.units.filter(u=>!u.pos);let bh='';
  for(let k=0;k<CFG.benchMax;k++){const u=bn.find(x=>x.slot===k);
   if(!u){bh+=`<div class="card empty" data-slot="${k}" onclick="slotClick(${k})"></div>`;continue}

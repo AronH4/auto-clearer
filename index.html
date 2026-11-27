@@ -25,6 +25,8 @@ canvas{width:100%;background:#1d2230;border-radius:8px;touch-action:none;display
 #stat{display:flex;flex-wrap:wrap;gap:2px 20px;font-size:14px}#plc{cursor:help;border-bottom:1px dotted #889}
 #under{text-align:center}#under h4{text-align:center;margin:12px 0 2px}
 #shop,#bench{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}#shop{justify-content:center}
+#shopRow{display:flex;align-items:center;gap:8px}#shopRow #shop{flex:1}
+#oddsBox{font-size:10px;line-height:1.35;white-space:nowrap;opacity:.9}#oddsBox .or{display:flex;gap:4px;align-items:baseline;opacity:.55}#oddsBox .or.cur{opacity:1;font-weight:bold}#oddsBox .or small{color:#889;min-width:34px;font-size:9px}#oddsBox .z{opacity:.35}
 .card{width:100px;height:132px;box-sizing:border-box;border:2px solid #888;border-radius:8px;padding:4px;background:#222736;font-size:12px;
  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;cursor:pointer;user-select:none;position:relative}
 .card img.sp{width:60px;height:60px;image-rendering:pixelated}
@@ -257,7 +259,7 @@ h4{margin:8px 0 2px;color:#9ab}
    <div id="stat"><span id="gold"></span><span id="plc"></span></div>
   </div>
   <div id="under">
-   <h4>Shop</h4><div id="shop"></div>
+   <h4>Shop</h4><div id="shopRow"><div id="oddsBox"></div><div id="shop"></div></div>
    <h4>Bank</h4>
    <div id="benchRow"><div id="bench"></div><div id="trash" onclick="trashClick()" title="Pokémon hierher ziehen, um sie zu verkaufen">🗑️<small>Verkaufen</small></div></div>
   </div>
@@ -342,7 +344,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
  hpMul:[1,1.75,3],atkMul:[1,1.75,3],
  costMul:{1:1,2:1.1,3:1.15,4:1.2,5:1.25},
  base:{hp:300,atk:30,aspd:0.8,def:10,crit:0.1,range:2,mana:100},
- copies:{1:25,2:20,3:18,4:15,5:12},
+ copies:{1:30,2:25,3:20,4:15,5:12},
  mergeNeeded:3,
  odds:[
   [4,[75,20,5,0,0]],
@@ -540,7 +542,7 @@ const TUT_PAGES=[
   </div>
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">Stärkere Basiswerte</b>Höhere Cost-Einheiten besitzen bessere Multiplikatoren auf HP, ATK & Ability-Schaden (von <b>1,0x</b> bei 1-Cost bis <b>1,25x</b> bei 5-Cost), erscheinen aber erst in späteren Runden häufiger im Shop.</div>
-   <div class="tut-card"><b class="t-ttl">Geteilter Karten-Pool</b>Jedes Pokémon existiert nur begrenzt oft im Pool (z. B. 25x bei 1-Cost, 12x bei 5-Cost). Verkaufst du eine Einheit, kehren ihre Kopien in den Pool zurück.</div>
+   <div class="tut-card"><b class="t-ttl">Geteilter Karten-Pool</b>Jedes Pokémon existiert nur begrenzt oft im Pool (z. B. 30x bei 1-Cost, 12x bei 5-Cost). Verkaufst du eine Einheit, kehren ihre Kopien in den Pool zurück.</div>
   </div>
   <div class="tut-note">💡 <b>Tipp:</b> Fahre mit der Maus über eine beliebige Einheit im Shop, auf der Bank oder auf dem Feld, um alle Live-Werte, Typen und Fähigkeiten einzusehen. Auf dem <b>Feld</b> siehst du zusätzlich einen Block <b>📊 Live-Werte</b> mit allen Boni (Typ-Boni, Items, Generational Run, Käfer-Krone, angrenzende Kampf-Pokémon) bereits eingerechnet.</div>`
  },
@@ -2323,6 +2325,9 @@ function render(){if(!S)return;tipHide();ensureSpecials();const pl=placed().leng
    <div class="tys">${s.t.map(typeIcon).join('')}</div>
    <span class="co">${s.c} 💰</span></div>`}).join('');
 
+ {const OC=['#ddd','#4c4','#48f','#a5f','#f93'],od=CFG.odds,ci=od.findIndex(o=>S.round<=o[0]);
+  $('oddsBox').innerHTML=od.slice(ci,ci+3).map((o,j)=>{const a=ci+j,from=a?od[a-1][0]+1:1,lb=o[0]>=999?`ab ${from}`:`${from}–${o[0]}`;
+   return`<div class="or${j?'':' cur'}"><small>R${lb}</small>${o[1].map((v,c)=>`<span class="${v?'':'z'}" style="color:${OC[c]}">${v}%</span>`).join(' ')}</div>`}).join('')}
  fixSlots();const bn=S.units.filter(u=>!u.pos);let bh='';
  for(let k=0;k<CFG.benchMax;k++){const u=bn.find(x=>x.slot===k);
   if(!u){bh+=`<div class="card empty" data-slot="${k}" onclick="slotClick(${k})"></div>`;continue}

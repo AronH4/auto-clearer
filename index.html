@@ -378,7 +378,7 @@ const CFG={startGold:10,income:5,reroll:2,lives:10,
 const CLASSES={
  Tank:   {hp:450,atk:40,abDmg:120,def:35,aspd:0.8,crit:0.15,range:1,mg:14,icon:'🛡️'},
  Fighter:{hp:350,atk:45,abDmg:110,def:25,aspd:0.9,crit:0.20,range:2,mg:12,icon:'⚔️'},
- Caster: {hp:300,atk:30,abDmg:150,def:15,aspd:1.0,crit:0.10,range:3,mg:18,icon:'🔮'},
+ Caster: {hp:300,atk:30,abDmg:180,def:15,aspd:1.0,crit:0.10,range:3,mg:18,icon:'🔮'},
  Sniper: {hp:250,atk:35,abDmg:130,def:20,aspd:1.5,crit:0.08,range:5,mg:16,icon:'🎯'}
 };
 
@@ -414,18 +414,18 @@ const TB={
  Fire:    {th:[2,3],  v:[.20,.30],    d:v=>`Alle Feuer-Pokémon verringern mit ihren Angriffen den ATK des Ziels um ${p(v)}`},
  Water:   {th:[2,3],  v:[.50,1.00],   d:v=>`Alle Wasser-Pokémon erhalten +${p(v)} Mana pro Angriff`},
  Electric:{th:[2,4],  v:[.25,.60],    d:v=>`Alle Elektro-Pokémon erhalten +${p(v)} Attack Speed`},
- Bug:     {th:[2],    v:[1],          d:v=>`${v} Käfer-Krone${v>1?'n':''} erscheint! Jeder Träger erhält +${p(CROWN_BUFF)} ATK, Attack Speed und Mana pro ATK`},
+ Bug:     {th:[1],    v:[1],          d:v=>`${v} Käfer-Krone${v>1?'n':''} erscheint! Jeder Träger erhält +${p(CROWN_BUFF)} ATK, Attack Speed und Mana pro ATK`},
  Flying:  {th:[2,3],  v:[1,2],        d:(v,k)=>`Alle Flug-Pokémon erhalten +${v} Feld${v>1?'er':''} Reichweite und +${v} ATK je Distanz-Feld zum Gegner`},
  Fighting:{th:[2,4],  v:[.20,.40],    d:v=>`Alle Kampf-Pokémon erhöhen den ATK angrenzender Verbündeter (1 Feld Abstand) um ${p(v)}`},
  Rock:    {th:[2],    v:[.9],         d:v=>`Alle Gestein-Pokémon erhalten DEF in Höhe von ${String(v).replace('.',',')} × aktueller Rundenzahl (Runde ${S?S.round:1}: +${(v*(S?S.round:1)).toFixed(1).replace('.',',')} DEF)`},
  Ground:  {th:[2],    v:[20],         d:v=>`Alle Boden-Pokémon schleichen bei Rundenbeginn ans hintere Ende der Gegner (1. Angriff: +${v} × aktueller Rundenzahl Schaden, Runde ${S?S.round:1}: +${v*(S?S.round:1)}). Danach sind sie 2 Sekunden lang unverwundbar, können aber sofort angreifen`},
  Steel:   {th:[2,3,5],v:[.25,.40,.80],d:v=>`Alle Stahl-Pokémon starten mit einem Schild von ${p(v)} der maximalen HP`},
- Psychic: {th:[2],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${v} Sekunde${v>1?'n':''}`},
+ Psychic: {th:[1],    v:[1],          d:v=>`Alle Psycho-Pokémon stunnen beim Casten ihrer Ability automatisch das nächstgelegene Ziel für ${v} Sekunde${v>1?'n':''}`},
  Ghost:   {th:[2,3,5],v:DECOY_HITS,   d:(v,k)=>`1 frei platzierbarer Delegator erscheint vor Rundenstart, blockt ${v} ATKs und verursacht dann dem Killer Schaden in Höhe von ${p(DECOY_PCT[k])} seiner max. HP`},
- Poison:  {th:[2],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften beim Casten ihrer Ability das Ziel: Es erleidet 5 Sekunden lang pro Sekunde ${p(v)} des Ability Damage`},
+ Poison:  {th:[1],    v:[.25],        d:v=>`Alle Gift-Pokémon vergiften beim Casten ihrer Ability das Ziel: Es erleidet 5 Sekunden lang pro Sekunde ${p(v)} des Ability Damage`},
  Dark:    {th:[2,4],  v:[.40,.80],    d:(v,k)=>k===1?`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +75 % verstärkten Crit-Schaden`:`Alle Unlicht-Pokémon erhalten ${p(v)} Crit Chance und +50 % verstärkten Crit-Schaden`},
  Ice:     {th:[2,3],  v:[.20,.30],    d:v=>`Alle Eis-Pokémon verringern mit ihren Angriffen den Attack Speed des Ziels um ${p(v)}`},
- Dragon:  {th:[2],    v:[1.00],       d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} HP wiederbelebt und sind anschließend für 2 Sekunden unverwundbar`},
+ Dragon:  {th:[1],    v:[1.00],       d:v=>`Alle Drachen-Pokémon werden nach ihrem ersten Tod mit ${p(v)} HP wiederbelebt und sind anschließend für 2 Sekunden unverwundbar`},
  Fairy:   {th:[2],    v:[.50],        d:v=>`Alle Feen-Pokémon heilen beim Casten ihrer Ability alle umliegenden Verbündeten um ${p(v)} von deren max. HP – Überheilung wird zu einem entsprechenden Schild`}
 };
 const tierIdx=(t,c)=>{let k=-1;TB[t].th.forEach((x,j)=>{if(c>=x)k=j});return k};
@@ -459,7 +459,7 @@ const ITEMS={
  dyna:{icon:itemIcon('dyna'),name:'Dyna-Pilz',col:'#ff6b81',
   short:'Rework: Verdoppelt die HP des Trägers und erhöht DEF um 30 % (Gigadynamax-Optik).',
   desc:'<b>Reworked:</b> Verdoppelt die <b>HP</b> des Trägers und erhöht <b>DEF um 30 %</b> (mit Gigadynamax-Optik).',
-  carriers:['Krarmor','Olangaar','Maritellit','Relaxo','Pikachu']},
+  carriers:['Krarmor','Olangaar','Relaxo','Pikachu']},
  scarf:{icon:itemIcon('scarf'),name:'Wahlschal',col:'#7aa2ff',
   short:'+50 % Attack Speed.',
   desc:'Steigert den <b>Attack Speed um 50 %</b>.',
@@ -481,7 +481,6 @@ const ITEM_FORMS={
  dyna:{
   Krarmor:{n:'Krarmor',id:10212},
   Olangaar:{n:'Olangaar',id:10222},
-  Maritellit:{n:'Maritellit',id:10213},
   Relaxo:{n:'Relaxo',id:10206},
   Pikachu:{n:'Pikachu',id:10199}
  }
@@ -497,8 +496,8 @@ const PROFS=[
  {k:'eibe',name:'Prof. Eibe',gen:4,img:TR+'rowan.png',em:'📚',mons:['Panflam','Rotom','Shnebedeck','Arceus']},
  {k:'esche',name:'Prof. Esche',gen:5,img:TR+'juniper.png',em:'🧬',mons:['Ganovil','Monozyto','Fermicula']},
  {k:'platan',name:'Prof. Platan',gen:6,img:TR+'sycamore.png',em:'💠',mons:['Igamaro','Dartiri','Eguana','Gramokles']},
- {k:'kukui',name:'Prof. Kukui',gen:7,img:TR+'kukui.png',em:'🥊',mons:['Bauz','Curelei','Sandan','Venicro']},
- {k:'magnolica',name:'Prof. Magnolica',gen:8,img:TR+'magnolia.png',em:'🌌',mons:['Meikro','Porenta','Bähmon','Grolldra','Sensect']},
+ {k:'kukui',name:'Prof. Kukui',gen:7,img:TR+'kukui.png',em:'🥊',mons:['Bauz','Curelei','Sandan']},
+ {k:'magnolica',name:'Prof. Magnolica',gen:8,img:TR+'magnolia.png',em:'🌌',mons:['Meikro','Porenta','Bähmon','Grolldra']},
  {k:'futurus',name:'Prof. Futurus',gen:9,img:TR+'turo.png',em:'🤖',mons:['Pamo','Geosali','Eisenbündel']}
 ];
 const profOf=k=>PROFS.find(x=>x.k===k)||null;
@@ -563,7 +562,7 @@ const TUT_PAGES=[
   <div class="tut-grid">
    <div class="tut-card"><b class="t-ttl">Nur unterschiedliche Arten zählen!</b>Zwei gleiche Pokémon (z. B. 2× Nebulak) zählen für den Typ-Bonus nur als <b>1 Geist-Pokémon</b>. Kombiniere verschiedene Spezies!</div>
    <div class="tut-card"><b class="t-ttl">Spezial-Items durch Typen</b>
-    • <b>Käfer (ab 2):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+25% ATK, ASPD & Mana/ATK</b>.<br>
+    • <b>Käfer (ab 1):</b> Oben erscheint die <b>👑 Käfer-Krone</b>. Ziehe sie auf ein aufgestelltes Pokémon für <b>+25% ATK, ASPD & Mana/ATK</b>.<br>
     • <b>Geist (ab 2):</b> Ein <b>Delegator</b> erscheint auf dem Feld, den du frei als Blocker platzieren kannst.
    </div>
   </div>
@@ -696,7 +695,6 @@ const RAW=[
 [1,'Meikro,Kranoviz,Krarmor','821,822,823','Flying,Steel','Tank','Snipe Shot',1],
 [1,'Pamo,Pamamo,Pamomamo','921,922,923','Electric,Fighting','Fighter','Reflect'],
 [1,'Geosali,Sedisal,Saltigant','932,933,934','Rock','Tank','Weather Ball'],
-[1,'Sensect,Keradar,Maritellit','824,825,826','Bug,Psychic','Caster','Weather Ball'],
 [2,'Shnebedeck,Shnebedeck,Rexblisar','459,459,460','Grass,Ice','Tank','Weather Ball'],
 [2,'Fukano,Fukano,Arkani','58,58,59','Fire','Caster','Weather Ball'],
 [2,'Mampfaxo,Mampfaxo,Relaxo','446,446,143','Normal','Tank','Bulldoze'],
@@ -717,7 +715,6 @@ const RAW=[
 [4,'Grolldra,Phandra,Katapuldra','885,886,887','Dragon,Ghost','Sniper','Snipe Shot'],
 [3,'Teddiursa,Ursaring,Ursaluna','216,217,901','Normal,Ground','Tank','Bulldoze'],
 [5,'Arceus,Arceus,Arceus','493,493,493','Normal','Caster','Bulldoze'],
-[5,'Venicro,Venicro,Agoyon','803,803,804','Poison,Dragon','Sniper','Snipe Shot'],
 [5,'Eisenbündel,Eisenbündel,Eisenbündel','991,991,991','Ice,Water','Caster','Snipe Shot']
 ];
 
@@ -1086,7 +1083,7 @@ function newGame(){
 }
 function save(){try{localStorage.setItem('pab7',JSON.stringify(S))}catch(e){}}
 function clearSave(){try{localStorage.removeItem('pab7')}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units){S=s;S.phase='prep';S.speed=1;if(!Array.isArray(S.crowns))S.crowns=(S.crownOn!=null?[S.crownOn]:[]);delete S.crownOn;migrateItems();fixSlots();return true}}catch(e){}return false}
+function load(){try{const s=JSON.parse(localStorage.getItem('pab7'));if(s&&s.pool&&s.units&&Object.keys(s.pool).length===SP.length){S=s;S.phase='prep';S.speed=1;if(!Array.isArray(S.crowns))S.crowns=(S.crownOn!=null?[S.crownOn]:[]);delete S.crownOn;migrateItems();fixSlots();return true}}catch(e){}return false}
 
 function migrateItems(){
  if(S.teraInfoDone===undefined)S.teraInfoDone=!!(S.round>TOKEN_ROUND||(S.tokens||0)>0||S.units.some(u=>u.xt));
@@ -1183,7 +1180,7 @@ function ensureSpecials(){
  }
 }
 
-const crownCount=cnt=>(cnt.Bug||0)>=2?bonusVal('Bug',cnt.Bug):0;
+const crownCount=cnt=>(cnt.Bug||0)>=1?bonusVal('Bug',cnt.Bug):0;
 const dropCrown=id=>{if(S&&S.crowns)S.crowns=S.crowns.filter(c=>c!==id)};
 function applyBonus(u,t,v,tier){
  switch(t){
